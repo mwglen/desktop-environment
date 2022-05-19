@@ -1,0 +1,14 @@
+clear lock
+clear control
+keycode 66 = Control_L NoSymbol Control_L
+add control = Control_L
+add lock = Control_R
+
+clear mod1
+clear mod4
+keycode 64 = Super_L
+keycode 108 = Alt_L
+add mod1 = Alt_L
+add mod4 =  Super_L
+
+keycode 47 = semicolon colon Escape

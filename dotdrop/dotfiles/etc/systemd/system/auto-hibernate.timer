@@ -1,0 +1,9 @@
+[Unit]
+Description=Auto hibernate system when the battery is low
+
+[Timer]
+OnUnitActiveSec=1min
+OnBootSec=10s
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,2 @@
+;;; Generated package description from no-littering.el  -*- no-byte-compile: t -*-
+(define-package "no-littering" "20220509.1733" "Help keeping ~/.emacs.d clean" '((emacs "25.1") (compat "28.1.1.0")) :commit "fed46eb7060aca624bfe1a18f13b73f94e70f013" :authors '(("Jonas Bernoulli" . "jonas@bernoul.li")) :maintainer '("Jonas Bernoulli" . "jonas@bernoul.li") :keywords '("convenience") :url "https://github.com/emacscollective/no-littering")

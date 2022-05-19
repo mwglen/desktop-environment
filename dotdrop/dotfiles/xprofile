@@ -1,0 +1,35 @@
+brillo -qc -S 70
+
+export GTK_IM_MODULE="fcitx"
+export QT_IM_MODULE="fcitx"
+export SDL_IM_MODULE="fcitx"
+export XMODIFIERS="@im=fcitx"
+
+# Display
+xrandr --dpi 200 --output eDP-1 --primary --mode 3840x2160 --pos 0x0 --rotate normal --output DP-1 --off --output HDMI-1 --off
+picom -b
+wal -i $BACKGROUNDS/nge.jpeg -n -o "~/.config/conky/pywal_conky.py"
+feh --bg-scale $BACKGROUNDS/nge.jpeg
+python ~/.config/conky/pywal_conky.py
+
+# Keybindings
+sxhkd &
+#setxkbmap -layout us,ru,jp,ara -option grp:alt_space_toggle
+xmodmap $XDG_CONFIG_HOME/xmodmap/config
+fcitx -d &
+
+# QT Config
+export QT_AUTO_SCREEN_SCALE_FACTOR=1
+export QT_STYLE_OVERRIDE=kvantum
+
+# GTK Config
+export GTK_THEME=Materia-dark
+
+# Systray Apllications
+optimus-manager-qt &
+nm-applet &
+hp-systray &
+flameshot &
+udiskie -a -t &
+
+export MOZ_USE_XINPUT2=1

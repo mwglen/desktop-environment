@@ -1,0 +1,48 @@
+{
+    "layer": "top",
+    "position": "bottom",
+    "fixed-center": "true",
+    "exclusive": "true",
+    "spacing": 10,
+    "margin-left": 10, 
+    "margin-right": 10,
+    "modules-left": ["workspaces", "clock"],
+    "modules-right": ["network", "backlight", "battery", "tray"],
+    "battery": {
+        "interval": 10,
+        "bat": "BAT0",
+        "adapter": "ADP1",
+        "states": {
+            "s4": 100,
+            "s3":  80,
+            "s2":  60,
+            "s1":  40,
+            "s0":  20,
+        },
+        "format": "{icon}   {capacity}%",
+        "format-icons": ["", "", "", "", ""],
+    },
+    "backlight": {
+        "format": "{icon} {percent}%",
+        "states": {
+            "s6":   15,
+            "s5":   30,
+            "s4":   45,
+            "s3":   60,
+            "s2":   75,
+            "s1":   90,
+            "s0":  100,
+        },
+        "format-icons": ["", "", "", "", "", "", ""],
+    },
+    "clock": {
+        "format": "{:%B %d, %Y}",
+        "format-alt": "{:%A %B %d, %Y}",
+    },
+    "network": {
+        "format-wifi": "  {essid}",
+
+    },
+}
+// modules-left = pre-xworkspaces xworkspaces date spotify
+// modules-right = pulseaudio redshift wireless backlight battery

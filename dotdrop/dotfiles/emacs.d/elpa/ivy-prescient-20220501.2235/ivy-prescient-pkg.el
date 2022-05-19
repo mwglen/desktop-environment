@@ -1,0 +1,2 @@
+;;; Generated package description from ivy-prescient.el  -*- no-byte-compile: t -*-
+(define-package "ivy-prescient" "20220501.2235" "prescient.el + Ivy" '((emacs "25.1") (prescient "5.2") (ivy "0.11.0")) :commit "d9b30d741c729a37eb2c6e51d72281c0844780ca" :authors '(("Radon Rosborough" . "radon.neon@gmail.com")) :maintainer '("Radon Rosborough" . "radon.neon@gmail.com") :keywords '("extensions") :url "https://github.com/raxod502/prescient.el")

@@ -1,0 +1,90 @@
+@define-color my_red    #cc6666;
+@define-color my_green  #b5bd68;
+@define-color my_blue   #81a2be;
+@define-color my_yellow #f0c674;
+@define-color my_violet #b294bb;
+@define-color my_grey   #6b6b6b;
+
+* {
+    font-family: "Ubuntu Nerd Font";
+    font-weight: bold;
+    font-size: 15px;
+    background-color: rgba(0, 0, 0, 0);
+    padding: 2px 2px;
+ }
+
+/* Left Modules */
+#workspaces {
+    color: @my_red;
+    border-bottom: 1px solid @my_red;
+}
+
+#clock {
+    color: @my_red;
+    border-bottom: 1px solid @my_red;
+}
+
+/* Right Modules */
+#network {
+    color: @my_green;
+    border-bottom: 1px solid @my_green;
+}
+
+#backlight.s0 {
+    color: @my_yellow;
+    border-bottom: 1px solid @my_yellow;
+}
+#backlight.s1 {
+    color: @my_yellow;
+    border-bottom: 1px solid @my_yellow;
+}
+#backlight.s2 {
+    color: @my_yellow;
+    border-bottom: 1px solid @my_yellow;
+}
+#backlight.s3 {
+    color: @my_blue;
+    border-bottom: 1px solid @my_blue;
+}
+#backlight.s4 {
+    color: @my_blue;
+    border-bottom: 1px solid @my_blue;
+}
+#backlight.s5 {
+    color: @my_blue;
+    border-bottom: 1px solid @my_blue;
+}
+#backlight.s6 {
+    color: @my_blue;
+    border-bottom: 1px solid @my_blue;
+}
+
+#battery.discharging.s0 {
+    color: #cc6666;
+    border-bottom: 1px solid #cc6666;
+}
+#battery.discharging.s1 {
+    color: #c67c67;
+    border-bottom: 1px solid #c67c67;
+}
+#battery.discharging.s2 {
+    color: #c19267;
+    border-bottom: 1px solid #c19267;
+}
+#battery.discharging.s3 {
+    color: #bba768;
+    border-bottom: 1px solid #bba768;
+}
+#battery.discharging.s4 {
+    color: #b5bd68;
+    border-bottom: 1px solid #b5bd68;
+}
+#battery.charging {
+    color: @my_green;
+    border-bottom: 1px solid @my_green;
+}
+    
+#tray {
+}
+    /* "modules-left": ["workspaces", "clock"], */
+    /* "modules-right": ["network", "backlight", "battery", "tray"], */

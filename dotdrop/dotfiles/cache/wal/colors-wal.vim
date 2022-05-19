@@ -1,0 +1,23 @@
+" Special
+let wallpaper  = "/home/mwglen/Backgrounds/nge.jpeg"
+let background = "#0d0f12"
+let foreground = "#ddb4b8"
+let cursor     = "#ddb4b8"
+
+" Colors
+let color0  = "#0d0f12"
+let color1  = "#6C3E43"
+let color2  = "#5A4147"
+let color3  = "#754245"
+let color4  = "#8F4548"
+let color5  = "#B64F56"
+let color6  = "#BF555B"
+let color7  = "#ddb4b8"
+let color8  = "#9a7d80"
+let color9  = "#6C3E43"
+let color10 = "#5A4147"
+let color11 = "#754245"
+let color12 = "#8F4548"
+let color13 = "#B64F56"
+let color14 = "#BF555B"
+let color15 = "#ddb4b8"

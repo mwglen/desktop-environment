@@ -1,0 +1,4067 @@
+#+title: Development Environment
+#+PROPERTY: header-args :results none :mkdirp yes
+* Configuration Files
+** Grub
+#+begin_src conf :tangle /sudo:://etc/default/grub
+GRUB_DEFAULT=saved
+GRUB_SAVEDEFAULT=true
+GRUB_TIMEOUT=5
+GRUB_DISTRIBUTOR="Arch"
+GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"
+GRUB_CMDLINE_LINUX="resume=/dev/nvme0n1p2"
+GRUB_DISABLE_OS_PROBER=false
+GRUB_THEME="/boot/grub/themes/vimix/theme.txt"
+GRUB_PRELOAD_MODULES="part_gpt part_msdos"
+GRUB_TIMEOUT_STYLE=menu
+GRUB_TERMINAL_INPUT=console
+GRUB_GFXMODE=auto
+GRUB_GFXPAYLOAD_LINUX=keep
+GRUB_DISABLE_RECOVERY=true
+#+end_src
+
+** Logind
+#+begin_src conf :tangle /sudo:://etc/systemd/logind.conf
+[Login]
+HandlePowerKey=hibernate
+HandleSuspendKey=hibernate
+HandleHibernateKey=hibernate
+HandleLidSwitch=suspend-then-hibernate
+#+end_src
+
+*** Sleep Configuration
+#+begin_src conf :tangle /sudo:://etc/systemd/sleep.conf
+[Sleep]
+HibernateDelaySec=30min
+#+end_src
+
+** XDG Defaults
+*** Default Applications
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/mimeapps.list")
+:END:
+See https://www.freeformatter.com/mime-types-list.html for a list of schema.
+#+begin_src conf
+[Default Applications]
+x-scheme-handler/http=firefox.desktop
+x-scheme-handler/https=firefox.desktop
+x-scheme-handler/ftp=firefox.desktop
+x-scheme-handler/chrome=firefox.desktop
+text/html=firefox.desktop
+application/x-extension-htm=firefox.desktop
+application/x-extension-html=firefox.desktop
+application/x-extension-shtml=firefox.desktop
+application/xhtml+xml=firefox.desktop
+application/x-extension-xhtml=firefox.desktop
+application/x-extension-xht=firefox.desktop
+application/pdf=firefox.desktop
+        
+image/jpg=nsxiv.desktop
+image/jpeg=nsxiv.desktop
+image/png=nsxiv.desktop
+image/bmp=nsxiv.desktop
+image/tiff=nsxiv.desktop
+image/gif=nsxiv.desktop
+image/x-tga=nsxiv.desktop
+image/x-xpixmap=nsxiv.desktop
+image/webp=nsxiv.desktop
+image/x-portable-graymap=nsxiv.desktop
+image/x-portable-bitmap=nsxiv.desktop
+image/x-portable-anymap=nsxiv.desktop
+#+end_src
+
+*** User Directories
+**** Assign User Directories
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/user-dirs.dirs")
+:END:
+#+begin_src conf
+XDG_DESKTOP_DIR="$HOME/Desktop"
+XDG_DOCUMENTS_DIR="$HOME/Documents"
+XDG_DOWNLOAD_DIR="$HOME/Downloads"
+XDG_MUSIC_DIR="$HOME/Music"
+XDG_PICTURES_DIR="$HOME/Pictures"
+XDG_PUBLICSHARE_DIR="$HOME/Public"
+XDG_TEMPLATES_DIR="$HOME/Templates"
+XDG_VIDEOS_DIR="$HOME/Videos"
+#+end_src
+
+**** Create User Directories
+#+begin_src bash
+mkdir -p $XDG_DESKTOP_DIR
+mkdir -p $XDG_DOCUMENTS_DIR
+mkdir -p $XDG_DOWNLOAD_DIR
+mkdir -p $XDG_MUSIC_DIR
+mkdir -p $XDG_PICTURES_DIR
+mkdir -p $XDG_PUBLICSHARE_DIR
+mkdir -p $XDG_TEMPLATES_DIR
+mkdir -p $XDG_VIDEOS_DIR
+#+end_src
+
+** ZSH Config
+:PROPERTIES:
+:header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
+:END:
+*** General
+#+begin_src bash
+unsetopt BEEP
+setopt HIST_FCNTL_LOCK
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt SHARE_HISTORY
+unsetopt HIST_EXPIRE_DUPS_FIRST
+unsetopt EXTENDED_HISTORY
+HISTSIZE="10000"
+SAVEHIST="10000"
+HISTFILE="$XDG_STATE_HOME/zsh/history"
+mkdir -p "$(dirname "$HISTFILE")"
+
+zstyle :compinstall filename '$XDG_CONFIG_HOME/zsh/.zshrc'
+autoload -Uz compinit; compinit
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+#+end_src
+
+*** Keybindings
+#+begin_src bash
+bindkey -v
+bindkey "^?" backward-delete-char # Fix backspace
+
+# Search forward and backward through history
+bindkey "^[[A" history-beginning-search-backward
+bindkey "^[[B" history-beginning-search-forward
+#+end_src
+
+*** Prompt
+#+begin_src bash
+autoload -Uz promptinit; promptinit
+zstyle :prompt:pure:prompt:success color green
+zstyle :prompt:pure:prompt:error color red
+zstyle :prompt:pure:prompt:continuation color white
+zstyle :prompt:pure:virtualenv color white
+zstyle :prompt:pure:execution_time color white
+zstyle :prompt:pure:git:stash show yes
+zstyle :prompt:pure:git:stash color white
+zstyle :prompt:pure:git:arrow color white
+zstyle :prompt:pure:git:action color white
+zstyle :prompt:pure:git:dirty color white
+zstyle :prompt:pure:git:branch color white
+zstyle :prompt:pure:git:branch:cached color red
+zstyle :prompt:pure:path color white
+zstyle :prompt:pure:host color white
+zstyle :prompt:pure:user color white
+zstyle :prompt:pure:user:root color magenta
+prompt pure
+#+end_src
+
+*** Neovim
+#+begin_src bash
+alias vi=nvim
+alias vim=nvim
+export EDITOR=nvim
+export VISUAL="devour emacsclient -c"
+#+end_src
+
+*** Audio
+#+begin_src bash
+playerctld daemon &> /dev/null
+#+end_src
+
+*** Emacs
+#+begin_src bash
+vterm_printf(){
+    if [ -n "$TMUX" ] && ([ "${TERM%%-*}" = "tmux" ] || [ "${TERM%%-*}" = "screen" ] ); then
+        # Tell tmux to pass the escape sequences through
+        printf "\ePtmux;\e\e]%s\007\e\\" "$1"
+    elif [ "${TERM%%-*}" = "screen" ]; then
+        # GNU screen (screen, screen-256color, screen-256color-bce)
+        printf "\eP\e]%s\007\e\\" "$1"
+    else
+        printf "\e]%s\e\\" "$1"
+    fi
+}
+#+end_src
+
+* Install Scripts
+** Host Machine
+:PROPERTIES:
+:header-args:bash: :tangle install-scripts/arch/1_setup_partitions.sh :tangle-mode (identity #o755)
+:END:
+#+begin_src bash
+#!/bin/bash
+set -e # Stop on Error
+set -v # Verbose
+
+# Options
+drive="/dev/nvme1n1"
+boot_part="/dev/nvme1n1p1"
+swap_part="/dev/nvme1n1p2"
+root_part="/dev/nvme1n1p3"
+mem_size=32
+mount_point="/mnt"
+
+# Unmap Old Partitions
+sudo umount $boot_part || true
+sudo umount $root_part || true
+
+# Setup Partitions
+## Create GPT Table
+sudo parted $drive -s mklabel gpt
+
+## Create Partitions
+### Boot Partition
+sudo parted $drive -s unit mib mkpart primary fat32 1 513
+sudo parted $drive -s set 1 esp on
+sudo mkfs.fat -F 32 $boot_part
+
+### Swap Partition
+sudo parted $drive -s unit mib mkpart primary linux-swap 514 $((514 + ($mem_size * 1024)))
+sudo mkswap $swap_part
+
+### Root Partition
+sudo parted $drive -s unit mib mkpart primary ext4 $((515 + ($mem_size * 1024))) 100%
+sudo mkfs.ext4 $root_part
+
+# Mount Partitions
+sudo mount --mkdir $root_part $mount_point
+sudo mount --mkdir $boot_part $mount_point/boot
+
+# Install Base
+sudo pacstrap $mount_point base linux linux-firmware
+
+# Change Root
+sudo cp ./install2.sh /mnt/install2.sh
+sudo arch-chroot $mount_point
+#+end_src
+
+** As Root
+:PROPERTIES:
+:header-args:bash: :tangle install-scripts/arch/2_setup_user.sh :tangle-mode (identity #o755)
+:END:
+#+begin_src bash
+#!/bin/bash
+set -e # Stop on Error
+set -v # Verbose
+
+# Options
+time_zone="US/Eastern"
+host_name="MattArch"
+user="mwglen"
+
+# Set Time Zone
+ln -sf /usr/share/zoneinfo/$time_zone /etc/localtime
+hwclock --systohc
+
+# Localization
+locale-gen
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+echo $host_name > /etc/hostname
+
+# Initramfs
+mkinitcpio -P
+
+# Root Password
+passwd
+
+# New User
+pacman --noconfirm -Sy zsh
+useradd -m -s /bin/zsh $user
+usermod -G wheel $user
+echo '%wheel ALL=(ALL:ALL) ALL' | sudo EDITOR='tee -a' visudo
+touch /home/$user/.zshrc
+passwd $user
+
+# Install Grub
+pacman --noconfirm -S grub efibootmgr
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+sudo tee /etc/default/grub
+
+EOF
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# Switch to User
+su $user
+#+end_src
+
+** As User
+:PROPERTIES:
+:header-args:bash: :tangle install-scripts/arch/3_install_applications.sh :tangle-mode (identity #o755)
+:END:
+#+begin_src bash
+#!/bin/bash
+set -e # Stop on Error
+set -v # Verbose
+
+# Options
+nvidia=true
+
+# Install Yay
+sudo pacman --noconfirm -S --needed git base-devel
+cd ~ && git clone https://aur.archlinux.org/yay.git
+cd ~/yay && makepkg -si
+#+end_src
+
+*** Script Headers
+**** Use Bash
+#+begin_src bash
+#!/bin/bash
+#+end_src
+
+**** Stop Script on Error
+#+begin_src bash
+set -e
+#+end_src
+
+**** Give Verbose Output
+#+begin_src bash
+set -v
+#+end_src
+
+**** Warning
+#+begin_src bash
+# NOTE: This file is generated from config.org
+#+end_src
+
+*** Setup XDG Base Directories
+#+begin_src bash
+source $HOME/.profile
+#+end_src
+
+**** Make Directories
+#+begin_src bash
+mkdir -p $XDG_CONFIG_HOME
+mkdir -p $XDG_CACHE_HOME
+mkdir -p $XDG_DATA_HOME
+mkdir -p $XDG_STATE_HOME
+mkdir -p $REPOSITORIES
+#+end_src
+
+*** System Time
+#+begin_src bash
+sudo timedatectl set-timezone America/New_York
+#+end_src bash
+
+*** Setup Yay
+**** Install
+#+begin_src bash
+if ! (pacman -Qs yay > /dev/null); then
+    if (pacman -Qs fakeroot-tcp > /dev/null); then
+        sudo pacman -Syyu --needed git base-devel \ && git clone https://aur.archlinux.org/yay.git $REPOSITORIES/yay \ && cd $REPOSITORIES/yay && yes | makepkg -si
+    else # cannot use --noconfirm if fakeroot-tcp is installed
+        sudo pacman -Syyu --needed --noconfirm git base-devel \
+            && git clone https://aur.archlinux.org/yay.git \
+            && cd yay && yes | makepkg -si
+    fi
+    rm -rf $REPOSITORIES/yay
+fi
+#+end_src
+
+**** Shortcuts
+#+begin_src bash
+export INSTALL="yay -S --noconfirm --needed"
+export INSTALL_LOCAL="yay -U --noconfirm --needed"
+export REMOVE="yay -R --noconfirm --needed"
+export UPDATE="yay -Syyu --noconfirm --needed"
+export SEARCH="yay -Qs"
+#+end_src
+
+**** Update Packages
+#+begin_src bash
+$UPDATE
+#+end_src
+
+*** Pacman Config
+:PROPERTIES:
+:header-args:conf: :tangle /sudo:://etc/pacman.conf
+:END:
+**** Options
+#+begin_src conf
+[options]
+HoldPkg     = pacman glibc
+Architecture = auto
+
+# Pacman won't upgrade packages listed in IgnorePkg and members of IgnoreGroup
+#IgnorePkg   =
+#IgnoreGroup =
+
+#NoUpgrade   =
+#NoExtract   =
+
+CheckSpace
+
+SigLevel    = Required DatabaseOptional
+LocalFileSigLevel = Optional
+#+end_src
+
+**** Add Core Repositories
+#+begin_src conf
+[core]
+Include = /etc/pacman.d/mirrorlist
+
+[extra]
+Include = /etc/pacman.d/mirrorlist
+
+[community]
+Include = /etc/pacman.d/mirrorlist
+#+end_src
+
+**** Add Multilib
+#+begin_src conf
+#[multilib-testing]
+#Include = /etc/pacman.d/mirrorlist
+
+[multilib]
+Include = /etc/pacman.d/mirrorlist
+#+end_src
+
+**** Add Chaotic AUR
+***** Install Keys
+#+begin_src bash
+sudo pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com
+sudo pacman-key --lsign-key FBA220DFC880C036
+sudo pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+#+end_src
+
+***** Update Pacman.conf
+Install keys before updating pacman.conf
+
+#+begin_src conf
+[chaotic-aur]
+Include = /etc/pacman.d/chaotic-mirrorlist
+#+end_src
+
+**** Add Custom Repository
+#+begin_src conf
+[mwglen-arch-repo]
+SigLevel = Never
+Server = https://raw.githubusercontent.com/mwglen/arch-repo/master/x86_64/
+#+end_src
+
+*** Fundamental Packages
+**** git
+#+begin_src bash
+$INSTALL git openssh git-lfs
+mkdir -p "$XDG_CONFIG_HOME"/git
+touch "$XDG_CONFIG_HOME"/git/config
+git config --global user.name "Matt Glen"
+git config --global user.email "mwg2202@yahoo.com"
+git config --global init.defaultBranch master
+#+end_src
+
+**** man
+#+begin_src bash
+$INSTALL man-db man-pages
+#+end_src
+
+**** Bazel
+#+begin_src bash
+$INSTALL bazel
+#+end_src
+
+**** cmake
+#+begin_src bash
+$INSTALL cmake
+#+end_src
+
+**** rsync
+#+begin_src bash
+$INSTALL rsync
+#+end_src
+
+**** wget
+#+begin_src bash
+$INSTALL wget
+#+end_src
+
+**** Inetutils
+Gives the hostname command
+#+begin_src bash
+$INSTALL inetutils
+#+end_src
+
+*** Fonts
+**** Nerd Fonts
+#+begin_src bash
+$INSTALL nerd-fonts-complete
+# cd /usr/share/fonts/nerd-fonts-complete/TTF && sudo mkfontscale && mkfontdir
+# sudo xset +fp /usr/share/fonts/nerd-fonts-complete/TTF
+sudo fc-cache -fv
+#+end_src
+
+***** Add Roboto Mono to xlsfonts
+#+begin_src bash
+# Create font directory
+mkdir -p ~/.local/share/fonts
+
+# Copy font to directory
+cp /usr/share/fonts/'Roboto Mono Nerd Font Complete Mono.ttf' ~/.local/share/fonts/roboto-mono-nerd-font-complete-mono.ttf
+
+# Initialize font directory
+cd ~/.local/share/fonts && mkfontscale && mkfontdir
+
+# Add font directory
+xset +fp '/home/$USER/.local/share/fonts'
+xset fp rehash
+#+end_src
+
+*** Languages
+**** Python
+#+begin_src bash
+$INSTALL python python-matplotlib poetry
+#+end_src
+
+**** Rust
+#+begin_src bash
+$INSTALL rustup
+rustup default nightly
+rustup component add rls rust-analysis rust-src
+#+end_src
+
+**** Prolog
+#+begin_src bash
+$INSTALL gprolog swi-prolog
+#+end_src
+
+***** Pyswip
+#+begin_src bash
+pip install git+https://github.com/yuce/pyswip@master#egg=pyswip
+#+end_src
+
+**** PHP
+#+begin_src bash
+$INSTALL php
+#+end_src
+
+*** Terminal Emulators
+**** Alacritty
+***** Install
+#+begin_src bash
+$INSTALL alacritty
+#+end_src
+
+***** Configure
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/alacritty/alacritty.yml")
+:END:
+#+begin_src conf 
+colors:
+  primary:
+    background: "#000000"
+
+font:
+  normal:
+    family: RobotoMono Nerd Font
+    style: Regular
+    
+  bold:
+    family: RobotoMono Nerd Font
+    style: Bold
+    
+  italic:
+    family: RobotoMono Nerd Font
+    style: Italic
+#+end_src
+
+*** Drivers
+**** NVIDIA
+#+begin_src bash
+$INSTALL nvidia
+#+end_src
+
+***** Optimus-Manager
+#+begin_src bash
+$INSTALL optimus-manager-qt
+#+end_src
+
+****** Config
+:PROPERTIES:
+:header-args:conf: :tangle /sudo:://etc/optimus-manager/optimus-manager.conf
+:END:
+#+begin_src conf
+[optimus]
+switching=nouveau
+pci_power_control=yes
+pci_remove=no
+pci_reset=no
+        
+auto_logout=no
+startup_mode=auto
+startup_auto_battery_mode=hybrid
+startup_auto_extpower_mode=hybrid
+#+end_src
+
+**** USB
+#+begin_src bash
+$INSTALL usbutils usbip
+#+end_src
+
+**** Audio
+***** Pipewire
+#+begin_src bash
+$INSTALL pipewire wireplumber pipewire-alsa pipewire-pulse pipewire-jack
+#+end_src
+
+***** Pulse Audio Control
+#+begin_src bash
+$INSTALL pulseaudio-control
+#+end_src
+
+
+**** Bluetooth
+#+begin_src bash
+$INSTALL bluez bluez-utils
+sudo systemctl enable bluetooth
+#+end_src
+
+***** Configuration
+#+begin_src conf :tangle /sudo:://etc/bluetooth/main.conf
+[General]
+
+[BR]
+
+[LE]
+
+[GATT]
+
+[AVDTP]
+
+[Policy]
+AutoEnable=true
+
+[AdvMon]
+#+end_src
+
+**** Wifi
+***** Network Manager
+#+begin_src bash
+$INSTALL networkmanager network-manager-applet
+sudo systemctl enable NetworkManager
+#+end_src
+
+***** Network Manager Dmenu
+#+begin_src bash
+$INSTALL networkmanager-dmenu-git
+#+end_src
+
+****** Config
+#+begin_src conf :tangle (concat (getenv "XDG_CONFIG_HOME") "/networkmanager-dmenu/config.ini")
+[dmenu]
+dmenu_command = /usr/bin/rofi -dmenu
+# rofi_highlight = True
+# pinentry = <Pinentry command>  # (Default: None) e.g. `pinentry-gtk`
+# wifi_chars = ▂▄▆█
+
+[dmenu_passphrase]
+# obscure = True
+# obscure_color = #222222
+
+[editor]
+terminal = alacritty
+#+end_src
+
+**** Audio
+***** Install
+#+begin_src bash
+$INSTALL alsa-utils pavucontrol
+#+end_src
+
+**** Media
+***** MPV
+****** Install
+#+begin_src bash
+$INSTALL playerctl mpv yt-dlp baka-mplayer
+#+end_src
+
+****** MPV Config
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/mpv/mpv.conf")
+:END:
+#+begin_src conf
+script-opts=ytdl_hook-ytdl_path=yt-dlp
+#+end_src
+
+*** Power Management
+**** ACPI
+#+begin_src bash
+$INSTALL acpi
+#+end_src
+
+**** Hibernate
+***** Hibernate on low battery level
+This might not work if your device doesn't send an alert with each change in battery percentage. Check ~udevadm monitor --property~ to watch for this event.
+
+This doesn't work for my computer, but it doesn't hurt to always tangle it.
+
+#+begin_src bash :tangle /sudo:://etc/udev/rules.d/99-lowbat.rules
+SUBSYSTEM=="power_supply", ATTR{status}=="Discharging", ATTR{capacity}=="[0-48]", RUN+="/usr/bin/systemctl hibernate"
+#+end_src
+
+If the above doesn't work we have to frequently run a script that checks the battery level using acpi and chooses whether or not to hibernate. The next sections do just that.
+
+***** Hibernate If Low Script
+:PROPERTIES:
+:header-args:sh: :tangle /sudo:://bin/hibernate-if-low.sh :tangle-mode (identity #o755)
+:END:
+#+begin_src bash
+#!/bin/bash
+acpi -b | awk -F'[,:%]' '{print $2, $3}' | {
+    read -r status capacity
+  
+    if [ "$status" = Discharging -a "$capacity" -lt 10 ]; then
+        logger "Critical battery threshold"
+        systemctl hibernate
+    fi
+}
+#+end_src
+
+***** Auto Hibernate Service
+#+begin_src bash :tangle /sudo:://etc/systemd/system/auto-hibernate.service
+[Unit]
+Description=Hibernate system when the battery is low
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /bin/hibernate-if-low.sh
+#+end_src
+
+***** Auto Hibernate Timer
+#+begin_src bash :tangle /sudo:://etc/systemd/system/auto-hibernate.timer
+[Unit]
+Description=Auto hibernate system when the battery is low
+
+[Timer]
+OnUnitActiveSec=1min
+OnBootSec=10s
+
+[Install]
+WantedBy=timers.target
+#+end_src
+
+***** Enable Auto Hibernation
+#+begin_src bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now auto-hibernate.timer
+#+end_src
+
+**** Brightness
+***** Setup Video Group
+#+begin_src bash
+sudo groupadd video && true
+sudo usermod +aG video mwglen && true
+sudo chgrp video /sys/class/backlight/intel_backlight/brightness && true
+#+end_src
+
+#+begin_src conf :tangle /sudo:://etc/udev/rules.d/backlight.rules
+ACTION=="add", SUBSYSTEM=="backlight", KERNEL=="<vendor>", RUN+="/bin/chgrp video /sys/class/backlight/%k/brightness"
+ACTION=="add", SUBSYSTEM=="backlight", KERNEL=="<vendor>", RUN+="/bin/chmod g+w /sys/class/backlight/%k/brightness"
+#+end_src
+
+***** Brightnessctl
+****** Install
+#+begin_src bash
+$INSTALL brightnessctl
+#+end_src
+
+***** Brillo
+****** Install
+#+begin_src bash
+$INSTALL brillo
+#+end_src
+
+****** Set Minimum Brightness
+This prevents brillo from setting the backlight completely off (which can cause instability in some systems).
+
+*Arguments Used:*
+    - *q*: use exponential values
+    - *c*: target minimum value
+    - *S*: set command
+
+#+begin_src bash :tangle ~/.xprofile
+brillo -qc -S 70
+#+end_src
+
+**** Printing/Scanning
+***** Base Drivers
+To scan I recommend using simple-scan
+#+begin_src bash
+$INSTALL cups sane python-pillow simple-scan
+sudo systemctl enable cups
+#+end_src
+
+***** Optional Drivers for HP Printers
+Runs using cups and sane. Comes with a systemtray available through the ~hp-systray~ command. To get started find the ip address of your printer and then run ~hp-setup <ip-address>~.
+#+begin_src bash
+$INSTALL hplip
+#+end_src
+
+*** System Tray
+**** KDocker
+#+begin_src bash
+$INSTALL kdocker
+#+end_src
+
+*** Setup Core Packages
+**** Latex
+#+begin_src bash
+$INSTALL texlive-core texlive-latexextra
+#+end_src
+
+**** ZSH
+***** Install
+#+begin_src bash
+$INSTALL zsh zsh-completions zsh-syntax-highlighting zsh-autosuggestions
+#+end_src
+
+***** Source Config
+#+begin_src bash
+source $HOME/.zshenv
+#+end_src
+
+***** Dot Profile
+#+begin_src bash :tangle ~/.profile
+export XDG_CONFIG_HOME=$HOME/.config
+export XDG_CACHE_HOME=$HOME/.cache
+export XDG_DATA_HOME=$HOME/.local/share
+export XDG_STATE_HOME=$HOME/.local/state
+export BACKGROUNDS=$HOME/Backgrounds
+export REPOSITORIES=$HOME/Repositories
+export PATH="$PATH:$HOME/development-environment/scripts:/snap/bin"
+
+export XDG_DESKTOP_DIR="$HOME/Desktop"
+export XDG_DOCUMENTS_DIR="$HOME/Documents"
+export XDG_DOWNLOAD_DIR="$HOME/Downloads"
+export XDG_MUSIC_DIR="$HOME/Music"
+export XDG_PICTURES_DIR="$HOME/Pictures"
+export XDG_PUBLICSHARE_DIR="$HOME/Public"
+export XDG_TEMPLATES_DIR="$HOME/Templates"
+export XDG_VIDEOS_DIR="$HOME/Videos"
+#+end_src
+
+***** Aliases
+:PROPERTIES:
+:header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
+:END:
+#+begin_src bash
+export DOTDROP_DIR="$HOME/Repositories/desktop-environment/dotdrop"
+alias dotdrop="$DOTDROP_DIR/dotdrop.sh --cfg=$DOTDROP_DIR/config.yaml"
+
+alias ls="ls --color=auto --group-directories"
+alias ll="ls -alh"
+alias la="ls -A"
+alias df="df -h"
+alias free="free -h"
+alias grep="grep --color=auto"
+alias egrep="egrep --color=auto"
+alias fgrep="fgrep --color=auto"
+alias services="systemctl list-unit-files --state=enabled"
+alias ip="ip -color=auto"
+alias du="du -sh"
+alias v="nvim"
+#alias -s {md,org,txt,sh,rs,xml,txt\'}=nvim
+#alias -s {png}=nsxiv
+#alias -s {pdf}=firefox
+#+end_src
+
+***** Environment Config
+:PROPERTIES:
+:header-args:bash: :tangle ~/.zshenv
+:END:
+#+begin_src bash
+export TERMINAL='alacritty'
+source $HOME/.profile
+ZDOTDIR=~/.config/zsh
+
+export PATH="$HOME/.local/bin:$PATH"
+#+end_src
+
+***** Pure (ZSH Theme)
+#+begin_src bash
+$INSTALL nodejs npm
+sudo npm install --global pure-prompt
+#+end_src
+
+*** Power Saving Mode using TLP
+#+begin_src bash
+$INSTALL tlp
+sudo systemctl enable tlp
+#+end_src
+
+*** File System Support
+**** Zip Archives
+#+begin_src bash :tangle no
+$INSTALL zip unzip unrar
+#+end_src
+
+**** Samba
+#+begin_src bash :tangle no
+$INSTALL samba
+#+end_src
+
+***** Config
+:PROPERTIES:
+:header-args:conf: :tangle /sudo:://etc/samba/smb.conf
+:END:
+#+begin_src conf
+[global]
+workgroup = WORKGROUP
+server string = MattArch - Samba Server
+server role = standalone server
+log file = /usr/local/samba/var/log.%m
+max log size = 50
+dns proxy = no 
+
+[homes]
+comment = Home Directories
+browseable = no
+writable = yes
+
+#[printers]
+#comment = All Printers
+#path = /usr/spool/samba
+#browseable = no
+#guest ok = no
+#writable = no
+#printable = yes
+
+[Public Files]
+# general config
+comment = read-only and public
+path = /home/mwglen/Share/Public
+force user = smbuser
+force group = smbuser
+
+# set permissions
+create mask = 0777
+directory mask = 0777 # directories need executable permission to enter
+force create mode = 777
+force directory mode = 777
+force security mode = 777
+force directorry security mode = 777
+#+end_src
+
+**** exFAT Support
+#+begin_src bash
+$INSTALL exfatprogs
+#+end_src
+
+**** NTFS Support
+#+begin_src bash
+$INSTALL ntfs-3g
+#+end_src
+
+**** Cryfs
+#+begin_src bash
+$install cryfs
+#+end_src
+
+**** VHD and VHDX Support
+#+begin_src bash
+$INSTALL libguestfs
+#+end_src
+
+**** Media Transfer Protocol
+#+begin_src bash
+$INSTALL mtpfs
+#+end_src
+
+**** Udisks
+#+begin_src bash
+$INSTALL udisks2 udiskie
+#+end_src
+
+*** Syncing Emails to a Local Directory
+**** Create a Folder to Hold Emails
+#+begin_src bash
+mkdir -p ~/personal-documents/Mail
+#+end_src
+
+**** Notmuch
+#+begin_src bash
+$INSTALL notmuch gmailieer
+#+end_src
+***** Configuration
+#+begin_src conf :tangle ~/.notmuch-config
+[database]
+path=/home/mwglen/Mail
+
+[user]
+name=Matthew Glen
+primary_email=mwg2202@gmail.com
+other_email=mwg2202@yahoo.com;mwglen@ncsu.edu;
+
+[new]
+tags=new;
+ignore=.stfolder;/.*[.](json|lock|bak)$/;
+
+[search]
+# exclude_tags=spam;junk;
+
+[maildir]
+#+end_src
+
+**** Lieer
+***** Install
+#+begin_src bash
+$INSTALL gmailieer
+#+end_src
+
+***** Make Directory
+#+begin_src bash
+mkdir ~/Mail/account.gmail
+#+end_src
+
+***** Configuration
+#+begin_src bash
+gmi init mwg2202@gmail.com
+gmi pull
+#+end_src
+
+**** NeoMutt
+***** Install
+#+begin_src bash
+$INSTALL neomutt
+#+end_src
+
+***** RC File
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/neomutt/neomuttrc")
+:END:
+#+begin_src conf
+set virtual_spoolfile
+set nm_default_url = "notmuch:///home/mwglen/Mail"
+virtual-mailboxes "new" "notmuch://?query=tag:new"
+#+end_src
+
+*** Converting ICS format to Org
+See [[https://tero.hasu.is/blog/org-icalendar-import/]] for more information.
+**** Install
+#+begin_src bash
+$INSTALL ruby
+gem install date icalendar optparse tzinfo
+
+git clone https://tero.hasu.is/repos/icalendar-to-org.git $REPOSITORIES/icalendar-to-org && true
+#+end_src
+
+****  To Use
+#+begin_src bash :tangle no
+ics-to-org input.ics > output.org
+#+end_src
+
+*** Setup a Software Access Point
+**** Linux-Wifi-Hotspot
+~linux-wifi-hotspot~ is an AUR package that allows you to easily create a wifi-hotspot without needing to mess around with ~hostapd~, ~dnsmasq~, and ~iptables~. It includes both a gui and cli interface.
+#+begin_src bash
+$INSTALL linux-wifi-hotspot
+#+end_src
+
+***** Use CLI
+#+begin_src bash :tangle no
+create_ap wlan0 eth0 MyAccessPoint MyPassPhrase
+#+end_src
+
+***** Use GUI
+#+begin_src bash :tangle no
+wihotspot
+#+end_src
+
+*** Stalonetray
+#+begin_src bash
+$INSTALL stalonetray
+#+end_src
+
+*** Polybar
+**** Install
+#+begin_src bash
+$INSTALL polybar
+#+end_src
+
+***** Configuration
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/polybar/config.ini")
+:END:
+****** Global Settings
+#+begin_src conf
+[settings]
+screenchange-reload = true
+
+[global/wm]
+margin-top = 0
+margin-bottom = 0
+#+end_src
+
+****** Colors
+#+begin_src conf
+[colors]
+background = ${xrdb:color0:#222}
+foreground = ${xrdb:color7:#222}
+foreground-alt = ${xrdb:color7:#222}
+primary = ${xrdb:color1:#222}
+secondary = ${xrdb:color2:#222}
+ternary = ${xrdb:color3:#222}
+alert = ${xrdb:color4:#222}
+
+; Delete later
+green = #b5bd68
+; yellow = #f0c674
+; violet = #b294bb
+; blue = #81a2be
+; red = #cc6666
+grey = #6b6b6b
+#+end_src
+
+****** Panels
+******* EXWM Panel
+#+begin_src conf
+[bar/exwm]
+width = 100%
+height = 70
+padding = 2
+fixed-center = true
+enable-ipc = true
+
+line-size = 3
+bottom = false
+module-margin = 1
+             
+background = ${colors.background}
+foreground = ${colors.foreground}
+font-0 = "Ubuntu Nerd Font:size=23:weight=bold"
+
+modules-left = date spotify
+modules-right = pulseaudio redshift wireless backlight battery
+
+cursor-click = pointer
+cursor-scroll = ns-resize
+#+end_src
+
+******* XMonad Panel
+#+begin_src conf
+[bar/xmonad]
+height = 70
+padding = 2
+fixed-center = true
+enable-ipc = true
+            
+line-size = 3
+bottom = true
+module-margin = 1
+wm-restack = generic
+
+background = ${colors.background}
+foreground = ${colors.foreground}
+font-0 = "RobotoMono Nerd Font:size=20:weight=bold;5"
+
+modules-left = pre-xworkspaces xworkspaces date spotify
+modules-right = pulseaudio redshift wireless backlight battery systray
+modules-center =
+
+cursor-click = pointer
+cursor-scroll = ns-resize
+#+end_src
+
+****** Modules
+******* Systray
+#+begin_src conf
+[module/systray]
+type = custom/text
+content = ""
+click-left = ~/.config/polybar/scripts/toggle-stalonetray.sh
+content-foreground = ${colors.primary}
+#+end_src
+
+******** Start Stalonetray
+:PROPERTIES:
+:header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/polybar/scripts/stalonetray.sh") :tangle-mode (identity #o755)
+:END:
+#+begin_src bash
+#!/bin/bash
+Xaxis=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | cut -d 'x' -f1)
+Yaxis=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | cut -d 'x' -f2)
+stalonetray --grow-gravity SE --geometry 1x1+$((Xaxis-60))+$((Yaxis-130)) --icon-size 32 --icon-gravity SE --window-strut none --slot-size 50 -bg "#161616" &
+sleep 1
+xdotool windowunmap "$(xdotool search --class stalonetray)"
+#+end_src
+
+******** Toggle Stalonetray
+:PROPERTIES:
+:header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/polybar/scripts/toggle-stalonetray.sh") :tangle-mode (identity #o755)
+:END:
+#+begin_src bash
+#!/bin/bash
+curr_state=$(xwininfo -name stalonetray | grep 'Map State' | awk '{print $3}')
+if [ $curr_state == "IsUnMapped" ]; then
+   xdotool windowmap "$(xdotool search --class stalonetray)"
+else
+   xdotool windowunmap "$(xdotool search --class stalonetray)"
+fi
+#+end_src
+
+******* Playerctl
+#+begin_src conf
+[module/playerctl]
+type = custom/script
+interval = 2
+exec = echo $(playerctl metadata -f '{{artist}} - {{title}}' 2>/dev/null | sed -E 's/(.{30}).+/\1.../')
+exec-if = playerctl metadata -f {{playerName}} 2>/dev/null | grep -Ev 'mopidy' >/dev/null
+format-prefix = "喇 "
+format-foreground = ${colors.secondary}
+#+end_src
+
+******* Pre-XWorkspaces
+#+begin_src conf
+[module/pre-xworkspaces]
+type = custom/text
+content = ""
+content-foreground = ${colors.primary}
+#+end_src
+
+******* XWorkspaces
+#+begin_src conf
+[module/xworkspaces]
+type = internal/xworkspaces
+
+label-active = "%name% "
+label-active-foreground = ${colors.primary}
+
+label-occupied = "%name% "
+label-occupied-foreground = ${colors.grey}
+
+label-empty =
+label-empty-foreground = ${colors.primary}
+#+end_src
+
+******* Xkeyboard
+#+begin_src conf
+[module/keyboard]
+type = internal/xkeyboard
+blacklist-0 = num lock
+blacklist-1 = scroll lock
+format-prefix = " "
+format-prefix-foreground = ${colors.foreground}
+format-prefix-background = ${colors.background}
+format-foreground = ${colors.foreground}
+
+label-layout = %layout%
+label-indicator-padding = 2
+label-indicator-margin = 1
+label-indicator-background = ${colors.background}
+#+end_src
+
+******* Filesystem
+#+begin_src conf
+[module/filesystem]
+type = internal/fs
+mount-0 = /
+;mount-1 = /home
+;mount-2 = /var
+interval = 30
+fixed-values = false
+#+end_src
+
+******* Pomodoro Timer
+******** Module
+#+begin_src conf
+[module/polypomo]
+type = custom/script
+
+exec = ~/.config/polybar/scripts/polypomo
+tail = true
+
+label = %output%
+click-left = ~/.config/polybar/scripts/polypomo toggle
+click-right = ~/.config/polybar/scripts/polypomo end
+click-middle = ~/.config/polybar/scripts/polypomo lock
+scroll-up = ~/.config/polybar/scripts/polypomo time +60
+scroll-down = ~/.config/polybar/scripts/polypomo time -60
+#+end_src
+
+******** Script
+#+begin_src bash
+curl https://raw.githubusercontent.com/unode/polypomo/master/polypomo > $XDG_CONFIG_HOME/polybar/scripts/polypomo
+chmod +x $XDG_CONFIG_HOME/polybar/scripts/polypomo
+#+end_src
+
+******* Spotify
+#+begin_src conf
+[module/spotify]
+type = custom/script
+exec = ~/.config/polybar/scripts/spotify.sh
+interval = 1
+format-foreground = ${colors.foreground}
+format-background = ${colors.background}
+format-padding = 2
+format-prefix = " "
+format-prefix-foreground = ${colors.ternary}
+label = %output:0:150%
+#+end_src
+
+******** Script https://github.com/NicholasFeldman/dotfiles/blob/master/polybar/.config/polybar/spotify.sh
+:PROPERTIES:
+:header-args:sh: :tangle (concat (getenv "XDG_CONFIG_HOME") "/polybar/scripts/spotify.sh") :tangle-mode (identity #o755)
+:END:
+#+begin_src sh
+#!/bin/sh
+main() {
+  if ! pgrep -x spotify >/dev/null; then
+    echo ""; exit
+  fi  
+
+  cmd="org.freedesktop.DBus.Properties.Get"
+  domain="org.mpris.MediaPlayer2"
+  path="/org/mpris/MediaPlayer2"
+
+  meta=$(dbus-send --print-reply --dest=${domain}.spotify \
+    /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:${domain}.Player string:Metadata)
+
+  artist=$(echo "$meta" | sed -nr '/xesam:artist"/,+2s/^ +string "(.*)"$/\1/p' | tail -1  | sed 's/\&/\\&/g' | sed 's#\/#\\/#g')
+  album=$(echo "$meta" | sed -nr '/xesam:album"/,+2s/^ +variant +string "(.*)"$/\1/p' | tail -1| sed 's/\&/\\&/g'| sed 's#\/#\\/#g')
+  title=$(echo "$meta" | sed -nr '/xesam:title"/,+2s/^ +variant +string "(.*)"$/\1/p' | tail -1 | sed 's/\&/\\&/g'| sed 's#\/#\\/#g')
+
+  echo "${*:-%artist% - %title%}" | sed "s/%artist%/$artist/g;s/%title%/$title/g;s/%album%/$album/g"i | sed "s/\&/\&/g" | sed "s#\/#\/#g"
+
+}
+
+main "$@"
+#+end_src
+
+******* Compton
+#+begin_src conf
+[module/compton]
+type = custom/script
+exec = ~/.config/polybar/scripts/compton.sh
+click-left = ~/.config/polybar/scripts/compton-toggle.sh
+interval = 5
+format-foreground = ${colors.foreground}
+#+end_src
+
+******* Weather
+#+begin_src conf
+[module/weather]
+type = custom/script
+interval = 10
+format = <label>
+format-prefix = "WTHR "
+format-prefix-foreground = #3EC13F
+format-foreground = ${colors.foreground}
+exec = python -u ~/.config/polybar/scripts/weather.py
+tail = true
+#+end_src
+
+******* CPU Utilization
+#+begin_src conf
+[module/cpu]
+type = internal/cpu
+interval = 2
+format = CPU <label>
+format-foreground = ${colors.ternary}
+label = %percentage:2%%
+#+end_src
+
+******* Date and Time
+#+begin_src conf
+[module/date]
+type = internal/date
+interval = 5
+date = "%B %d, %Y"
+date-alt = "%A %B %d, %Y"
+time = %l:%M %p
+time-alt = %H:%M:%S
+format-foreground = ${colors.primary}
+
+label = %date% %time%
+#+end_src
+
+******* Battery
+#+begin_src conf
+[module/battery]
+type = internal/battery
+battery = BAT0
+adapter = ADP1
+full-at = 98
+time-format = %-l:%M
+
+label-charging =     "%percentage%%"
+label-discharging =  "%percentage%%"
+format-charging =    "<animation-charging>  <label-charging>%{F-}"
+format-discharging = "<ramp-capacity>  <label-discharging>%{F-}"
+format-full =        "<ramp-capacity>  <label-full>%{F-}"
+
+ramp-capacity-0 = "%{F#cc6666}"
+ramp-capacity-1 = "%{F#c67c67}"
+ramp-capacity-2 = "%{F#c19267}"
+ramp-capacity-3 = "%{F#bba768}"
+ramp-capacity-4 = "%{F#b5bd68}"
+ramp-capacity-5 = "%{F#b5bd68}"
+
+
+animation-charging-0 = "%{F#b5bd68}"
+animation-charging-1 = "%{F#b5bd68}"
+animation-charging-2 = "%{F#b5bd68}"
+animation-charging-3 = "%{F#b5bd68}"
+animation-charging-4 = "%{F#b5bd68}"
+animation-charging-framerate = 750
+#+end_src
+
+******* Temperature
+#+begin_src conf
+[module/temperature]
+type = internal/temperature
+thermal-zone = 0
+warn-temperature = 70
+
+format = TEMP <label>
+format-warn = TEMP <label-warn>
+format-foreground = ${colors.secondary}
+format-warn-foreground = ${colors.primary}
+
+label = %temperature-c%
+label-warn = %temperature-c%!
+#+end_src
+
+******* Pulse Audio
+#+begin_src conf
+[module/pulseaudio]
+type = custom/script
+tail = true
+format-foreground = ${colors.primary}
+exec = pulseaudio-control --icons-volume " , " --icon-muted " " --sink-nicknames-from "device.description" --sink-nickname "alsa_output.pci-0000_00_1f.3.analog-stereo: Built In Speakers" listen
+
+click-right = pavucontrol
+click-left = pulseaudio-control togmute
+click-middle = pulseaudio-control --sink-blacklist "alsa_output.pci-0000_01_00.1.hdmi-stereo-extra2" next-sink
+
+scroll-up = pulseaudio-control up
+scroll-down = pulseaudio-control down
+#+end_src
+
+******* Wireless Network
+#+begin_src conf
+[module/wireless]
+type = internal/network
+interface = wlan0
+
+label-connected = %essid%
+label-disconnected = not connected
+
+format-connected = 直 <label-connected>
+format-connected-foreground = ${colors.green}
+
+format-disconnected = 
+format-disconnected-foreground = ${colors.grey}
+#+end_src
+
+******* Memory                              
+#+begin_src conf
+[module/memory]
+type = internal/memory
+interval = 3
+format = <label>
+label = MEM %percentage_used:2%%
+format-foreground = ${colors.ternary}
+#+end_src
+
+******* Backlight
+******** Give Polybar Access to Change Backlight
+#+begin_src bash
+sudo mkdir -p /etc/udev/rules.d
+groupadd -r video && true
+sudo usermod -a -G video $USER
+sudo chgrp video /sys/class/backlight/intel_backlight/brightness
+sudo chmod g+w /sys/class/backlight/intel_backlight/brightness
+#+end_src
+
+******** Module
+#+begin_src conf
+[module/backlight]
+type = internal/backlight
+enable-scroll = true
+card = intel_backlight
+format = "<ramp> <label>"
+label = %percentage%%
+;yellow = #f0c674
+;blue = #81a2be
+ramp-0 = "%{F#81a2be}"
+ramp-1 = "%{F#81a2be}"
+ramp-2 = "%{F#81a2be}"
+ramp-3 = "%{F#f0c674}"
+ramp-4 = "%{F#f0c674}"
+ramp-5 = "%{F#f0c674}"
+ramp-6 = "%{F#f0c674}"
+#+end_src
+
+******* Redshift
+******** Module
+#+begin_src conf
+[module/redshift]
+type = custom/script
+exec = source $XDG_CONFIG_HOME/polybar/scripts/env.sh && $XDG_CONFIG_HOME/polybar/scripts/redshift.sh temperature
+click-left = source $XDG_CONFIG_HOME/polybar/scripts/env.sh && $XDG_CONFIG_HOME/polybar/scripts/redshift.sh toggle
+scroll-up = source $XDG_CONFIG_HOME/polybar/scripts/env.sh && $XDG_CONFIG_HOME/polybar/scripts/redshift.sh increase
+scroll-down = source $XDG_CONFIG_HOME/polybar/scripts/env.sh && $XDG_CONFIG_HOME/polybar/scripts/redshift.sh decrease
+interval = 1
+format-foreground = ${colors.alert}
+#+end_src
+
+******** Scripts
+********* env.sh
+:PROPERTIES:
+:header-args:sh: :tangle (concat (getenv "XDG_CONFIG_HOME") "/polybar/scripts/env.sh") :tangle-mode (identity #o755)
+:END:
+#+begin_src sh
+export REDSHIFT=on
+export REDSHIFT_TEMP=5600
+#+end_src
+
+********* redshift.sh
+:PROPERTIES:
+:header-args:sh: :tangle (concat (getenv "XDG_CONFIG_HOME") "/polybar/scripts/redshift.sh") :tangle-mode (identity #o755)
+:END:
+#+begin_src sh
+#!/bin/sh
+envFile=$XDG_CONFIG_HOME/polybar/scripts/env.sh
+changeValue=300
+
+changeMode() {
+  sed -i "s/REDSHIFT=$1/REDSHIFT=$2/g" $envFile 
+  REDSHIFT=$2
+  echo $REDSHIFT
+}
+
+changeTemp() {
+  if [ "$2" -gt 1000 ] && [ "$2" -lt 25000 ]
+  then
+    sed -i "s/REDSHIFT_TEMP=$1/REDSHIFT_TEMP=$2/g" $envFile 
+    redshift -P -O $((REDSHIFT_TEMP+changeValue))
+  fi
+}
+
+case $1 in 
+  toggle) 
+    if [ "$REDSHIFT" = on ];
+    then
+      changeMode "$REDSHIFT" off
+      redshift -x
+    else
+      changeMode "$REDSHIFT" on
+      redshift -O "$REDSHIFT_TEMP"
+    fi
+    ;;
+  increase)
+    changeTemp $((REDSHIFT_TEMP)) $((REDSHIFT_TEMP+changeValue))
+    ;;
+  decrease)
+    changeTemp $((REDSHIFT_TEMP)) $((REDSHIFT_TEMP-changeValue));
+    ;;
+  temperature)
+    case $REDSHIFT in
+      on)
+        if (($REDSHIFT_TEMP > 5000)); then
+            COLOR="#6b6b6b"
+        elif (($REDSHIFT_TEMP > 4500)); then
+            COLOR="#7E6A6A"
+        elif (($REDSHIFT_TEMP > 4000)); then
+            COLOR="#926969"
+        elif (($REDSHIFT_TEMP > 3000)); then
+            COLOR="#A56868"
+        elif (($REDSHIFT_TEMP > 2000)); then
+            COLOR="#B96767"
+        else
+            COLOR="#cc6666"
+        fi
+        echo "%{F$COLOR} $REDSHIFT_TEMP%{F-}"
+        ;;
+      off)
+        echo "%{F#6b6b6b} off%{F-}"
+        ;;
+    esac
+    ;;
+esac
+#+end_src
+
+******* Workspace Indicator
+#+begin_src conf
+[module/exwm-workspace]
+type = custom/ipc
+hook-0 = emacsclient -e "exwm-workspace-current-index" | sed -e 's/^"//' -e 's/"$//'
+initial = 1
+format-padding = 1
+#+end_src
+
+*** QT/KDE Theme
+**** Install Theme
+#+begin_src bash
+$INSTALL materia-kde kvantum-theme-materia kvantum
+#+end_src
+
+*** GTK Theme
+**** Install Theme
+#+begin_src bash
+$INSTALL materia-gtk-theme phinger-cursors
+#+end_src
+
+**** Configure GTK 3.0
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/gtk-3.0/settings.ini")
+:END:
+#+begin_src conf
+[Settings]
+gtk-icon-theme-name = Materia
+gtk-theme-name = Materia
+gtk-application-prefer-dark-theme = true
+gtk-cursor-theme-name=phinger-cursors
+#+end_src
+
+**** Configure GTK 2.0
+:PROPERTIES:
+:header-args:conf: :tangle ~/.gtkrc-2.0
+:END:
+#+begin_src conf
+gtk-icon-theme-name = "Materia"
+gtk-theme-name = "Materia"
+gtk-application-prefer-dark-theme = "true"
+gtk-cursor-theme-name="phinger-cursors"
+#+end_src
+
+**** Configure GTK 4.0
+:PROPERTIES:
+:header-args:conf: :tangle  /sudo:://usr/share/gtk-4.0/settings.ini)
+:END:
+#+begin_src conf
+gtk-icon-theme-name = "Materia-dark"
+gtk-theme-name = "Materia-dark"
+gtk-application-prefer-dark-theme = "true"
+gtk-cursor-theme-name="phinger-cursors"
+#+end_src
+
+**** Cursor Icons
+#+begin_src conf :tangle ~/.icons/default/index.theme
+[Icon Theme]
+Name=Default
+Comment=Default Cursor Theme
+Inherits=phinger-cursors
+#+end_src
+
+*** Display Managers
+**** Configure X11
+#+begin_src conf :tangle ~/.Xresources
+Xft.dpi: 200
+Xft.antialias: true
+Xft.rgba: rgb
+
+;Xmessage*font: -*-robotomono nerd font mono-medium-r-normal--0-0-0-0-m-*-*
+Xmessage*font: -*-lucidatypewriter-*-r-*-*-34-240-100-100-m-200-iso8859-9
+#+end_src
+
+**** LightDM
+***** Install LightDM
+#+begin_src bash
+$INSTALL lightdm
+sudo systemctl enable lightdm
+#+end_src
+
+***** Install LightDM Theme
+#+begin_src bash
+$INSTALL lightdm-webkit2-greeter
+sudo mkdir -p /usr/share/lightdm-webkit/themes/litaravan
+
+wget https://github.com/Litarvan/lightdm-webkit-theme-litarvan/releases/download/v3.2.0/lightdm-webkit-theme-litarvan-3.2.0.tar.gz -O $REPOSITORIES/lightdm-webkit-theme-litarvan-3.2.0.tar.gz
+
+sudo tar -xf $REPOSITORIES/lightdm-webkit-theme-litarvan-3.2.0.tar.gz -C /usr/share/lightdm-webkit/themes/litarvan
+#+end_src
+
+***** Configure LightDM
+:PROPERTIES:
+:header-args:conf: :tangle /sudo:://etc/lightdm/lightdm.conf
+:END:
+#+begin_src conf
+[LightDM]
+run-directory=/run/lightdm
+
+[Seat:*]
+greeter-session=lightdm-webkit2-greeter
+session-wrapper=/etc/lightdm/Xsession
+
+[XDMCPServer]
+[VNCServer]
+#+end_src
+
+***** Configure LightDM Greeter
+:PROPERTIES:
+:header-args:conf: :tangle /sudo:://etc/lightdm/lightdm-webkit2-greeter.conf
+:END:
+#+begin_src conf
+[greeter]
+debug_mode          = false
+detect_theme_errors = true
+screensaver_timeout = 300
+secure_mode         = true
+time_format         = LT
+time_language       = auto
+webkit_theme        = litarvan
+
+[branding]
+background_images = /usr/share/backgrounds
+logo              = /usr/share/pixmaps/archlinux-logo.svg
+user_image        = /usr/share/pixmaps/archlinux-user.svg
+#+end_src
+
+*** Compositors
+**** Picom
+***** Install
+#+begin_src bash
+# The jonaburg fork of picom has rounded corners, dual kawase blur, and window animations
+$INSTALL picom-jonaburg-git
+#+end_src
+
+***** Configuration
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/picom.conf")
+:END:
+****** Animations
+#+begin_src conf
+transition-length = 300
+transition-pow-x = 0.1
+transition-pow-y = 0.1
+transition-pow-w = 0.1
+transition-pow-h = 0.1
+size-transition = true
+#+end_src
+
+****** Shadows
+#+begin_src conf
+shadow = true;
+shadow-radius = 40;
+shadow-opacity = 1;
+shadow-offset-x = -8;
+shadow-offset-y = -8;
+# no-dnd-shadow = false
+
+shadow-exclude = [
+  "class_g = 'Polybar'",
+  "class_g = 'conky'",
+  "_GTK_FRAME_EXTENTS@:c"
+];
+#+end_src
+
+****** Fading
+#+begin_src conf
+fading = true;
+fade-exclude = [
+  "class_g = 'conky'",
+  "class_g = 'slop'"   # maim
+]
+#+end_src
+
+****** Transparency/Opacity
+#+begin_src conf
+# only the first rule matching a window will be applied to that window
+opacity-rule = [
+  "100:class_g = 'dmenu'",
+  "100:class_g = 'Nsxiv'",
+  "70:class_g = 'Polybar'",
+  "70:class_g = 'stalonetray'",
+  "80:class_g = 'Rofi'",
+  "100:fullscreen",
+  "80:!focused",
+  "100:focused",
+];
+
+opacity-exlcude = [
+  "class_g = 'Alacritty'",
+  "class_g = 'conky'",
+];
+
+#popup_menu = { opacity = 0.8; }
+#dropdown_menu = { opacity = 0.8; }
+#+end_src
+
+****** Background-Blurring
+#+begin_src conf
+blur: {
+  method = "kawase";
+  strength = 7;
+  background = false;
+  background-frame = false;
+  background-fixed = false;
+  kern = "3x3box";
+}
+
+blur-background-exclude = [
+  "class_g = 'slop'",
+  "class_i = 'tray'", # Needed or else polybar's tray blurs twice
+  "_GTK_FRAME_EXTENTS@:c",
+  "class_i = 'Conky'"
+];
+#+end_src
+
+****** General Settings
+#+begin_src conf
+experimental-backends = true;
+backend = "glx";
+vsync = true
+mark-wmwin-focused = true;
+mark-ovredir-focused = true;
+detect-client-opacity = true;
+refresh-rate = 0
+use-ewmh-active-win = true
+detect-transient = true
+detect-client-leader = true
+use-damage = false
+log-level = "info";
+
+wintypes:
+{
+  #normal = { fade = false; shadow = false; }
+  tooltip = {
+    fade = true;
+    shadow = true;
+    opacity = 0.75;
+    focus = true;
+    full-shadow = false;
+  };
+  dock = { shadow = false; }
+  dnd = { shadow = false; }
+  popup_menu = { opacity = 0.8; }
+  dropdown_menu = { opacity = 0.8; }
+};
+#+end_src
+
+*** Keyboard Layouts
+**** Fcitx
+***** Install
+#+begin_src bash
+$INSTALL fcitx-im fcitx-configtool fcitx-qt4
+sudo locale-gen
+#+end_src
+
+***** Add to .zshenv
+#+begin_src bash :tangle ~/.xprofile
+export GTK_IM_MODULE="fcitx"
+export QT_IM_MODULE="fcitx"
+export SDL_IM_MODULE="fcitx"
+export XMODIFIERS="@im=fcitx"
+#+end_src
+
+***** Configuration
+****** Profile
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/fcitx/profile")
+:END:
+#+begin_src conf
+[Profile]
+IMName=fcitx-keyboard-ru
+EnabledIMList=fcitx-keyboard-us:True,fcitx-keyboard-ru:True,fcitx-keyboard-ara:True,mozc:True
+#+end_src
+
+****** X Keyboard
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/fcitx/conf/fcitx-xkb.config")
+:END:
+#+begin_src conf
+[X Keyboard]
+CustomXModmapScript=xmodmap
+#+end_src
+
+****** Classic UI
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/fcitx/conf/fcitx-classic-ui.config")
+:END:
+#+begin_src conf
+[ClassicUI]
+SkinType=dark
+#+end_src
+
+**** XModmap
+***** Install
+#+begin_src bash
+$INSTALL xorg-xmodmap
+#+end_src
+
+***** Configuration
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/fcitx/data/xmodmap")
+:END:
+Moves caps lock to right control and left control to caps lock
+#+begin_src conf
+clear lock
+clear control
+keycode 66 = Control_L NoSymbol Control_L
+add control = Control_L
+add lock = Control_R
+#+end_src
+
+Moves left alt to right alt and left super to left alt
+#+begin_src conf
+clear mod1
+clear mod4
+keycode 64 = Super_L
+keycode 108 = Alt_L
+add mod1 = Alt_L
+add mod4 =  Super_L
+#+end_src
+
+Output Escape when Ctrl+; is pressed
+#+begin_src conf
+keycode 47 = semicolon colon Escape 
+#+end_src
+
+**** English
+***** Add to /etc/locale.gen
+:PROPERTIES:
+:header-args:bash: :tangle /sudo:://etc/locale.gen
+:END:
+#+begin_src bash :tangle no
+en_US.UTF-8 UTF-8
+#+end_src
+
+**** Russian
+***** Add to /etc/locale.gen
+:PROPERTIES:
+:header-args:bash: :tangle /sudo:://etc/locale.gen
+:END:
+#+begin_src bash :tangle no
+ru_RU.UTF-8 UTF-8
+#+end_src
+
+**** Japanese
+***** Download IME
+#+begin_src bash
+$INSTALL fcitx-mozc
+#+end_src
+
+***** Add to /etc/locale.gen
+:PROPERTIES:
+:header-args:bash: :tangle /sudo:://etc/locale.gen
+:END:
+#+begin_src bash :tangle no
+ja_JP.UTF-8 UTF-8
+#+end_src
+
+*** Wayland
+**** Install
+#+begin_src bash
+$INTSALL wlroots python-pywlroots
+#+end_src
+
+**** Kanshi
+***** Install
+#+begin_src bash
+$INSTALL kanshi
+#+end_src
+
+***** Configuration
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/kanshi/config")
+:END:
+#+begin_src bash
+profile {
+    output eDP-1 enable mode 3840x2160 scale 2 position 0,0
+}
+#+end_src
+
+*** Sxhkd
+**** Install
+#+begin_src bash
+$INSTALL sxhkd
+#+end_src
+
+**** Configuration
+#+begin_src conf :tangle ~/.config/sxhkd/sxhkdrc
+control+semicolon
+    xset r off; xdotool key --clearmodifiers 'Escape'; xset r on
+control+h
+    xdotool key BackSpace
+    
+### Audio Control ###
+XF86AudioRaiseVolume
+    pactl set-sink-volume @DEFAULT_SINK@ +10%
+XF86AudioLowerVolume
+    pactl set-sink-volume @DEFAULT_SINK@ -10%
+XF86AudioMute
+    pactl set-sink-mute @DEFAULT_SINK@ toggle
+XF86AudioMicMute
+    pactl set-source-mute @DEFAULT_SOURCE@ toggle
+
+### Media Control ###
+XF86AudioPrev
+    playerctl previous
+XF86AudioNext
+    playerctl next
+XF86AudioPlay
+    playerctl play-pause
+XF86AudioStop
+    playerctl stop
+
+### Brightness Control ###
+XF86MonBrightnessUp
+    brillo -q -u 150000 -A 5
+XF86MonBrightnessDown
+    brillo -q -u 150000 -U 5
+
+
+### Rofi Menus ###
+super+p
+    rofi -show run
+super+control+p
+    rofi -show window
+super+control+b
+    rofi-bluetooth
+super+b
+    bwmenu
+
+### Applications ###
+super+e
+    emacsclient -c
+super+S
+    flameshot gui
+super+shift+Return
+    alacritty
+super+T
+    picom-trans -t -c 100
+#+end_src
+
+*** Xorg
+**** Install
+#+begin_src bash
+$INSTALL xorg dbus xorg-xrdb wmctrl xorg-xmessage xclip
+#+end_src
+
+***** Xsession File
+#+begin_src bash :tangle ~/.xprofile
+# Display
+xrandr --dpi 200 --output eDP-1 --primary --mode 3840x2160 --pos 0x0 --rotate normal --output DP-1 --off --output HDMI-1 --off
+picom -b
+wal -i $BACKGROUNDS/nge.jpeg -n -o "~/.config/conky/pywal_conky.py"
+feh --bg-scale $BACKGROUNDS/nge.jpeg
+python ~/.config/conky/pywal_conky.py
+
+# Keybindings
+sxhkd &
+#setxkbmap -layout us,ru,jp,ara -option grp:alt_space_toggle
+xmodmap $XDG_CONFIG_HOME/xmodmap/config
+fcitx -d &
+
+# QT Config
+export QT_AUTO_SCREEN_SCALE_FACTOR=1
+export QT_STYLE_OVERRIDE=kvantum
+
+# GTK Config
+export GTK_THEME=Materia-dark
+
+# Systray Apllications
+optimus-manager-qt &
+nm-applet &
+hp-systray &
+flameshot &
+udiskie -a -t &
+#+end_src
+
+***** Alias xmessage
+:PROPERTIES:
+:header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
+:END:
+#+begin_src bash
+alias xmessage="xmessage -default okay -bg black -fg white"
+#+end_src
+
+*** Window Managers
+**** DWM
+***** Desktop Entry
+#+begin_src conf :tangle /sudo:://usr/share/xsessions/dwm.desktop
+[Desktop Entry]
+Encoding=UTF-8
+Name=dwm
+Comment=Dynamic window manager
+Exec=dwm
+Icon=dwm
+Type=XSession
+#+end_src
+
+***** Configuration
+Patches Used
+- Attach Bottom
+- Always Center
+- Warp
+- Move Stack
+- Cool Autostart
+- EWMH Tags
+- Full Gaps
+- Save Floats
+- Pertag
+
+**** EXWM
+***** Desktop Entry
+#+begin_src conf :tangle /sudo:://usr/share/xsessions/exwm.desktop
+[Desktop Entry]
+Name=exwm
+Type=Application
+Icon=exwm
+Comment=The Emacs X Window Manager
+TryExec=emacs
+Exec=emacs -fs
+#+end_src
+
+
+**** XMonad
+***** Install
+AUR packages are used as official packages are out of date.
+#+begin_src bash
+$INSTALL xmonad-git xmonad-contrib-git
+#+end_src
+
+***** Packages
+|--------------+-------------------------------------------------------|
+| Package Name | Description                                           |
+|--------------+-------------------------------------------------------|
+| Actions      |                                                       |
+|--------------+-------------------------------------------------------|
+| Search       | Opens a browser and searches a string                 |
+| WindowGo     | Goes to a window based on a query                     |
+| RotSlaves    | Rotates all windows exept master while keeping focus  |
+| CycleWS      | Cycle between workspaces                              |
+| RotSlaves    | Rotate slaves                                         |
+| Promote      | Alternate promote function                            |
+|--------------+-------------------------------------------------------|
+| Hooks        |                                                       |
+|--------------+-------------------------------------------------------|
+| Server Mode  | EventHook that receives commands from external client |
+|--------------+-------------------------------------------------------|
+| Utilities    |                                                       |
+|--------------+-------------------------------------------------------|
+| Dmenu        | A wrapper over dmenu                                  |
+|--------------+-------------------------------------------------------|
+
+***** Configuration
+:PROPERTIES:
+:header-args:haskell: :tangle ~/.xmonad/xmonad.hs
+:END:
+****** Imports
+#+begin_src haskell
+{-# LANGUAGE FlexibleContexts #-}
+-- Base
+import XMonad
+import System.Exit (exitSuccess)
+import XMonad.StackSet (RationalRect(..), StackSet)
+import qualified XMonad.StackSet as W
+import Data.List
+import Data.Maybe ( isNothing, fromJust)
+import qualified Data.Set as S
+import GHC.IO.Handle (hGetLine)
+
+-- Actions
+import XMonad.Actions.CopyWindow (copyToAll, killAllOtherCopies, copy)
+
+-- Hooks
+import XMonad.Hooks.EwmhDesktops (ewmhDesktopsEventHook, fullscreenEventHook, ewmhDesktopsLogHook, ewmh)
+import XMonad.Hooks.ManageDocks (avoidStruts, docksEventHook, manageDocks, docks, ToggleStruts(..))
+import XMonad.Hooks.ManageHelpers (isFullscreen, doFullFloat, doRectFloat, isDialog, isInProperty)
+
+  
+-- Layouts
+import XMonad.Layout.ResizableTile (ResizableTall(..))
+import XMonad.Layout (Full)
+
+-- Layouts modifiers
+import XMonad.Layout.LayoutModifier
+import XMonad.Layout.LimitWindows (limitWindows)
+import XMonad.Layout.MultiToggle (mkToggle, single, Toggle(..))
+import XMonad.Layout.MultiToggle.Instances (StdTransformers(NBFULL))
+import XMonad.Layout.NoBorders (noBorders)
+import XMonad.Layout.Spacing (spacingWithEdge)
+import XMonad.Layout.Hidden (hiddenWindows, hideWindow, popNewestHiddenWindow)
+import XMonad.Layout.SubLayouts (onGroup, pullGroup, GroupMsg(..), Sublayout, subLayout)
+import XMonad.Layout.BoringWindows (boringWindows)
+import XMonad.Layout.WindowNavigation (windowNavigation, Direction2D(..))
+import XMonad.Layout.TabBarDecoration (tabBar)
+import XMonad.Layout.Tabbed (Theme(..), TabbedDecoration, addTabs)
+
+import XMonad.Layout.Simplest
+import XMonad.Layout.Decoration
+  
+-- Utilities
+import XMonad.Util.EZConfig (additionalKeysP, removeKeysP)
+import XMonad.Util.Run (spawnPipe)
+import XMonad.Util.SpawnOnce (spawnOnce)
+import XMonad.Util.NamedScratchpad
+import XMonad.Util.Dmenu
+import XMonad.Util.WorkspaceCompare (getSortByIndex)
+import XMonad.Actions.Commands
+
+-- To Try Out
+-- import XMonad.Layout.MouseResizableTile
+-- import XMonad.Layout.Groups (ALL)
+-- import XMonad.Util.ExclusiveScratchpads
+-- import XMonad.Util.DynamicScratchpads
+-- import XMonad.Util.ActionCycle
+-- import XMonad.Actions.FloatSnap
+import XMonad.Actions.DynamicWorkspaces
+-- import XMonad.Actions.SwapWorkspaces
+-- import XMonad.Actions.WorkspaceOrder
+-- import XMonad.Actions.FloatKeys
+-- import XMonad.Actions.WorkspaceNames
+#+end_src
+
+****** Ignore Floats on Focus Up and Down
+#+begin_src haskell :tangle no
+skipFloating :: (Eq a, Ord a) => StackSet i l a s sd -> (StackSet i l a s sd -> StackSet i l a s sd) -> StackSet i l a s sd
+skipFloating stacks f
+    | isNothing curr = stacks -- short circuit if there is no currently focused window
+    | otherwise = skipFloatingR stacks curr f
+  where curr = W.peek stacks
+
+skipFloatingR :: (Eq a, Ord a) => StackSet i l a s sd -> (Maybe a) -> (StackSet i l a s sd -> StackSet i l a s sd) -> StackSet i l a s sd
+skipFloatingR stacks startWindow f
+  
+    -- next window is nothing return current stack set
+    | isNothing nextWindow = stacks
+    
+    -- if next window is the starting window then
+    -- return the new stack set
+    | nextWindow == startWindow = newStacks
+
+    -- if next window is not a floating window return the new stack set
+    | S.notMember (fromJust nextWindow) (W.floating stacks) = newStacks
+
+    -- the next window is a floating window so keep recursing (looking)
+    | otherwise = skipFloatingR newStacks startWindow f
+    
+  where newStacks = f stacks
+        nextWindow = W.peek newStacks
+        
+        
+        
+-- In keybinding configuration:
+
+-- Move focus to the next window
+--, ((modm,               xK_j     ), windows (\s -> skipFloating s W.focusDown))
+
+-- Move focus to the previous window
+--, ((modm,               xK_k     ), windows (\s -> skipFloating s W.focusUp))
+#+end_src
+
+****** Dmenu Commands
+#+begin_src haskell
+singleLineDmenu :: String -> IO String
+singleLineDmenu prompt = menuArgs "dmenu" ["-p", prompt, "-l", "0"] []
+
+forcedDmenu :: String -> [String] -> IO String
+forcedDmenu prompt choices = menuArgs "dmenu" ["-only-match"] choices
+
+workspaceDmenu :: String -> (String -> X ()) -> X ()
+workspaceDmenu prompt job = do ws <- gets (W.workspaces . windowset)
+                               sort <- getSortByIndex
+                               let ts = map W.tag $ sort ws
+                               liftIO (forcedDmenu prompt ts) >>= job :: X ()
+
+-- selectWorkspaceD :: X ()
+-- selectWorkspaceD = workspaceDmenu "Select Workspace" W.greedyView
+#+end_src
+
+****** Variables
+#+begin_src haskell
+myXMessage :: String
+myXMessage = "xmessage -default okay -bg black -fg white"
+#+end_src
+
+****** Tab Config
+#+begin_src haskell
+myTabConfig = def { inactiveColor       = "#222222"
+                  , inactiveBorderColor = "#222222"
+                  , inactiveTextColor   = "#cccccc"
+                  , activeColor         = "#555555"
+                  , activeBorderColor   = "#555555"
+                  , activeTextColor     = "#ffffff"
+                  , urgentColor         = "#111111"
+                  , urgentBorderColor   = "#111111"
+                  , urgentTextColor     = "#cc0000"
+                  , fontName = "xft:RobotoMono Nerd Font:size=10:weight=bold"
+                  , decoHeight = 35
+                  , decoWidth  = 90
+                  }
+subTabbed :: (Eq a, LayoutModifier
+              (Sublayout Simplest) a,
+              LayoutClass l a) =>
+    l a -> ModifiedLayout (Decoration TabbedDecoration DefaultShrinker)
+                          (ModifiedLayout (Sublayout Simplest) l) a
+subTabbed x = addTabs shrinkText myTabConfig $ subLayout [] Simplest x
+#+end_src
+
+****** Layouts
+#+begin_src haskell
+tall         = limitWindows 6
+             $ avoidStruts
+             $ subTabbed
+             $ spacingWithEdge 30
+             $ mkToggle (single NBFULL)
+             $ ResizableTall 1 (3/100) (1/2) []
+             -- $ mouseResizableTile{ draggerType = FixedDragger }
+
+full         = Full
+
+myLayoutHook = noBorders $ windowNavigation $ boringWindows $ hiddenWindows $ tall ||| full
+#+end_src
+
+****** Scratchpads
+#+begin_src haskell
+scratchpads :: [NamedScratchpad]
+scratchpads = [
+  NS "terminal" "alacritty -t ScratchT"
+     (title =? "ScratchT")
+     (customFloating $ RationalRect 0.05 0.05 0.9 0.9),
+  NS "spotify" "psst-gui"
+     (className =? "Psst-gui")
+     (customFloating $ RationalRect 0.05 0.05 0.9 0.9)
+  ]
+#+end_src
+
+****** Managehook
+#+begin_src haskell
+myManageHook = composeAll
+    [ isFullscreen                  --> doFullFloat
+    , isInProperty "_NET_WM_WINDOW_TYPE" "NET_WM_WINDOW_TYPE_DIALOG"
+      --> doFloat
+    
+    -- Picture in Picture (Firefox)
+    , title =? "Picture-in-Picture"
+      --> doRectFloat (RationalRect 0.70 0.07 0.25 0.25)
+      <+> doF copyToAll
+      -- <+> spawn "picom-trans -t -c 100"
+
+    -- XMessage
+    , className =? "Xmessage"
+      --> doRectFloat (RationalRect (1/6) (1/6) (2/3) (2/3))
+    
+    -- Misc
+    , className =? "live-subtitles"  --> doFloat
+    , className =? "confirm"        --> doFloat
+    , className =? "file_progress"  --> doFloat
+    , className =? "dialog"         --> doFloat
+    , className =? "download"       --> doFloat 
+    , className =? "error"          --> doFloat 
+    , className =? "Gimp"           --> doFloat 
+    , className =? "notification"   --> doFloat 
+    , className =? "pinentry-gtk-2" --> doFloat 
+    , className =? "splash"         --> doFloat 
+    , className =? "toolbar"        --> doFloat 
+    , resource  =? "download"       --> doIgnore
+    , (className =? "firefox" <&&> resource =? "Dialog") --> doFloat 
+    ] <+> namedScratchpadManageHook scratchpads
+#+end_src
+
+****** Keybindings
+#+begin_src haskell
+-- Keybindings to remove
+myKeysR = [("M-p"), ("M-S-<return>"), ("M-e"), ("M-S-p")]
+  
+myKeys :: [(String, X ())]
+myKeys = [
+  -- Xmonad --
+  ("M-q", spawn "xmonad --recompile; xmonad --restart")
+  , ("M-S-q", io exitSuccess)
+
+  -- Scratch Pads --
+  , ("M-C-t", namedScratchpadAction scratchpads "terminal")
+  , ("M-C-s", namedScratchpadAction scratchpads "spotify")
+  
+  -- Change Focus --
+  , ("M-j", windows W.focusDown)
+  , ("M-k", windows W.focusUp)
+  , ("M-m", windows W.focusMaster)
+
+  -- Swap Windows --
+  , ("M-<Return>", windows W.swapMaster)
+  , ("M-C-j", windows W.swapDown)
+  , ("M-C-k", windows W.swapUp)
+
+  -- Tabs --
+  , ("M-o", withFocused (sendMessage . UnMerge))
+  , ("M-C-o", withFocused (sendMessage . MergeAll))
+  , ("M-C-S-o", withFocused (sendMessage . UnMergeAll))
+  , ("M-S-h", sendMessage $ pullGroup L)
+  , ("M-S-l", sendMessage $ pullGroup R)
+  , ("M-S-k", sendMessage $ pullGroup U)
+  , ("M-S-j", sendMessage $ pullGroup D)
+  -- , ("M-C-S-h", 
+  -- , ("M-C-S-l", 
+  -- , ("M-C-S-k", 
+  -- , ("M-C-S-j", 
+  , ("M-C-.", onGroup W.focusUp')
+  , ("M-C-,", onGroup W.focusDown')
+
+  -- Hide and Restore Windows --
+  , ("M-/", withFocused hideWindow)
+  , ("M-S-/", popNewestHiddenWindow)
+
+  -- Act on Workspaces --
+  , ("M-S-r", liftIO (singleLineDmenu "Rename Workspace")
+      >>= renameWorkspaceByName :: X ())
+  , ("M-S-n", liftIO (singleLineDmenu "New Workspace")
+      >>= appendWorkspace :: X ())
+  -- , ("M-S-s", selectWorkspaceD)
+  
+  -- Resize Windows --
+  , ("M-n", refresh)
+  , ("M-h", sendMessage Shrink)
+  , ("M-l", sendMessage Expand)
+
+  --  Pin Windows --
+  , ("M-a", windows copyToAll)
+  , ("M-S-a", killAllOtherCopies)
+
+  -- Act On Windows --
+  , ("M-f", sendMessage $ Toggle NBFULL)
+  , ("M-S-f", sendMessage NextLayout)
+  -- , ("M-g",  sendMessage ToggleStruts)
+  , ("M-S-c", kill)
+
+  -- Layouts --
+  , ("M-<Space>", sendMessage NextLayout)
+  , ("M-t", withFocused $ windows . W.sink)
+  , ("M-,", sendMessage (IncMasterN 1))
+  , ("M-.", sendMessage (IncMasterN (-1)))]
+#+end_src
+
+****** Startup Hook
+#+begin_src haskell
+myStartupHook :: X ()
+myStartupHook = do
+  spawnOnce "/usr/bin/emacs --daemon"
+
+  -- Start Conky
+  spawn "killall conky"
+  spawn ("sleep 2 && conky -c ~/.config/conky/sysinfo.lua")
+#+end_src
+
+****** Main
+#+begin_src haskell
+main :: IO ()
+main = do
+  
+  -- Launch stalonetray
+  spawnPipe ("pkill stalonetray || true &&  $XDG_CONFIG_HOME/polybar/scripts/stalonetray.sh")
+  
+  -- Launch polybar
+  xmproc <- spawnPipe ("pkill polybar || true && polybar xmonad")
+  
+  -- Start xmonad
+  -- xmonad $ workspaceNamesEwmh . ewmh $ docks $ def {
+  xmonad $ ewmh $ docks $ def {
+    -- simple stuff
+    terminal           = "tabbed alacritty --embed",
+    focusFollowsMouse  = False,
+    clickJustFocuses   = True,
+    borderWidth        = 1,
+    modMask            = mod4Mask,
+    --workspaces         = ["Main"],
+    normalBorderColor  = "#dddddd",
+    focusedBorderColor = "#ff6666",
+    
+    -- hooks, layouts
+    layoutHook         = myLayoutHook,
+    manageHook         = myManageHook,
+    startupHook        = myStartupHook
+    }
+    `additionalKeysP` myKeys
+    `removeKeysP` myKeysR
+#+end_src
+
+****** Help
+#+begin_src haskell
+help :: String
+help = unlines [
+  "The default modifier key is 'alt'. Default keybindings:",
+  "",
+  "-- launching and killing programs",
+  "mod-Shift-Enter  Launch alacritty",
+  "mod-p            Launch rofi",
+  "mod-Shift-p      Launch rofi for window selection",
+  "mod-Shift-c      Close/kill the focused window",
+  "mod-Space        Rotate through the available layout algorithms",
+  "mod-Shift-Space  Reset the layouts on the current workSpace to default",
+  "mod-n            Resize/refresh viewed windows to the correct size",
+  "",
+  "-- move focus up or down the window stack",
+  "mod-Tab        Move focus to the next window",
+  "mod-Shift-Tab  Move focus to the previous window",
+  "mod-j          Move focus to the next window",
+  "mod-k          Move focus to the previous window",
+  "mod-m          Move focus to the master window",
+  "",
+  "-- modifying the window order",
+  "mod-Return   Swap the focused window and the master window",
+  "mod-Shift-j  Swap the focused window with the next window",
+  "mod-Shift-k  Swap the focused window with the previous window",
+  "",
+  "-- resizing the master/slave ratio",
+  "mod-h  Shrink the master area",
+  "mod-l  Expand the master area",
+  "",
+  "-- floating layer support",
+  "mod-t  Push window back into tiling; unfloat and re-tile it",
+  "",
+  "-- increase or decrease number of windows in the master area",
+  "mod-comma  (mod-,)   Increment the number of windows in the master area",
+  "mod-period (mod-.)   Deincrement the number of windows in the master area",
+  "",
+  "-- quit, or restart",
+  "mod-Shift-q  Quit xmonad",
+  "mod-q        Restart xmonad",
+  "mod-[1..9]   Switch to workSpace N",
+  "",
+  "-- Workspaces & screens",
+  "mod-Shift-[1..9]   Move client to workspace N",
+  "mod-{w,e,r}        Switch to physical/Xinerama screens 1, 2, or 3",
+  "mod-Shift-{w,e,r}  Move client to screen 1, 2, or 3",
+  "",
+  "-- Mouse bindings: default actions bound to mouse events",
+  "mod-button1  Set the window to floating mode and move by dragging",
+  "mod-button2  Raise the window to the top of the stack",
+  "mod-button3  Set the window to floating mode and resize by dragging"
+  ]
+#+end_src
+
+*** Menu Systems
+**** Rofi
+***** Install
+#+begin_src bash
+$INSTALL rofi pinentry-rofi rofi-bluetooth-git rofi-dmenu
+#+end_src
+
+***** Keybindings
+#+begin_src conf :tangle ~/.Xresources
+rofi.kb-row-up:           Up,Control+k,Shift+Tab,Shift+ISO_Left_Tab
+rofi.kb-row-down:         Down,Control+j
+rofi.kb-accept-entry:     Control+m,Return,KP_Enter
+rofi.terminal:            mate-terminal
+rofi.kb-remove-to-eol:    Control+Shift+e
+rofi.kb-mode-next:        Shift+Right,Control+Tab,Control+l
+rofi.kb-mode-previous:    Shift+Left,Control+Shift+Tab,Control+h
+rofi.kb-remove-char-back: BackSpace
+#+end_src
+
+***** Basic Confirguration
+#+begin_src css :tangle ~/.config/rofi/config.rasi
+configuration {
+  show-icons:   true;
+  modi:         "window,drun,filebrowser,combi,run";
+  icon-theme:   "Papirus";
+  dpi:          200;
+}
+#+end_src
+
+***** Theme
+#+begin_src css :tangle ~/.config/rofi/config.rasi
+,*{
+    bg:                          rgb(0, 0, 0);
+    bg2:                         rgb(0, 0, 0);
+    fg:                          rgb(255, 255, 255);
+    red:                         rgb(220, 50, 47);
+    blue:                        rgb(38, 139, 210);
+    none:                        rgb(0, 0, 0);
+    
+
+    foreground:                  @fg;
+    border-color:                @fg;
+    normal-foreground:           @fg;
+    alternate-normal-foreground: @fg;
+    active-foreground:           @fg;
+    bordercolor:                 @fg;
+    separatorcolor:              @fg;
+    selected-active-background:  @fg;
+    selected-normal-background:  @fg;
+
+    background:                  @bg;
+    selected-active-foreground:  @bg;
+
+    alternate-active-background: @bg2;
+    alternate-urgent-background: @bg2;
+    alternate-normal-background: @bg2;
+
+    urgent-background:           @none;
+    normal-background:           @none;
+    active-background:           @none;
+    background-color:            @none;
+
+    alternate-urgent-foreground: @urgent-foreground;
+    alternate-active-foreground: @active-foreground;
+
+    selected-normal-foreground:  rgb(51, 51, 51);
+    selected-urgent-foreground:  rgb(51, 51, 51);
+    
+    urgent-foreground:           rgb(255, 153, 153);
+    selected-urgent-background:  rgb(255, 153, 153);
+    
+    lightbg:                     rgb(238, 232, 213);
+    lightfg:                     rgb(50, 104, 117);
+    spacing:                     2;
+}
+window {
+    background-color: @background;
+    border:           1;
+    padding:          5;
+}
+mainbox {
+    border:  0;
+    padding: 0;
+}
+message {
+    border:       1px dash 0px 0px ;
+    border-color: @separatorcolor;
+    padding:      1px ;
+}
+textbox {
+    text-color: @foreground;
+}
+listview {
+    fixed-height: 0;
+    border:       2px dash 0px 0px ;
+    border-color: @separatorcolor;
+    spacing:      2px ;
+    scrollbar:    true;
+    padding:      2px 0px 0px ;
+}
+element {
+    border:  0;
+    padding: 1px ;
+}
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
+element.normal.normal {
+    background-color: @normal-background;
+    text-color:       @normal-foreground;
+}
+element.normal.urgent {
+    background-color: @urgent-background;
+    text-color:       @urgent-foreground;
+}
+element.normal.active {
+    background-color: @active-background;
+    text-color:       @active-foreground;
+}
+element.selected.normal {
+    background-color: @selected-normal-background;
+    text-color:       @selected-normal-foreground;
+}
+element.selected.urgent {
+    background-color: @selected-urgent-background;
+    text-color:       @selected-urgent-foreground;
+}
+element.selected.active {
+    background-color: @selected-active-background;
+    text-color:       @selected-active-foreground;
+}
+element.alternate.normal {
+    background-color: @alternate-normal-background;
+    text-color:       @alternate-normal-foreground;
+}
+element.alternate.urgent {
+    background-color: @alternate-urgent-background;
+    text-color:       @alternate-urgent-foreground;
+}
+element.alternate.active {
+    background-color: @alternate-active-background;
+    text-color:       @alternate-active-foreground;
+}
+scrollbar {
+    width:        4px ;
+    border:       0;
+    handle-width: 8px ;
+    padding:      0;
+}
+mode-switcher {
+    border:       2px dash 0px 0px ;
+    border-color: @separatorcolor;
+}
+button.selected {
+    background-color: @selected-normal-background;
+    text-color:       @selected-normal-foreground;
+}
+inputbar {
+    spacing:    0;
+    text-color: @normal-foreground;
+    padding:    1px ;
+}
+case-indicator {
+    spacing:    0;
+    text-color: @normal-foreground;
+}
+entry {
+    spacing:    0;
+    text-color: @normal-foreground;
+}
+prompt {
+    spacing:    0;
+    text-color: @normal-foreground;
+}
+inputbar {
+    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+}
+textbox-prompt-colon {
+    expand:     false;
+    str:        ":";
+    margin:     0px 0.3em 0em 0em ;
+    text-color: @normal-foreground;
+}
+
+/* Use Wal Colorscheme */
+@import "~/.cache/wal/colors-rofi-dark"
+#+end_src
+
+*** Notifications
+**** Libnotify
+Libnotify is an implementation of the Desktop Notifications Specification.
+#+begin_src bash
+$INSTALL libnotify
+#+end_src
+
+**** Dunst
+In order to use libnotify you have to install a notification server. I use Dunst.
+#+begin_src bash
+$INSTALL dunst
+#+end_src
+
+***** Dunst Config
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/dunst/dunstrc")
+:END:
+See [[https://dunst-project.org/documentation/]] 
+#+begin_src conf
+[global]
+    ### Location ###
+    follow = keyboard
+
+    ### Geometry ###
+    offset = 20x80
+    width = 500
+    height = 300
+    transparency = 10  # Requires X11 and a compositor [0; 100]
+    corner_radius = 5
+
+    ### General Settings ###
+    notification_limit = 0    # 0 means no limit
+    separator_height = 2      # Distance between notifications
+    show_age_threshold = 60
+
+    ### Progress bar ###
+    progress_bar_height = 10 # At least twice as big as frame width
+    progress_bar_frame_width = 1
+    progress_bar_min_width = 150
+    progress_bar_max_width = 300
+
+    # Padding between text and separator.
+    padding = 8
+    horizontal_padding = 8
+    text_icon_padding = 0
+
+    ### Frame around notification window ###
+    frame_width = 0
+    frame_color = "#aaaaaa" # Color 
+    separator_color = frame # auto, foreground, frame, <any color>
+
+    ### Text ###
+    font = Monospace 10
+    markup = full
+    format = "<b>%s</b>\n%b"
+
+    ### Icons ###
+    icon_position = left # left/right/off
+    min_icon_size = 0
+    max_icon_size = 32
+    icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
+
+    ### History ###
+    sticky_history = yes
+    history_length = 20
+
+    ### Misc/Advanced ###
+    dmenu = /usr/bin/dmenu
+
+[urgency_low]
+    background = "#222222"
+    foreground = "#888888"
+    timeout = 10
+    # Icon for notifications with low urgency, uncomment to enable
+    #default_icon = /path/to/icon
+
+[urgency_normal]
+    background = "#222222"
+    foreground = "#ffffff"
+    timeout = 10
+    # Icon for notifications with normal urgency, uncomment to enable
+    #default_icon = /path/to/icon
+
+[urgency_critical]
+    background = "#900000"
+    foreground = "#ffffff"
+    frame_color = "#ff0000"
+    timeout = 0
+    # Icon for notifications with critical urgency, uncomment to enable
+    #default_icon = /path/to/icon
+#+end_src
+
+*** Virtualization
+**** General
+#+begin_src bash
+$INSTALL libvirt qemu
+
+# Network Connectivity with Virtual Machine #
+$INSTALL iptables-nft    # NAT/DHCP Netowrking (iptables!=iptables-nft)
+$INSTALL dnsmasq         # NAT/DHCP Netowrking
+$INSTALL bridge-utils    # Bridged Networking
+$INSTALL openbsd-netcat  # Remote Management over SSH
+
+# Client Software #
+$INSTALL virt-manager    # Graphically manage KVM, Xen or LXC
+
+# Other Software #
+$INSTALL libguestfs    # Access and modify virtual machine disk images
+$INSTALL edk2-ovmf     # UEFI Emulation
+$INSTALL swtpm         # TPM Emulation
+         
+# Members of the libvirt group have passwordless access to the RW daemon socket by default.
+sudo usermod -a -G libvirt $USER
+sudo usermod -a -G kvm $USER
+
+sudo systemctl enable --now libvirtd # Also enables virtlogd and virtlockd
+sudo systemctl start virtlogd
+
+# Make sure to set user = /etc/libvirt/qemu.conf
+#+end_src
+
+**** OSX Machine
+To create an OSX Virtual Machine check out the ~OSX-KVM~ project and follow the instructions in their git repository.
+
+**** Windows Machine
+1. Download the Windows ISO
+2. Create a new VM based off of that ISO
+   
+For Windows 11:
+- In the VM's config add a TPM2 module and set the VM to use UEFI (with secure boot)
+- If you want to use a Windows 7 Product Key, you must start with a Windows 10 VM and then upgrade to Windows 11 after activation.
+
+**** Vagrant
+#+begin_src bash
+$INTSALL vagrant
+#+end_src
+
+**** Wine
+#+begin_src bash
+$INSTALL wine-staging wine-gecko wine-mono
+#+end_src
+
+*** Kernel
+   Kernel Space occurs on ring 0 on x86 processors, system mode on ARM, kernel mode on MIP, supervisor mode on 68xxx, etc.
+   
+   User space occurs on the least privileged mode: ring 3 on x86 CPUs, user mode on ARM or MIPS, etc.
+
+   Linux only uses two modes even if the processor supports more
+
+*** Networking
+**** IP Routing
+   IPv6 NAT is not very good in comparison with IPv4 NAT and should be avoided.
+
+***** Legacy
+     The traditional way of routing IP traffic is to use =iptables=. =iptables= is a tool for configuring the =Netfilter= kernel firewall that comes with the standard linux kernel. Other =iptables= like programs are avaialable. Specifically =ip6tables= is used for routing IPv6 traffic, =ebtables= is used for routing Ethernet traffic, and =arptables= for managing ARP traffic.
+  
+      *NOTE:* =iptables=, =ip6tables=, =ebtables=, and =arptables= are often symlinked to =nfttables= binaries. Run the commands and look for "(nf_tables)" by the version number to determine which program is actually being used.
+
+****** =iptables=
+****** =ip6tables=
+****** =ebtables=
+****** =arptables=
+****** =conntrack=
+      Manages in-kernel connection state table
+
+***** nft Based 
+     Address families: ip, ip6, inet, arp, bridge, netdev
+****** =nfttables=
+      =nfttables= is managed by the ~nft~ command
+****** =iptables-nft=
+      =iptables-nft= is the iptables like command for interfacing with the =nfttables= infrastructure. It often replaces the =iptables= binary on install.
+ 
+***** Firewalld
+     A firewall daemon developed by Red Hat that uses =nfttables= by default.
+ 
+     A zone is a collection of rules that can be applied to a specific interface. Networkmanager can use Firewalld to assign different connection profiles to different zones using the following command ~nmcli connection modify \myssid\ connection.zone \home\~.
+ 
+**** Ports
+    Most systems have 65535 ports. Ports 1-1023 are usually considered service ports and often require privileged permissions for processes to attach to them (so that not anyone can listen to your SSH traffic). Process that want to attach to service ports should bind to the port as root and then switch to a unprivilleged user ASAP. Ports 1024-49151 are usually reserved for non-superuser privileges (NFS, OpenVPN, SVN, etc). Ports 49152-65535 are for temporary connections and processes usually don't bind to them.
+
+    Port Blocking:
+    - FTP Uses two ports: Client sends command to port 21 on server and server replies from port 20 the a dynamically allocated port on the client.
+    - This is a problem for stateless firewalls as it might not understand to open up port 20.
+      
+     #+begin_src bash
+     $INSTALL nmap
+     $INSTALL tcpdump
+     #+end_src
+
+*** Applications
+**** Audio Applications
+#+begin_src bash
+$INSTALL kmidimon # For Viewing MIDI Traffic
+$INSTALL lmms # For Viewing MIDI Traffic
+#+end_src
+
+**** Aerospace Engineering Applications
+*XFoil:* Program for design and analysis of subsonic airfoils
+*OpenVSP:* Allows the user to create a 3D model of an aircraft defined by common engineering parameters
+#+begin_src bash
+$INSTALL xfoil openvsp-git
+#+end_src
+
+**** Todoist
+#+begin_src bash
+$INSTALL todoist-electron
+#+end_src
+
+**** Krita
+#+begin_src bash
+$INSTALL krita
+#+end_src
+
+**** Conky
+#+begin_src bash
+$INSTALL conky
+#+end_src
+
+***** Pywal Script
+:PROPERTIES:
+:header-args:python: :tangle (concat (getenv "XDG_CONFIG_HOME") "/conky/pywal_conky.py")
+:END:
+#+begin_src python
+import json, pathlib, os
+
+#get what to replace
+with open('/home/mwglen/.config/conky/sysinfo-raw.lua') as conf:
+    f = conf.read()
+lines = f.split('\n')
+confs = [l for l in lines if "WALM" in l]
+
+pairs = []
+for l in confs:
+    p = l.split(' ')
+    pairs.append((p[2],p[3]))
+
+print(pairs)
+
+#getting colors from wal
+h = pathlib.Path.home()
+usr = str(h).split('/')[-1]
+cols_path = os.path.join(h, '.cache/wal/colors.json')
+fp_colors = open(cols_path)
+wal_cols = json.load(fp_colors)
+
+col_map = {**wal_cols['special'], **wal_cols['colors']}
+
+#start replacing
+for p in pairs:
+    #getting the key from the pairs
+    key = p[0]
+    new_val = col_map[key].replace("#","").upper()
+    #replacing it inefficiently
+    f = f.replace(p[1],new_val)
+
+
+with open('/home/mwglen/.config/conky/sysinfo.lua', 'w') as conf:
+    conf.write(f)
+#+end_src
+
+***** System Info Widget
+:PROPERTIES:
+:header-args:lua: :tangle (concat (getenv "XDG_CONFIG_HOME") "/conky/sysinfo-raw.lua")
+:END:
+****** Widget Config
+#+begin_src lua
+conky.config = {
+   -- Window Properties
+   own_window             = true,
+   own_window_type        = 'desktop',
+   own_window_class       = 'Conky',
+   own_window_title       = 'Sysinfo Conky',
+   own_window_hints       =
+      'undecorated,below,above,sticky,skip_taskbar,skip_pager',
+   own_window_colour      = '000000',
+   own_window_argb_value  = 255,
+   own_window_argb_visual = true,
+   own_window_transparent = false,
+
+   -- XFT
+   use_xft  = true,
+   font     = 'RobotoMono Nerd Font:size=9',
+   xftalpha = 0.1,
+
+   -- Size & Alignment
+   maximum_width   = 315,
+   minimum_width   = 315,
+   minimum_height  = 930,
+   alignment       = 'top_left',
+   gap_x           = 35,
+   gap_y           = 35,
+   update_interval = 1.0,
+
+   -- Shades & Borders
+   draw_graph_borders    = false,
+   draw_shades           = true,
+   default_shade_color   = '000000',
+    
+   -- Misc
+   override_utf8_locale = true,
+   cpu_avg_samples      = 2,
+   net_avg_samples      = 1,
+
+   total_run_times  = 0,
+   double_buffer    = true,
+   no_buffers       = true,
+   use_spacer       = 'left',
+   text_buffer_size = 256,
+   
+    -- Colors
+    color0     = '000000', -- Black: Same as Background
+    color1     = 'B294BB', -- Primary Color:
+    color2     = 'B4C3CA', -- Secondary Color: Horizontal Rules
+    color3     = '81A2BE', -- Ternary Color:
+    color4     = '3DAEE9', -- Bar/Graph Colors
+    color5     = 'B5BD68', -- Positive Color
+    color6     = 'C19267', -- Warning Color
+    color7     = '6B6B6B'  -- Critical Color
+}
+
+--- WALM color1 B294BB
+--- WALM color2 B4C3CA
+--- WALM color3 81A2BE
+--- WALM color4 3DAEE9
+
+#+end_src
+
+****** Functions and Variables
+#+begin_src lua
+adp = 'BAT0'
+
+function reset_font()
+   return '${font ' .. conky.config.font .. '}${color1}'
+end
+
+function h1(name)
+   return '${font RobotoMono Nerd Font:bold:size=10}${color2}\n' ..
+      name .. '${color2}${hr 2}' .. reset_font() .. '\n'
+end
+#+end_src
+
+****** Clock Module
+#+begin_src lua
+clock_module = [[
+${font RobotoMono Nerd Font:size=12}${color1}\
+${time %A %d %B}
+${font RobotoMono Nerd Font:size=70}${color1}\
+${time %H:%M}\
+]] .. reset_font() .. '\n\n' .. [[
+${texeci 500 curl 'wttr.in/Raleigh?format=%C+%t+(%f)+%m'}
+${texeci 500 curl 'wttr.in/Raleigh?format=Sunrise+%S+Sunset+%s'}
+]]
+#+end_src
+
+****** System Info Module
+#+begin_src lua
+system_info_module =
+   h1('SYSTEM INFO') .. [[
+$nodename 
+Operating System:$alignr${execi 999999 lsb_release -ds |  tr -d \"}
+Kernel:$alignr$sysname $kernel
+Architecture:$alignr $machine
+Uptime: $alignr${uptime}
+Temp: ${alignr}${acpitemp}C
+#Load: ${color}${alignr}${loadavg}
+]]
+#+end_src
+
+****** Drives Module
+#+begin_src lua
+drives_module =
+   h1('DRIVES') .. [[
+/ $alignr ${fs_used /} / ${fs_size /} 
+${color4}${fs_bar 10 /}
+${color1}READ ${diskio_read /dev/nvme0n1p3} $alignr ${color1} WRITE ${diskio_write /dev/nvme0n1p3}
+]]
+#+end_src
+
+****** Battery Module
+#+begin_src lua
+battery_module =
+   h1('BATTERY') .. adp .. [[
+${alignr}${font Noto Sans UI:size=6}${font}${execi 60 acpi | grep -Eo '\w+,' | grep -Eo '\w+'}
+${color green}${voffset 2}${if_match ${battery_percent}<=20}${color7}${battery_bar 10}${else}${if_match ${battery_percent}<=50}${color6}${battery_bar 10}${else}${if_match ${battery_percent}<=90}${color5}${battery_bar 10}${else}${if_match ${battery_percent}>90}${color4}${battery_bar 10}${endif}${endif}${endif}${endif}
+]] .. reset_font() .. [[
+${battery_percent}% ${alignr}Time Remaining: ${execi 60 acpi | grep -Eo '(:?[0-9]+){3}'}
+]]
+   -- h2(adp, [[${execi 60 acpi | grep -Eo '\w+,' | grep -Eo '\w+'}]])
+#+end_src
+
+****** CPU Module
+#+begin_src lua
+cpu_module =
+   h1('CPU') .. [[
+${execi 999999 cat /proc/cpuinfo | grep -m 1 'model name' | cut -d' ' -f3-}
+${color green}${if_match ${cpu}<=50}${color4}${cpubar 10,} ${else}${if_match ${cpu}<=70}${color5}${cpubar 10,} ${else}${if_match ${cpu}<=90}${color6}${cpubar 10,} ${else}${if_match ${cpu}>90}${color7}${cpubar 10,}${endif}${endif}${endif}${endif}$color1
+${freq_g cpu0}Ghz${alignr}${cpu}%
+]]
+#+end_src
+
+****** Memory Module
+#+begin_src lua
+memory_module =
+   h1('MEMORY') .. [[
+#${execi 999999 dmidecode --type 17 | grep -m 1 "Type:" | cut -d' ' -f2-} $alignc $mem / $memmax $alignr $memperc%
+DDR4 $alignc $mem / $memmax $alignr $memperc%
+${color green}${if_match ${memperc}<=50}${color4}${membar 10,} ${else}${if_match ${memperc}<=70}${color5}${membar 10,} ${else}${if_match ${memperc}<=90}${color6}${membar 10,} ${else}${if_match ${memperc}>90}${color7}${membar 10,}${endif}${endif}${endif}${endif}${color}
+]]
+#+end_src
+
+****** Swap Module
+#+begin_src lua
+swap_module =
+   h1('SWAP') .. [[
+$swap / $swapmax $alignr $swapperc%
+${color green}${if_match ${swapperc}<=50}${color4}${swapbar 10,} ${else}${if_match ${swapperc}<=70}${color5}${swapbar 10,} ${else}${if_match ${swapperc}<=90}${color6}${swapbar 10,} ${else}${if_match ${swapperc}>90}${color7}${swapbar 10,}${endif}${endif}${endif}${endif}${color}
+]]
+#+end_src
+
+****** Processes Module
+#+begin_src lua
+function proc(num)
+   proc_name = '$font$color1${top name ' .. num .. '}'
+   proc_cpu  = '$color2${goto 110}${top cpu ' .. num .. '}%'
+   proc_mem  = '$color1${goto 165}${top_mem name ' .. num .. '}'
+   proc_memp = '$color2${goto 270}${top_mem mem_res ' .. num .. '}\n'
+   return proc_name .. proc_cpu .. proc_mem .. proc_memp
+end
+processes_module =
+   h1('PROCESSES') ..
+   '${font}CPU${goto 165}RAM\n' ..
+   proc(1) ..
+   proc(2) ..
+   proc(3) ..
+   proc(4) ..
+   proc(5) ..
+   proc(6) ..
+   proc(7) ..
+   proc(8) ..
+   proc(9)
+#+end_src
+
+****** Widget Definition
+#+begin_src lua
+conky.text =
+   clock_module       ..
+   system_info_module ..
+   battery_module     ..
+   drives_module      ..
+   cpu_module         ..
+   memory_module      ..
+   swap_module        ..
+   processes_module
+#+end_src
+
+**** Pandoc
+#+begin_src bash
+$INSTALL pandoc
+#+end_src
+
+**** zk
+#+begin_src bash
+$INSTALL zk
+#+end_src
+
+**** rmtrash
+***** Install
+#+begin_src bash
+$INSTALL rmtrash
+#+end_src
+
+***** Alias
+:PROPERTIES:
+:header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
+:END:
+#+begin_src bash
+alias rm="rmtrash"
+alias rmdir="rmdirtrash"
+alias sudo="sudo "
+#+end_src
+
+**** Mimeo
+Use =mimeo --mime2desk <schema>= to find what application is set as default for a certain schema. Use =mimeo --app2desk <app>= to find an applications corresponding desktop file.
+#+begin_src bash
+$INSTALL mimeo
+#+end_src
+
+**** Anki
+#+begin_src bash
+$INSTALL anki
+#+end_src
+
+**** File Managers
+***** Dolphin
+#+begin_src bash
+$INSTALL dolphin
+#+end_src
+
+***** Ranger
+#+begin_src bash
+$INSTALL ranger python-ueberzug-git
+#+end_src
+
+****** Config
+#+begin_src conf :tangle (concat (getenv "XDG_CONFIG_HOME") "/ranger/rc.conf")
+set viewmode miller
+set column_ratios 1,3,4
+set confirm_on_delete always
+set use_preview_script true
+set vcs_aware true
+set preview_images true
+set preview_images_method ueberzug
+set tilde_in_titlebar true
+set draw_borders both
+set display_size_in_main_column false
+set show_hidden false
+set colorscheme default
+#+end_src
+
+**** Games
+#+begin_src bash
+$INSTALL minecraft-launcher steam
+#+end_src
+
+**** Gotop
+#+begin_src bash
+$INSTALL gotop
+#+end_src
+
+**** Cava
+#+begin_src bash
+$INSTALL cava
+#+end_src
+
+**** Alsi
+#+begin_src bash
+$INSTALL alsi
+#+end_src
+
+**** Ahoviewer
+#+begin_src bash
+$INSTALL ahoviewer-git
+#+end_src
+
+
+**** Emacs
+***** Install
+#+begin_src bash
+$INSTALL emacs-git
+#+end_src
+
+***** Alias
+:PROPERTIES:
+:header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
+:END:
+#+begin_src bash
+alias emacs="devour emacs"
+alias emacsclient="devour emacsclient"
+#+end_src
+
+***** Tangle Config
+****** Setup Nim and Nimble
+#+begin_src bash
+$INSTALL nim nimble
+#+end_src
+
+****** Setup ntangle
+#+begin_src bash
+nimble install -y ntangle
+#+end_src
+
+**** Browsers
+***** Yandex
+#+begin_src bash
+$INSTALL yandex-browser-beta
+#+end_src
+
+***** Chrome
+#+begin_src bash
+$INSTALL google-chrome
+#+end_src
+
+***** Firefox
+#+begin_src bash
+$INSTALL firefox
+#+end_src
+
+****** Desktop File (Open in New Window)
+#+begin_src bash :tangle /sudo::/usr/share/applications/firefox.desktop
+[Desktop Entry]
+Version=1.0
+Name=Firefox
+GenericName=Web Browser
+Comment=Browse the World Wide Web
+Keywords=Internet;WWW;Browser;Web;Explorer
+Exec=/usr/lib/firefox/firefox --new-window %u
+Icon=firefox
+Terminal=false
+X-MultipleArgs=false
+Type=Application
+MimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;application/x-xpinstall;application/pdf;application/json;
+StartupNotify=true
+StartupWMClass=firefox
+Categories=Network;WebBrowser;
+Actions=new-window;new-private-window;
+
+[Desktop Action new-window]
+Name=New Window
+Exec=/usr/lib/firefox/firefox --new-window %u
+
+[Desktop Action new-private-window]
+Name=New Private Window
+Exec=/usr/lib/firefox/firefox --private-window %u
+#+end_src
+
+****** Enable  Touchscreen Scrolling
+#+begin_src bash :tangle ~/.xprofile
+export MOZ_USE_XINPUT2=1
+#+end_src
+
+****** Stylesheets
+:PROPERTIES:
+:header-args:css: :tangle (concat (getenv "XDG_CONFIG_HOME") "/firefox/chrome/userChrome.css")
+:END:
+
+******* Click Selected Tab to Focus URL Bar
+#+begin_src css
+/* Source file https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/click_selected_tab_to_focus_urlbar.css made available under Mozilla Public License v. 2.0
+See the above repository for updates as well as full license text. */
+
+/* Clicking selected tab selects focuses urlbar */
+/* Selected tab cannot be normally clicked (right-,middle- or left-clicked) EXCEPT from the tab icon */
+
+/* Clicking selected pinned tab doesn't focus urlbar by default since I expect you might not want to change pinned tab address - see below */
+
+
+/* Make selected tab unclickable so click goes to the capture box, obviously it can't be clicked at all anymore */
+/* remove the :not([pinned]) bit to make clicking pinned tab AROUND the tab-icon focus urlbar*/
+
+.tabbrowser-tab:not([pinned])[selected]{ pointer-events: none }
+
+/* Add back pointer-events to several elements so UI remains usable */
+/* The selected tab can be clicked normally from the icon */
+#TabsToolbar toolbarbutton,
+#TabsToolbar toolbaritem,
+.tabbrowser-tab,
+.tab-close-button,
+.tab-icon-stack{
+  pointer-events: auto
+}
+
+/* Invisible capture box behind tabs*/
+:root:not([customizing]) #urlbar-input-container::before{
+  position: fixed;
+  display: block;
+  top: 0;
+  left: 0;
+  width: calc(100vw - 138px);
+  height: calc(var(--tab-min-height) + 2*var(--tab-block-margin));
+  content: "";
+  pointer-events: auto;
+}
+:root[sizemode="normal"]:not([customizing]) #urlbar-input-container::before{ left: 40px; width: calc(100vw - 138px -80px) }
+
+#urlbar-input-container:focus-within::before{ display: none !important; }
+
+/* Make tabs appear over the invisible box */
+:root:not([customizing]) #TabsToolbar-customization-target{
+  position: relative;
+  z-index: 1;
+  pointer-events: none
+}
+#+end_src
+
+******* Full Width URL Bar
+#+begin_src css
+/* Source file https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/urlbar_popup_full_width.css made available under Mozilla Public License v. 2.0
+See the above repository for updates as well as full license text. */
+
+/* Make urlbar popup appear full size like it did before urlbar re-design */
+
+.urlbarView-row-inner{
+   /* This sets how far the dropdown-items are from window edge */
+  padding-inline-start: 6px !important;
+}
+
+#urlbar-container,
+#urlbar{
+  position: static !important;
+  display: -moz-box !important;
+}
+#urlbar{
+  height: auto !important;
+  width: auto !important;
+  box-shadow: inset 0 0 0 1px var(--toolbar-field-border-color, hsla(240,5%,5%,.25));
+  background-color: var(--toolbar-field-background-color, hsla(0,0%,100%,.8));
+  border-radius: var(--toolbarbutton-border-radius);
+  --uc-urlbar-min-width: none; /* navbar_tabs_oneliner.css compatibility */
+}
+
+#urlbar[focused]{ box-shadow: inset 0 0 0 1px var(--toolbar-field-focus-border-color, highlight); }
+
+.urlbarView{
+  position: absolute !important;
+  margin: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  border-width: 1px 0;
+  top: var(--urlbar-toolbar-height);
+  background-color: var(--toolbar-field-focus-background-color, inherit);
+  z-index: 4;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  border-radius: 6px;
+  padding: 6px;
+}
+
+#urlbar > #urlbar-input-container{ padding: 0px !important; width: auto !important; height: auto !important; }
+#urlbar > #urlbar-background{ display: none !important; }
+
+/* This may seem pretty weird, but it gets around an issue where the height of urlbar may suddenly change when one starts typing into it */
+/* If you are otherwise modifying the urlbar height then you might need to modify the height of this too */
+#urlbar > #urlbar-input-container::before{ content: ""; display: -moz-box; height: 24px; }
+#+end_src
+
+******* Selected Tab as URL Bar
+#+begin_src css
+/* Adapted from: https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/selected_tab_as_urlbar.css */
+
+/* This requires click_selected_tab_to_focus_urlbar.css to work */
+
+/* Also hides the nav-bar and shows main menu button next to window controls. And makes the selected tab expand a whole bunch  */
+
+/* Position window so other elements can be positioned around it */
+#main-window > body > box{ position: relative; z-index: 1 }
+
+/* Hide URL bar behind Window */
+.urlbar-input-box{ z-index: -1 !important; }
+
+/* Place Buttons on top of Window */
+#alltabs-button,
+#PanelUI-button,
+#nav-bar-overflow-button{ z-index: 2; position: relative }
+
+/* Hide URL Bar while keeping Input Box */
+#urlbar-input-container > :not(.urlbar-input-box) {
+    display: none !important }
+
+.tabbrowser-tab[selected][fadein] {
+    max-width: 100vw !important;
+    min-width: 200px !important;
+}
+
+/* Change Tabbar into URL bar when selected */
+#navigator-toolbox:focus-within .tabbrowser-tab[selected] .tab-content { opacity: 0; } /* Hide Tab Content */
+#navigator-toolbox:focus-within .tab-background[selected]{
+  background-image: -moz-element(#urlbar-input) !important;
+  background-position: calc(var(--tab-inline-padding,4px) + 6px) 3px !important;
+  background-color: var(--toolbar-field-focus-background-color) !important;
+  background-size: auto !important;
+}
+
+/* Overlap Nav-bar and Title Bar */ 
+:root:not([customizing]) #titlebar{ margin-bottom: -40px }
+
+/* Hide nav-bar buttons */
+#nav-bar-customization-target > :not(#urlbar-container) {
+    visibility: collapse
+}
+
+/* Add space between nav-bar buttons and other button */
+#TabsToolbar > .toolbar-items{ margin-right: 75px !important; }
+
+/* Hide Nav-bar Background */
+#nav-bar{
+  box-shadow: none !important;
+  background-color: transparent !important;
+}
+#+end_src 
+
+**** Blender
+#+begin_src bash
+$INSTALL blender blendnet
+#+end_src
+
+**** Flameshot
+***** Install
+#+begin_src bash
+$INSTALL flameshot
+#+end_src
+
+***** Config
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/flameshot/flameshot.ini")
+:END:
+#+begin_src conf
+[General]
+buttons=@Variant(\0\0\0\x7f\0\0\0\vQList<int>\0\0\0\0\x16\0\0\0\0\0\0\0\x1\0\0\0\x2\0\0\0\x3\0\0\0\x4\0\0\0\x5\0\0\0\x6\0\0\0\x12\0\0\0\xf\0\0\0\a\0\0\0\b\0\0\0\t\0\0\0\x10\0\0\0\n\0\0\0\v\0\0\0\f\0\0\0\r\0\0\0\xe\0\0\0\x11\0\0\0\x13\0\0\0\x14\0\0\0\x15)
+contrastOpacity=188
+contrastUiColor=#00789e
+disabledTrayIcon=false
+drawColor=#ffff00
+drawFontSize=8
+drawThickness=1
+ignoreUpdateToVersion=11.0.0
+savePath=/home/mwglen/Pictures
+savePathFixed=false
+showStartupLaunchMessage=true
+startupLaunch=true
+uiColor=#ffffff
+
+[Shortcuts]
+TYPE_ARROW=A
+TYPE_CIRCLE=C
+TYPE_CIRCLECOUNT=
+TYPE_COMMIT_CURRENT_TOOL=Ctrl+Return
+TYPE_COPY=Ctrl+C
+TYPE_DELETE_CURRENT_TOOL=Del
+TYPE_DRAWER=D
+TYPE_EXIT=Ctrl+Q
+TYPE_MARKER=M
+TYPE_MOVESELECTION=Ctrl+M
+TYPE_MOVE_DOWN=Down
+TYPE_MOVE_LEFT=Left
+TYPE_MOVE_RIGHT=Right
+TYPE_MOVE_UP=Up
+TYPE_OPEN_APP=Ctrl+O
+TYPE_PENCIL=P
+TYPE_PIN=
+TYPE_PIXELATE=B
+TYPE_RECTANGLE=R
+TYPE_REDO=Ctrl+Shift+Z
+TYPE_RESIZE_DOWN=Shift+Down
+TYPE_RESIZE_LEFT=Shift+Left
+TYPE_RESIZE_RIGHT=Shift+Right
+TYPE_RESIZE_UP=Shift+Up
+TYPE_SAVE=Ctrl+S
+TYPE_SELECTION=S
+TYPE_SELECTIONINDICATOR=
+TYPE_SELECT_ALL=Ctrl+A
+TYPE_TEXT=T
+TYPE_TOGGLE_PANEL=Space
+TYPE_UNDO=Ctrl+Z
+#+end_src
+
+**** Bitwarden
+#+begin_src bash
+$INSTALL bitwarden bitwarden-cli bitwarden-rofi
+#+end_src
+
+**** Sidequest
+#+begin_src bash
+$INSTALL sidequest-bin
+#+end_src
+
+**** GlxInfo
+#+begin_src bash
+$INSTALL glxinfo
+#+end_src
+
+**** Spotify
+#+begin_src bash
+$INSTALL spotify psst-git-bin
+#+end_src
+
+***** Fix HDPI
+:PROPERTIES:
+:header-args:bash: :tangle ~/.zshenv
+:END:
+#+begin_src bash
+alias spotify="spotify --force-device-scale-factor=2"
+#+end_src
+
+***** Desktop File (With Fix for HiDPI)
+#+begin_src conf :tangle /sudo:://usr/share/applications/spotify.desktop
+[Desktop Entry]
+Type=Application
+Name=Spotify
+GenericName=Music Player
+Icon=spotify-client
+TryExec=spotify
+Exec=spotify --force-device-scale-factor=2 %U
+Terminal=false
+MimeType=x-scheme-handler/spotify;
+Categories=Audio;Music;Player;AudioVideo;
+StartupWMClass=spotify
+#+end_src
+
+**** Discord
+#+begin_src bash
+$INSTALL discord
+#+end_src
+
+**** Libreoffice
+#+begin_src bash
+$INSTALL libreoffice-fresh libreoffice-fresh-ru
+#+end_src
+
+**** Git-Annex
+#+begin_src bash
+$INSTALL git-annex
+#+end_src
+
+**** Redshift
+#+begin_src bash
+$INSTALL redshift
+#+end_src
+
+**** OBS Studio
+#+begin_src bash
+$INSTALL obs-studio
+#+end_src
+
+**** Devour
+#+begin_src bash
+$INSTALL devour
+#+end_src
+
+**** NSXIV
+***** Install
+#+begin_src bash
+$INSTALL nsxiv
+#+end_src
+
+***** Alias
+:PROPERTIES:
+:header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
+:END:
+#+begin_src bash
+alias nsxiv="devour nsxiv -ab -s f"
+#+end_src
+
+***** Desktop File
+#+begin_src bash :tangle /sudo::/usr/share/applications/nsxiv.desktop
+[Desktop Entry]
+Type=Application
+Name=nsxiv
+GenericName=Image Viewer
+Exec=nsxiv -ab -s f %F
+MimeType=image/bmp;image/gif;image/jpeg;image/jpg;image/png;image/tiff;image/x-bmp;image/x-portable-anymap;image/x-portable-bitmap;image/x-portable-graymap;image/x-tga;image/x-xpixmap;image/webp;
+NoDisplay=true
+Icon=nsxiv
+#+end_src
+
+***** Key Handler
+:PROPERTIES:
+:header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/nsxiv/exec/key-handler") :tangle-mode (identity #o755)
+:END:
+You must use C-x after opening nsxiv to enable this keybindings
+#+begin_src bash
+#!/bin/sh
+case "$1" in
+"C-d") while read file; do
+           trash "$file"
+       done;;
+
+"C-c") while read file; do
+           echo -n "$file" | xclip -selection clipboard
+       done;;
+"C-x") while read file; do
+           mv "$file" ~/Pictures/Tmp
+       done;;
+esac
+#+end_src
+
+**** Backgrounds
+***** Feh
+****** Install
+#+begin_src bash
+$INSTALL feh
+#+end_src
+
+****** Gifs as Backgrounds
+#+begin_src bash
+curl -L https://raw.githubusercontent.com/thomas10-10/foo-Wallpaper-Feh-Gif/master/install.sh | bash
+#back4.sh 0.010 gif/pixel.gif &
+#+end_src
+
+***** Pywal
+****** Install
+#+begin_src bash
+$INSTALL python-pywal python-colorthief
+#+end_src
+
+****** Install wpgtk
+#+begin_src bash
+sudo pip3 install wpgtk
+#+end_src
+
+****** Add Colorscheme to All Terminals
+:PROPERTIES:
+:header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
+:END:
+#+begin_src bash
+# Use pywal colorscheme
+(cat ~/.cache/wal/sequences &)
+
+# Use pywal colorscheme for TTYs
+source ~/.cache/wal/colors-tty.sh
+#+end_src
+
+****** Firefox Addon
+#+begin_src bash
+$INSTALL python-pywalfox
+sudo pywalfox install
+#+end_src
+
+****** Post Script
+:PROPERTIES:
+:header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/pywal/post_script.sh") :tangle-mode (identity #o755)
+:END:
+#+begin_src bash
+python $XDG_CONFIG_HOME/conky/pywal_conky.py
+#+end_src
+
+**** Neovim
+***** Install
+#+begin_src bash
+$INSTALL neovim neovide-git
+mkdir -p $XDG_CONFIG_HOME/nvim
+curl -fLo $XDG_DATA_HOME/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+#+end_src
+
+***** Setup Neovim
+#+begin_src bash
+nvim +'PlugInstall' +qall
+nvim +'TSUpdate org' +qall
+nvim +'CocInstall -sync coc-json coc-tsserver coc-html coc-rls coc-pyright coc-css coc-cmake coc-sh coc-cl coc-clojure coc-godot' +qall
+nvim +CocUpdateSync +qall
+#+end_src
+
+****** Setup Coc
+#+begin_src bash
+$INSTALL svlangserver
+$INSTALL haskell-language-server
+sudo npm install moby --global
+$INSTALL sdcv stardict-oed stardict-full-rus-eng stardict-full-eng-rus
+#+end_src
+
+******* Config File
+:PROPERTIES:
+:header-args:json: :tangle (concat (getenv "XDG_CONFIG_HOME") "/nvim/coc-settings.json")
+:END:
+#+begin_src json
+{
+    "languageserver": {
+        
+        "haskell": {
+          "command": "haskell-language-server-wrapper",
+          "args": ["--lsp"],
+          "rootPatterns": ["*.cabal", "stack.yaml", "cabal.project", "package.yaml", "hie.yaml"],
+          "filetypes": ["haskell", "lhaskell"]
+        },
+        
+        "ccls": {
+          "command": "ccls",
+          "filetypes": ["c", "cc", "cpp", "c++", "objc", "objcpp"],
+          "rootPatterns": [".ccls", "compile_commands.json", ".git/", ".hg/"],
+          "initializationOptions": {
+            "cache": {
+              "directory": "/tmp/ccls"
+            }
+          }
+        },
+        
+        "svlangserver": {
+            "command": "svlangserver",
+            "filetypes": ["systemverilog"],
+            "settings": {
+                "systemverilog.includeIndexing": ["**/*.{sv,svh}"],
+                "systemverilog.excludeIndexing": ["test/**/*.sv*"],
+                "systemverilog.defines" : [],
+                "systemverilog.launchConfiguration": "/tools/verilator -sv -Wall --lint-only",
+                "systemverilog.formatCommand": "/tools/verible-verilog-format"
+            }
+        }
+    }
+}
+#+end_src
+
+***** Configuration
+:PROPERTIES:
+:header-args:vimrc: :tangle (concat (getenv "XDG_CONFIG_HOME") "/nvim/init.vim")
+:END:
+****** Install Plugins
+#+begin_src vimrc
+call plug#begin('$XDG_CONFIG_HOME/nvim/plugged')
+     
+" Theme
+Plug 'vim-airline/vim-airline'
+Plug 'mwglen/wal.vim'
+Plug 'ap/vim-css-color'
+Plug 'glepnir/dashboard-nvim'
+
+" Fuzzy Matching
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+     
+" Syntax Highlighting
+Plug 'sheerun/vim-polyglot'
+
+" Autocompletion
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+     
+" Git Support
+Plug 'airblade/vim-gitgutter'
+Plug 'tpope/vim-fugitive'
+     
+" Text Object Manipulation
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-surround'
+
+" Prose
+Plug 'reedes/vim-pencil'
+Plug 'junegunn/limelight.vim'
+Plug 'junegunn/goyo.vim'
+Plug 'preservim/vim-lexical'
+Plug 'preservim/vim-textobj-sentence'
+Plug 'reedes/vim-wordy'
+Plug 'tpope/vim-markdown'
+
+" Notes
+Plug 'vimwiki/vimwiki'
+Plug 'mickael-menu/zk-nvim'
+
+" Misc
+Plug 'tpope/vim-repeat'
+
+call plug#end()
+#+end_src
+
+****** Keybindings
+#+begin_src vimrc
+
+#+end_src
+
+****** Vimwiki
+#+begin_src vimrc
+" Required Vim Settings
+set nocompatible
+filetype plugin on
+syntax on
+
+" Use Markdown
+let g:vimwiki_list = [{'path': '~/Documents/vimwiki/',
+                      \ 'syntax': 'markdown', 'ext': '.md'}]
+#+end_src
+
+****** Prose Mode
+Credit to [[https://www.reddit.com/r/vim/comments/q03mqa/my_setup_for_prose/][this reddit post]]
+#+begin_src vimrc
+let w:ProseModeOn = 0
+
+function EnableProseMode()
+	setlocal spell spelllang=en_us
+	Goyo 66
+	SoftPencil
+      Limelight
+	echo "Prose Mode On"
+
+      " open most folds
+      setlocal foldlevel=6
+endfu
+
+function DisableProseMode()
+	Goyo!
+	NoPencil
+	setlocal nospell
+      Limelight!
+	echo "Prose Mode Off"
+endfu
+
+function ToggleProseMode()
+	if w:ProseModeOn == 0
+		call EnableProseMode()
+		let w:ProseModeOn = 1
+	else
+		call DisableProseMode()
+	endif
+endfu
+
+command Prose call EnableProseMode()
+command UnProse call DisableProseMode()
+command ToggleProse call ToggleProseMode()
+
+function ScratchBufferize()
+	setlocal buftype=nofile
+	setlocal bufhidden=hide
+	setlocal noswapfile
+endfu
+
+nnoremap <Leader>d :new \| read ! sdcv <C-R><C-W> <CR>:call ScratchBufferize() <CR>:normal gg<CR>
+nnoremap <Leader>t :new \| read ! moby <C-R><C-W> \| tr , '\n' <CR>:call ScratchBufferize() <CR>:normal gg2dd <CR>
+#+end_src
+
+****** Set Options
+#+begin_src vimrc
+set number relativenumber       " set line-numbers to be relative
+set nohlsearch                  " no highlight search
+set mouse=a                     " recognize and enable mouse
+
+
+set tabstop=3                   " show existing tab as 4 spaces
+set shiftwidth=3                " use 4 spaces when indenting with '>'
+set expandtab                   " on pressing tab, insert 4 spaces
+
+set ignorecase
+set smartcase
+
+set nobackup
+    
+let g:airline_powerline_fonts=1 " set airline style
+let g:markdown_folding = 1
+set clipboard^=unnamedplus      " Copy to system clipboard using "+
+
+colorscheme wal                 " change the colorscheme
+set guifont=RobotoMono\ Nerd\ Font:h10
+set guifontwide=RobotoMono\ Nerd\ Font:h11.5
+
+" Make autocomplete better:
+"   - First tab completes as much as possible and provides list
+"   - Second and subsequent tabs cycle through completion options
+set wildmode=list:longest,full
+set wildmenu
+
+" %s/ctermbg=\(NONE\|\d\) ctermfg=\(NONE\|\d\).*/& guibg=\1 guifg=\2
+#+end_src
+
+****** On File Open Hooks
+#+begin_src vimrc
+" autocmd FileType markdown,mkd,text call EnableProseMode()
+" autocmd FileType org call EnableProseMode()
+#+end_src
+
+****** Post Write Hooks
+#+begin_src vimrc
+autocmd BufWritePost ~/.Xresources !xrdb %
+#+end_src
+
+****** Ranger Integration
+#+begin_src vimrc
+let g:ranger_replace_netrw = 1
+#+end_src
+
+****** Dashboard
+#+begin_src vimrc
+let g:dashboard_default_executive ='fzf'
+#+end_src
+
+****** Support Font Resizing
+#+begin_src vimrc
+if has("gui_gtk2")
+    function! FontSizePlus ()
+      let l:gf_size_whole = matchstr(&guifont, '\( \)\@<=\d\+$')
+      let l:gf_size_whole = l:gf_size_whole + 1
+      let l:new_font_size = ' '.l:gf_size_whole
+      let &guifont = substitute(&guifont, ' \d\+$', l:new_font_size, '')
+    endfunction
+
+    function! FontSizeMinus ()
+      let l:gf_size_whole = matchstr(&guifont, '\( \)\@<=\d\+$')
+      let l:gf_size_whole = l:gf_size_whole - 1
+      let l:new_font_size = ' '.l:gf_size_whole
+      let &guifont = substitute(&guifont, ' \d\+$', l:new_font_size, '')
+    endfunction
+else
+    function! FontSizePlus ()
+      let l:gf_size_whole = matchstr(&guifont, '\(:h\)\@<=\d\+$')
+      let l:gf_size_whole = l:gf_size_whole + 1
+      let l:new_font_size = ':h'.l:gf_size_whole
+      let &guifont = substitute(&guifont, ':h\d\+$', l:new_font_size, '')
+    endfunction
+
+    function! FontSizeMinus ()
+      let l:gf_size_whole = matchstr(&guifont, '\(:h\)\@<=\d\+$')
+      let l:gf_size_whole = l:gf_size_whole - 1
+      let l:new_font_size = ':h'.l:gf_size_whole
+      let &guifont = substitute(&guifont, ':h\d\+$', l:new_font_size, '')
+    endfunction
+endif
+
+
+" if has("gui_running")
+nmap <F11> :call FontSizeMinus()<CR>
+nmap <F12> :call FontSizePlus()<CR>
+" endif
+#+end_src
+
+****** Lua Config
+#+begin_src vimrc
+lua << EOF
+-- ZK Config
+require("zk").setup({
+  picker = "fzf",
+
+  lsp = {
+    config = {
+      cmd = { "zk", "lsp" },
+      name = "zk",
+    },
+
+    auto_attach = {
+      enabled = true,
+      filetypes = { "markdown" },
+    },
+  },
+})
+
+local opts = { noremap=true, silent=false }
+
+-- Create a new note after asking for its title.
+vim.api.nvim_set_keymap("n", "<leader>zn", "<Cmd>ZkNew { title = vim.fn.input('Title: ') }<CR>", opts)
+
+-- Open notes.
+vim.api.nvim_set_keymap("n", "<leader>zo", "<Cmd>ZkNotes { sort = { 'modified' } }<CR>", opts)
+-- Open notes associated with the selected tags.
+vim.api.nvim_set_keymap("n", "<leader>zt", "<Cmd>ZkTags<CR>", opts)
+
+-- Search for the notes matching a given query.
+vim.api.nvim_set_keymap("n", "<leader>zf", "<Cmd>ZkNotes { sort = { 'modified' }, match = vim.fn.input('Search: ') }<CR>", opts)
+-- Search for the notes matching the current visual selection.
+vim.api.nvim_set_keymap("v", "<leader>zf", ":'<,'>ZkMatch<CR>", opts)
+
+-- Add the key mappings only for Markdown files in a zk notebook.
+if require("zk.util").notebook_root(vim.fn.expand('%:p')) ~= nil then
+  local function map(...) vim.api.nvim_buf_set_keymap(0, ...) end
+  local opts = { noremap=true, silent=false }
+  
+  -- Open the link under the caret.
+  map("n", "<CR>", "<Cmd>lua vim.lsp.buf.definition()<CR>", opts)
+  
+  -- Create a new note after asking for its title.
+  -- This overrides the global `<leader>zn` mapping to create the note in the same directory as the current buffer.
+  map("n", "<leader>zn", "<Cmd>ZkNew { dir = vim.fn.expand('%:p:h'), title = vim.fn.input('Title: ') }<CR>", opts)
+  -- Create a new note in the same directory as the current buffer, using the current selection for title.
+  map("v", "<leader>znt", ":'<,'>ZkNewFromTitleSelection { dir = vim.fn.expand('%:p:h') }<CR>", opts)
+  -- Create a new note in the same directory as the current buffer, using the current selection for note content and asking for its title.
+  map("v", "<leader>znc", ":'<,'>ZkNewFromContentSelection { dir = vim.fn.expand('%:p:h'), title = vim.fn.input('Title: ') }<CR>", opts)
+
+  -- Open notes linking to the current buffer.
+  map("n", "<leader>zb", "<Cmd>ZkBacklinks<CR>", opts)
+  -- Alternative for backlinks using pure LSP and showing the source context.
+  --map('n', '<leader>zb', '<Cmd>lua vim.lsp.buf.references()<CR>', opts)
+  -- Open notes linked by the current buffer.
+  map("n", "<leader>zl", "<Cmd>ZkLinks<CR>", opts)
+  
+  -- Preview a linked note.
+  map("n", "K", "<Cmd>lua vim.lsp.buf.hover()<CR>", opts)
+  -- Open the code actions for a visual selection.
+  map("v", "<leader>za", ":'<,'>lua vim.lsp.buf.range_code_action()<CR>", opts)
+end
+EOF
+#+end_src
+
+*** Change Shell
+#+begin_src bash
+sudo chsh -s /usr/bin/zsh $USER
+#+end_src

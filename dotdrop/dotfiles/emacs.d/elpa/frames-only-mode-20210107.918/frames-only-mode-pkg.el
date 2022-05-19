@@ -1,0 +1,2 @@
+;;; Generated package description from frames-only-mode.el  -*- no-byte-compile: t -*-
+(define-package "frames-only-mode" "20210107.918" "Use frames instead of Emacs windows" '((emacs "24.4") (dash "2.13.0") (s "1.11.0")) :commit "d3f6647c484656ddabdac5d18546599a03823cd4" :authors '(("David Shepherd" . "davidshepherd7@gmail.com")) :maintainer '("David Shepherd" . "davidshepherd7@gmail.com") :keywords '("frames" "windows") :url "https://github.com/davidshepherd7/frames-only-mode")

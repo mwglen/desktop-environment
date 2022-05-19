@@ -1,0 +1,3 @@
+set virtual_spoolfile
+set nm_default_url = "notmuch:///home/mwglen/Mail"
+virtual-mailboxes "new" "notmuch://?query=tag:new"

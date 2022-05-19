@@ -1,0 +1,13 @@
+#!/bin/sh
+case "$1" in
+"C-d") while read file; do
+           trash "$file"
+       done;;
+
+"C-c") while read file; do
+           echo -n "$file" | xclip -selection clipboard
+       done;;
+"C-x") while read file; do
+           mv "$file" ~/Pictures/Tmp
+       done;;
+esac

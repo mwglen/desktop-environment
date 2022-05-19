@@ -1,0 +1,3 @@
+[Profile]
+IMName=fcitx-keyboard-ru
+EnabledIMList=fcitx-keyboard-us:True,fcitx-keyboard-ru:True,fcitx-keyboard-ara:True,mozc:True

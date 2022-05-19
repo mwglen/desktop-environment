@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=exwm
+Type=Application
+Icon=exwm
+Comment=The Emacs X Window Manager
+TryExec=emacs
+Exec=emacs -fs

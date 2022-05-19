@@ -1,0 +1,2 @@
+;;; Generated package description from exwm-firefox-evil.el  -*- no-byte-compile: t -*-
+(define-package "exwm-firefox-evil" "20200206.2212" "evil-mode implementation of exwm-firefox-core" '((emacs "24.4") (exwm "0.16") (evil "1.0.0") (exwm-firefox-core "1.0")) :commit "14643ee53a506ddcb5d2e06cb9f1be7310cd00b1" :authors '(("Sebastian Wålinder" . "s.walinder@gmail.com")) :maintainer '("Sebastian Wålinder" . "s.walinder@gmail.com") :keywords '("extensions") :url "https://github.com/walseb/exwm-firefox-evil")

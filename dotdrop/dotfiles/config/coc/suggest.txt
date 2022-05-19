@@ -1,0 +1,3 @@
+matpl|matplotlib|pyright
+matplotlib|matplotlib|pyright
+functio|function|languageserver.svlangserver

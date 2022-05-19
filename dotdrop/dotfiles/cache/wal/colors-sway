@@ -1,0 +1,21 @@
+set $wallpaper /home/mwglen/Backgrounds/nge.jpeg
+
+set $background #0d0f12
+set $foreground #ddb4b8
+
+set $color0 #0d0f12
+set $color1 #6C3E43
+set $color2 #5A4147
+set $color3 #754245
+set $color4 #8F4548
+set $color5 #B64F56
+set $color6 #BF555B
+set $color7 #ddb4b8
+set $color8 #9a7d80
+set $color9 #6C3E43
+set $color10 #5A4147
+set $color11 #754245
+set $color12 #8F4548
+set $color13 #B64F56
+set $color14 #BF555B
+set $color15 #ddb4b8

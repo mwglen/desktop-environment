@@ -1,0 +1,27 @@
+{
+    "wallpaper": "/home/mwglen/Backgrounds/2001_A_Space_Odyssey.jpg",
+    "alpha": "100",
+    "special": {
+        "background": "#0D1A2C",
+        "foreground": "#e2e0ee",
+        "cursor": "#e2e0ee"
+    },
+    "colors": {
+        "color0": "#0D1A2C",
+        "color1": "#596D9C",
+        "color2": "#476BBF",
+        "color3": "#7487B0",
+        "color4": "#6E8CD6",
+        "color5": "#9BAAD8",
+        "color6": "#A8B0C7",
+        "color7": "#e2e0ee",
+        "color8": "#9e9ca6",
+        "color9": "#596D9C",
+        "color10": "#476BBF",
+        "color11": "#7487B0",
+        "color12": "#6E8CD6",
+        "color13": "#9BAAD8",
+        "color14": "#A8B0C7",
+        "color15": "#e2e0ee"
+    }
+}

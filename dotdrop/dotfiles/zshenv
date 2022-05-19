@@ -1,0 +1,7 @@
+export TERMINAL='alacritty'
+source $HOME/.profile
+ZDOTDIR=~/.config/zsh
+
+export PATH="$HOME/.local/bin:$PATH"
+
+alias spotify="spotify --force-device-scale-factor=2"

@@ -1,0 +1,2 @@
+;;; Generated package description from ivy-clipmenu.el  -*- no-byte-compile: t -*-
+(define-package "ivy-clipmenu" "20220202.2122" "Ivy client for clipmenu" '((emacs "26.1") (f "0.20.0") (s "1.12.0") (dash "2.16.0") (ivy "0.13.0")) :commit "7c200cd4732821187084fad23547ee3f58365062" :authors '(("William Carroll" . "wpcarro@gmail.com")) :maintainer '("William Carroll" . "wpcarro@gmail.com") :url "https://github.com/wpcarro/ivy-clipmenu.el")

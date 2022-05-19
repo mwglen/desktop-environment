@@ -1,0 +1,51 @@
+control+semicolon
+    xset r off; xdotool key --clearmodifiers 'Escape'; xset r on
+control+h
+    xdotool key BackSpace
+    
+### Audio Control ###
+XF86AudioRaiseVolume
+    pactl set-sink-volume @DEFAULT_SINK@ +10%
+XF86AudioLowerVolume
+    pactl set-sink-volume @DEFAULT_SINK@ -10%
+XF86AudioMute
+    pactl set-sink-mute @DEFAULT_SINK@ toggle
+XF86AudioMicMute
+    pactl set-source-mute @DEFAULT_SOURCE@ toggle
+
+### Media Control ###
+XF86AudioPrev
+    playerctl previous
+XF86AudioNext
+    playerctl next
+XF86AudioPlay
+    playerctl play-pause
+XF86AudioStop
+    playerctl stop
+
+### Brightness Control ###
+XF86MonBrightnessUp
+    brillo -q -u 150000 -A 5
+XF86MonBrightnessDown
+    brillo -q -u 150000 -U 5
+
+
+### Rofi Menus ###
+super+p
+    rofi -show run
+super+control+p
+    rofi -show window
+super+control+b
+    rofi-bluetooth
+super+b
+    bwmenu
+
+### Applications ###
+super+e
+    emacsclient -c
+super+S
+    flameshot gui
+super+shift+Return
+    alacritty
+super+T
+    picom-trans -t -c 100

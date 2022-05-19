@@ -1,0 +1,4 @@
+gtk-icon-theme-name = "Materia"
+gtk-theme-name = "Materia"
+gtk-application-prefer-dark-theme = "true"
+gtk-cursor-theme-name="phinger-cursors"
