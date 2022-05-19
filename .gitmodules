@@ -1,3 +1,95 @@
-[submodule "dotdrop"]
+[submodule "dotdrop/src"]
 	path = dotdrop/src
-	url = https://github.com/deadc0de6/dotdrop.git
+   url = https://github.com/deadc0de6/dotdrop.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/coc.nvim"]
+	path = dotdrop/dotfiles/config/nvim/plugged/coc.nvim
+   url = https://github.com/neoclide/coc.nvim.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/dashboard-nvim"]
+	path = dotdrop/dotfiles/config/nvim/plugged/dashboard-nvim
+   url = https://github.com/glepnir/dashboard-nvim.git
+   ignore = dirty
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/fzf"]
+   path = dotdrop/dotfiles/config/nvim/plugged/fzf
+   url = https://github.com/junegunn/fzf.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/fzf.vim"]
+   path = dotdrop/dotfiles/config/nvim/plugged/fzf.vim
+   url = https://github.com/junegunn/fzf.vim.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/goyo.vim"]
+   path = dotdrop/dotfiles/config/nvim/plugged/goyo.vim
+   url = https://github.com/junegunn/goyo.vim.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/limelight.vim"]
+   path = dotdrop/dotfiles/config/nvim/plugged/limelight.vim
+   url = https://github.com/junegunn/limelight.vim.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/vim-airline"]
+   path = dotdrop/dotfiles/config/nvim/plugged/vim-airline
+   url = https://github.com/vim-airline/vim-airline.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/vim-commentary"]
+   path = dotdrop/dotfiles/config/nvim/plugged/vim-commentary
+   url = https://github.com/tpope/vim-commentary.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/vim-css-color"]
+   path = dotdrop/dotfiles/config/nvim/plugged/vim-css-color
+   url = https://github.com/ap/vim-css-color.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/vim-fugitive"]
+   path = dotdrop/dotfiles/config/nvim/plugged/vim-fugitive
+   url = https://github.com/tpope/vim-fugitive.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/vim-gitgutter"]
+   path = dotdrop/dotfiles/config/nvim/plugged/vim-gitgutter
+   url = https://github.com/airblade/vim-gitgutter.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/vim-lexical"]
+   path = dotdrop/dotfiles/config/nvim/plugged/vim-lexical
+   url = https://github.com/preservim/vim-lexical.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/vim-markdown"]
+   path = dotdrop/dotfiles/config/nvim/plugged/vim-markdown
+   url = https://github.com/preservim/vim-markdown.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/vim-pencil"]
+   path = dotdrop/dotfiles/config/nvim/plugged/vim-pencil
+   url = https://github.com/preservim/vim-pencil.git
+   ignore = dirty
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/vim-polyglot"]
+   path = dotdrop/dotfiles/config/nvim/plugged/vim-polyglot
+   url = https://github.com/sheerun/vim-polyglot.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/vim-repeat"]
+   path = dotdrop/dotfiles/config/nvim/plugged/vim-repeat
+   url = https://github.com/tpope/vim-repeat.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/vim-surround"]
+   path = dotdrop/dotfiles/config/nvim/plugged/vim-surround
+   url = https://github.com/tpope/vim-surround.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/vim-textobj-sentence"]
+   path = dotdrop/dotfiles/config/nvim/plugged/vim-textobj-sentence
+   url = https://github.com/preservim/vim-textobj-sentence.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/vim-wordy"]
+   path = dotdrop/dotfiles/config/nvim/plugged/vim-wordy
+   url = https://github.com/preservim/vim-wordy.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/vimwiki"]
+   path = dotdrop/dotfiles/config/nvim/plugged/vimwiki
+   url = https://github.com/vimwiki/vimwiki.git
+   ignore = dirty
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/wal.vim"]
+   path = dotdrop/dotfiles/config/nvim/plugged/wal.vim
+   url = https://github.com/dylanaraps/wal.vim.git
+
+[submodule "dotdrop/dotfiles/config/nvim/plugged/zk-nvim"]
+   path = dotdrop/dotfiles/config/nvim/plugged/zk-nvim
+   url = https://github.com/mickael-menu/zk-nvim.git
+
