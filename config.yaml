@@ -226,33 +226,52 @@ dotfiles:
     src: config/kritarc
     dst: ~/.config/kritarc
     chmod: '600'
+  f_grub.cfg:
+    src: boot/grub/grub.cfg
+    dst: /boot/grub/grub.cfg
+    chmod: '755'
+  d_litarvan:
+    src: usr/share/lightdm-webkit/themes/litarvan
+    dst: /usr/share/lightdm-webkit/themes/litarvan
 profiles:
-  MattArch:
+  MattArchSudo:
     dotfiles:
-    - d_polybar
-    - f_config
     - f_grub
     - f_logind.conf
     - f_sleep.conf
-    - f_mimeapps.list
-    - f_user-dirs.dirs
-    - f_zshrc
     - f_pacman.conf
-    - f_wgetrc
-    - f_alacritty.yml
     - f_optimus-manager.conf
     - f_main.conf
-    - f_config.ini
-    - f_mpv.conf
     - f_99-lowbat.rules
     - f_hibernate-if-low.sh
     - f_auto-hibernate.service
     - f_auto-hibernate.timer
     - f_backlight.rules
+    - f_smb.conf
+    - f_lightdm.conf
+    - f_lightdm-webkit2-greeter.conf
+    - f_locale.gen
+    - f_exwm.desktop
+    - f_dwm.desktop
+    - f_spotify.desktop
+    - f_nsxiv.desktop
+    - f_grub.cfg
+    - d_litarvan
+
+  MattArch:
+    dotfiles:
+    - d_polybar
+    - f_config
+    - f_mimeapps.list
+    - f_user-dirs.dirs
+    - f_zshrc
+    - f_wgetrc
+    - f_alacritty.yml
+    - f_config.ini
+    - f_mpv.conf
     - f_xprofile
     - f_profile
     - f_zshenv
-    - f_smb.conf
     - f_notmuch-config
     - f_neomuttrc
     - d_gtk-3.0
@@ -260,18 +279,13 @@ profiles:
     - d_gtk-4.0
     - f_index.theme
     - f_xresources
-    - f_lightdm.conf
-    - f_lightdm-webkit2-greeter.conf
     - f_picom.conf
     - f_fcitx_profile
     - f_fcitx-xkb.config
     - f_fcitx-classic-ui.config
     - f_xmodmap
-    - f_locale.gen
     - f_kanshi_config
     - f_sxhkdrc
-    - f_exwm.desktop
-    - f_dwm.desktop
     - f_xmonad.hs
     - f_config.rasi
     - d_dunst
@@ -279,8 +293,6 @@ profiles:
     - d_ranger
     - f_userchrome.css
     - d_flameshot
-    - f_spotify.desktop
-    - f_nsxiv.desktop
     - f_key-handler
     - f_post_script.sh
     - f_coc-settings.json

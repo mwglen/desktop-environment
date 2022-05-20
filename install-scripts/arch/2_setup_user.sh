@@ -30,13 +30,5 @@ echo '%wheel ALL=(ALL:ALL) ALL' | sudo EDITOR='tee -a' visudo
 touch /home/$user/.zshrc
 passwd $user
 
-# Install Grub
-pacman --noconfirm -S grub efibootmgr
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
-sudo tee /etc/default/grub
-
-EOF
-grub-mkconfig -o /boot/grub/grub.cfg
-
 # Switch to User
 su $user

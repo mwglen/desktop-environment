@@ -1,24 +1,6 @@
 #+title: Development Environment
 #+PROPERTY: header-args :results none :mkdirp yes
 * Configuration Files
-** Grub
-#+begin_src conf :tangle /sudo:://etc/default/grub
-GRUB_DEFAULT=saved
-GRUB_SAVEDEFAULT=true
-GRUB_TIMEOUT=5
-GRUB_DISTRIBUTOR="Arch"
-GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"
-GRUB_CMDLINE_LINUX="resume=/dev/nvme0n1p2"
-GRUB_DISABLE_OS_PROBER=false
-GRUB_THEME="/boot/grub/themes/vimix/theme.txt"
-GRUB_PRELOAD_MODULES="part_gpt part_msdos"
-GRUB_TIMEOUT_STYLE=menu
-GRUB_TERMINAL_INPUT=console
-GRUB_GFXMODE=auto
-GRUB_GFXPAYLOAD_LINUX=keep
-GRUB_DISABLE_RECOVERY=true
-#+end_src
-
 ** Logind
 #+begin_src conf :tangle /sudo:://etc/systemd/logind.conf
 [Login]
@@ -28,7 +10,7 @@ HandleHibernateKey=hibernate
 HandleLidSwitch=suspend-then-hibernate
 #+end_src
 
-*** Sleep Configuration
+** Sleep Configuration
 #+begin_src conf :tangle /sudo:://etc/systemd/sleep.conf
 [Sleep]
 HibernateDelaySec=30min
@@ -158,7 +140,6 @@ prompt pure
 alias vi=nvim
 alias vim=nvim
 export EDITOR=nvim
-export VISUAL="devour emacsclient -c"
 #+end_src
 
 *** Audio
@@ -182,7 +163,7 @@ vterm_printf(){
 #+end_src
 
 * Install Scripts
-** Host Machine
+** Setup Partitions
 :PROPERTIES:
 :header-args:bash: :tangle install-scripts/arch/1_setup_partitions.sh :tangle-mode (identity #o755)
 :END:
@@ -233,7 +214,7 @@ sudo cp ./install2.sh /mnt/install2.sh
 sudo arch-chroot $mount_point
 #+end_src
 
-** As Root
+** Setup User
 :PROPERTIES:
 :header-args:bash: :tangle install-scripts/arch/2_setup_user.sh :tangle-mode (identity #o755)
 :END:
@@ -270,36 +251,15 @@ echo '%wheel ALL=(ALL:ALL) ALL' | sudo EDITOR='tee -a' visudo
 touch /home/$user/.zshrc
 passwd $user
 
-# Install Grub
-pacman --noconfirm -S grub efibootmgr
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
-sudo tee /etc/default/grub
-
-EOF
-grub-mkconfig -o /boot/grub/grub.cfg
-
 # Switch to User
 su $user
 #+end_src
 
-** As User
+** Install Applications
 :PROPERTIES:
 :header-args:bash: :tangle install-scripts/arch/3_install_applications.sh :tangle-mode (identity #o755)
+:header-args:text: :tangle install-scripts/arch/packages.txt
 :END:
-#+begin_src bash
-#!/bin/bash
-set -e # Stop on Error
-set -v # Verbose
-
-# Options
-nvidia=true
-
-# Install Yay
-sudo pacman --noconfirm -S --needed git base-devel
-cd ~ && git clone https://aur.archlinux.org/yay.git
-cd ~/yay && makepkg -si
-#+end_src
-
 *** Script Headers
 **** Use Bash
 #+begin_src bash
@@ -321,52 +281,105 @@ set -v
 # NOTE: This file is generated from config.org
 #+end_src
 
-*** Setup XDG Base Directories
+*** Options
+**** Graphics Drivers
 #+begin_src bash
-source $HOME/.profile
+nvidia="true"
+gmail="mwg2202@gmail.com"
 #+end_src
 
-**** Make Directories
+**** XDG Directories
+#+begin_src bash
+XDG_CONFIG_HOME="$HOME/.config"
+XDG_CACHE_HOME="$HOME/.cache"
+XDG_DATA_HOME="$HOME/.local/share"
+XDG_STATE_HOME="$HOME/.local/state"
+REPOSITORIES="$HOME/Repositories"
+MAIL="$HOME/Mail"
+#+end_src
+
+*** Create XDG Base Directories
 #+begin_src bash
 mkdir -p $XDG_CONFIG_HOME
 mkdir -p $XDG_CACHE_HOME
 mkdir -p $XDG_DATA_HOME
 mkdir -p $XDG_STATE_HOME
 mkdir -p $REPOSITORIES
+mkdir -p $MAIL
+#+end_src
+
+*** Install Yay
+#+begin_src bash
+sudo pacman --noconfirm -S --needed git base-devel
+git clone https://aur.archlinux.org/yay.git ~/$REPOSITORIES/yay
+cd ~/$REPOSITORIES/yay && makepkg -si
+rm -rf ~/$REPOSITORIES/yay
+#+end_src
+
+*** Setup Chatoric-AUR
+#+begin_src bash
+sudo pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com
+sudo pacman-key --lsign-key FBA220DFC880C036
+sudo pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+#+end_src
+
+*** Install Config
+#+begin_src bash
+sudo pacman --noconfirm --needed -S git python3 python-pip
+pip3 install -r dotdrop/requirements.txt --user
+sudo pip3 install -r dotdrop/requirements.txt
+
+git clone https://github.com/mwglen/desktop-environment.git ~/Repositories/desktop-environment
+cd ~/Repositories/desktop-environment
+
+./dotdrop.sh install -p MattArch
+sudo ./dotdrop.sh install -p MattArchSudo
+#+end_src
+
+*** Setup Grub
+**** Install
+#+begin_src bash
+sudo pacman --noconfirm -S grub efibootmgr
+sudo grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+#+end_src
+
+**** Configuration
+#+begin_src conf :tangle /sudo:://etc/default/grub
+GRUB_DEFAULT=saved
+GRUB_SAVEDEFAULT=true
+GRUB_TIMEOUT=5
+GRUB_DISTRIBUTOR="Arch"
+GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"
+GRUB_CMDLINE_LINUX="resume=/dev/nvme0n1p2"
+GRUB_DISABLE_OS_PROBER=false
+GRUB_THEME="/boot/grub/themes/vimix/theme.txt"
+GRUB_PRELOAD_MODULES="part_gpt part_msdos"
+GRUB_TIMEOUT_STYLE=menu
+GRUB_TERMINAL_INPUT=console
+GRUB_GFXMODE=auto
+GRUB_GFXPAYLOAD_LINUX=keep
+GRUB_DISABLE_RECOVERY=true
 #+end_src
 
 *** System Time
 #+begin_src bash
 sudo timedatectl set-timezone America/New_York
-#+end_src bash
+#+end_src
 
 *** Setup Yay
-**** Install
+**** Installation
 #+begin_src bash
-if ! (pacman -Qs yay > /dev/null); then
-    if (pacman -Qs fakeroot-tcp > /dev/null); then
-        sudo pacman -Syyu --needed git base-devel \ && git clone https://aur.archlinux.org/yay.git $REPOSITORIES/yay \ && cd $REPOSITORIES/yay && yes | makepkg -si
-    else # cannot use --noconfirm if fakeroot-tcp is installed
-        sudo pacman -Syyu --needed --noconfirm git base-devel \
-            && git clone https://aur.archlinux.org/yay.git \
-            && cd yay && yes | makepkg -si
-    fi
-    rm -rf $REPOSITORIES/yay
-fi
+sudo pacman -Syyu --needed --noconfirm git base-devel \
+    && git clone https://aur.archlinux.org/yay.git \
+    && cd yay && yes | makepkg -si
+rm -rf $REPOSITORIES/yay
 #+end_src
 
-**** Shortcuts
+**** Install and Update Packages
 #+begin_src bash
-export INSTALL="yay -S --noconfirm --needed"
-export INSTALL_LOCAL="yay -U --noconfirm --needed"
-export REMOVE="yay -R --noconfirm --needed"
-export UPDATE="yay -Syyu --noconfirm --needed"
-export SEARCH="yay -Qs"
-#+end_src
-
-**** Update Packages
-#+begin_src bash
-$UPDATE
+packages="cat install-scripts/arch/packages.txt | awk -F '#' '{print $1}' | tr -d '\n'"
+yay -Syyu --noconfirm --needed $packages
 #+end_src
 
 *** Pacman Config
@@ -436,10 +449,27 @@ SigLevel = Never
 Server = https://raw.githubusercontent.com/mwglen/arch-repo/master/x86_64/
 #+end_src
 
-*** Fundamental Packages
-**** git
+*** Base Packages
+#+begin_src text
+man-db
+man-pages
+bazel
+cmake
+rsync
+wget
+inetutils
+#+end_src
+
+*** Git
+**** Installation
+#+begin_src text
+git
+openssh
+git-lfs
+#+end_src
+
+**** Setup
 #+begin_src bash
-$INSTALL git openssh git-lfs
 mkdir -p "$XDG_CONFIG_HOME"/git
 touch "$XDG_CONFIG_HOME"/git/config
 git config --global user.name "Matt Glen"
@@ -447,41 +477,15 @@ git config --global user.email "mwg2202@yahoo.com"
 git config --global init.defaultBranch master
 #+end_src
 
-**** man
-#+begin_src bash
-$INSTALL man-db man-pages
-#+end_src
-
-**** Bazel
-#+begin_src bash
-$INSTALL bazel
-#+end_src
-
-**** cmake
-#+begin_src bash
-$INSTALL cmake
-#+end_src
-
-**** rsync
-#+begin_src bash
-$INSTALL rsync
-#+end_src
-
-**** wget
-#+begin_src bash
-$INSTALL wget
-#+end_src
-
-**** Inetutils
-Gives the hostname command
-#+begin_src bash
-$INSTALL inetutils
-#+end_src
-
 *** Fonts
 **** Nerd Fonts
+***** Installation
+#+begin_src text
+nerd-fonts-complete
+#+end_src
+
+***** Setup
 #+begin_src bash
-$INSTALL nerd-fonts-complete
 # cd /usr/share/fonts/nerd-fonts-complete/TTF && sudo mkfontscale && mkfontdir
 # sudo xset +fp /usr/share/fonts/nerd-fonts-complete/TTF
 sudo fc-cache -fv
@@ -505,40 +509,54 @@ xset fp rehash
 
 *** Languages
 **** Python
-#+begin_src bash
-$INSTALL python python-matplotlib poetry
+***** Installation
+#+begin_src text
+python
+python-matplotlib
+poetry
+python-pip
 #+end_src
 
 **** Rust
+***** Installation
+#+begin_src text
+rustup
+#+end_src
+
+***** Setup
+Sometimes rustup cannot add =rls= due to nightly. This isn't ideal, but doesn't matter much
 #+begin_src bash
-$INSTALL rustup
 rustup default nightly
-rustup component add rls rust-analysis rust-src
+rustup component add rls || true
+rustup component add rust-analysis rust-src
 #+end_src
 
 **** Prolog
-#+begin_src bash
-$INSTALL gprolog swi-prolog
+***** Installation
+#+begin_src text
+gprolog
+swi-prolog
 #+end_src
 
-***** Pyswip
+***** Setup Pyswip
 #+begin_src bash
 pip install git+https://github.com/yuce/pyswip@master#egg=pyswip
 #+end_src
 
 **** PHP
-#+begin_src bash
-$INSTALL php
+***** Installation
+#+begin_src text
+php
 #+end_src
 
 *** Terminal Emulators
 **** Alacritty
-***** Install
-#+begin_src bash
-$INSTALL alacritty
+***** Installation
+#+begin_src text
+alacritty
 #+end_src
 
-***** Configure
+***** Configuration
 :PROPERTIES:
 :header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/alacritty/alacritty.yml")
 :END:
@@ -563,16 +581,19 @@ font:
 
 *** Drivers
 **** NVIDIA
-#+begin_src bash
-$INSTALL nvidia
+***** Proprietary Drivers
+****** Installation
+#+begin_src text
+nvidia
 #+end_src
 
 ***** Optimus-Manager
-#+begin_src bash
-$INSTALL optimus-manager-qt
+****** Installation
+#+begin_src text
+optimus-manager-qt
 #+end_src
 
-****** Config
+******  Configuration
 :PROPERTIES:
 :header-args:conf: :tangle /sudo:://etc/optimus-manager/optimus-manager.conf
 :END:
@@ -590,25 +611,37 @@ startup_auto_extpower_mode=hybrid
 #+end_src
 
 **** USB
-#+begin_src bash
-$INSTALL usbutils usbip
+#+begin_src text
+usbutils
+usbip
 #+end_src
 
 **** Audio
 ***** Pipewire
-#+begin_src bash
-$INSTALL pipewire wireplumber pipewire-alsa pipewire-pulse pipewire-jack
+****** Installation
+#+begin_src text
+pipewire
+wireplumber
+pipewire-alsa
+pipewire-pulse
+pipewire-jack
 #+end_src
 
 ***** Pulse Audio Control
-#+begin_src bash
-$INSTALL pulseaudio-control
+****** Installation
+#+begin_src text
+pulseaudio-control
 #+end_src
 
-
 **** Bluetooth
+***** Installation
+#+begin_src text
+bluez
+bluez-utils
+#+end_src
+
+***** Setup
 #+begin_src bash
-$INSTALL bluez bluez-utils
 sudo systemctl enable bluetooth
 #+end_src
 
@@ -632,17 +665,24 @@ AutoEnable=true
 
 **** Wifi
 ***** Network Manager
+****** Installation
+#+begin_src text
+networkmanager
+network-manager-applet
+#+end_src
+
+****** Setup
 #+begin_src bash
-$INSTALL networkmanager network-manager-applet
 sudo systemctl enable NetworkManager
 #+end_src
 
 ***** Network Manager Dmenu
-#+begin_src bash
-$INSTALL networkmanager-dmenu-git
+****** Installation
+#+begin_src text
+networkmanager-dmenu-git
 #+end_src
 
-****** Config
+****** Configuration
 #+begin_src conf :tangle (concat (getenv "XDG_CONFIG_HOME") "/networkmanager-dmenu/config.ini")
 [dmenu]
 dmenu_command = /usr/bin/rofi -dmenu
@@ -659,19 +699,23 @@ terminal = alacritty
 #+end_src
 
 **** Audio
-***** Install
-#+begin_src bash
-$INSTALL alsa-utils pavucontrol
+***** Installation
+#+begin_src text
+alsa-utils
+pavucontrol
 #+end_src
 
 **** Media
 ***** MPV
-****** Install
-#+begin_src bash
-$INSTALL playerctl mpv yt-dlp baka-mplayer
+****** Installation
+#+begin_src text
+playerctl
+mpv
+yt-dlp
+baka-mplayer
 #+end_src
 
-****** MPV Config
+****** Configuration
 :PROPERTIES:
 :header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/mpv/mpv.conf")
 :END:
@@ -681,8 +725,20 @@ script-opts=ytdl_hook-ytdl_path=yt-dlp
 
 *** Power Management
 **** ACPI
+***** Installation
+#+begin_src text
+acpi
+#+end_src
+
+****  TLP
+***** Installation
+#+begin_src text
+tlp
+#+end_src
+
+***** Setup
 #+begin_src bash
-$INSTALL acpi
+sudo systemctl enable tlp
 #+end_src
 
 **** Hibernate
@@ -739,32 +795,33 @@ WantedBy=timers.target
 ***** Enable Auto Hibernation
 #+begin_src bash
 sudo systemctl daemon-reload
-sudo systemctl enable --now auto-hibernate.timer
+sudo systemctl enable auto-hibernate.timer
 #+end_src
 
 **** Brightness
-***** Setup Video Group
-#+begin_src bash
-sudo groupadd video && true
-sudo usermod +aG video mwglen && true
-sudo chgrp video /sys/class/backlight/intel_backlight/brightness && true
+***** Brightnessctl
+****** Install
+#+begin_src text
+brightnessctl
 #+end_src
 
+****** Setup
+#+begin_src bash
+sudo groupadd video
+sudo usermod +aG video $USER
+sudo chgrp video /sys/class/backlight/intel_backlight/brightness
+#+end_src
+
+****** Configuration
 #+begin_src conf :tangle /sudo:://etc/udev/rules.d/backlight.rules
 ACTION=="add", SUBSYSTEM=="backlight", KERNEL=="<vendor>", RUN+="/bin/chgrp video /sys/class/backlight/%k/brightness"
 ACTION=="add", SUBSYSTEM=="backlight", KERNEL=="<vendor>", RUN+="/bin/chmod g+w /sys/class/backlight/%k/brightness"
 #+end_src
 
-***** Brightnessctl
-****** Install
-#+begin_src bash
-$INSTALL brightnessctl
-#+end_src
-
 ***** Brillo
-****** Install
-#+begin_src bash
-$INSTALL brillo
+****** Installation
+#+begin_src text
+brillo
 #+end_src
 
 ****** Set Minimum Brightness
@@ -779,52 +836,58 @@ This prevents brillo from setting the backlight completely off (which can cause 
 brillo -qc -S 70
 #+end_src
 
-**** Printing/Scanning
-***** Base Drivers
+*** Printing/Scanning
+**** Generic Printers
+***** Installation
 To scan I recommend using simple-scan
 #+begin_src bash
-$INSTALL cups sane python-pillow simple-scan
+cups sane python-pillow simple-scan
+#+end_src
+
+***** Setup
+#+begin_src bash
 sudo systemctl enable cups
 #+end_src
 
-***** Optional Drivers for HP Printers
+**** HP Printers
 Runs using cups and sane. Comes with a systemtray available through the ~hp-systray~ command. To get started find the ip address of your printer and then run ~hp-setup <ip-address>~.
-#+begin_src bash
-$INSTALL hplip
+#+begin_src text
+hplip
 #+end_src
 
 *** System Tray
 **** KDocker
-#+begin_src bash
-$INSTALL kdocker
+#+begin_src text
+kdocker
 #+end_src
 
 *** Setup Core Packages
 **** Latex
-#+begin_src bash
-$INSTALL texlive-core texlive-latexextra
+#+begin_src text
+texlive-core
+texlive-latexextra
 #+end_src
 
 **** ZSH
-***** Install
-#+begin_src bash
-$INSTALL zsh zsh-completions zsh-syntax-highlighting zsh-autosuggestions
+***** Installation
+#+begin_src text
+zsh
+zsh-completions
+zsh-syntax-highlighting
+zsh-autosuggestions
 #+end_src
 
-***** Source Config
-#+begin_src bash
-source $HOME/.zshenv
-#+end_src
-
-***** Dot Profile
+***** Configuration
+****** Dot Profile
 #+begin_src bash :tangle ~/.profile
+export BACKGROUNDS=$HOME/Backgrounds
+export REPOSITORIES=$HOME/Repositories
+export PATH="$PATH:$HOME/development-environment/scripts:/snap/bin"
+
 export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE_HOME=$HOME/.cache
 export XDG_DATA_HOME=$HOME/.local/share
 export XDG_STATE_HOME=$HOME/.local/state
-export BACKGROUNDS=$HOME/Backgrounds
-export REPOSITORIES=$HOME/Repositories
-export PATH="$PATH:$HOME/development-environment/scripts:/snap/bin"
 
 export XDG_DESKTOP_DIR="$HOME/Desktop"
 export XDG_DOCUMENTS_DIR="$HOME/Documents"
@@ -836,7 +899,7 @@ export XDG_TEMPLATES_DIR="$HOME/Templates"
 export XDG_VIDEOS_DIR="$HOME/Videos"
 #+end_src
 
-***** Aliases
+****** Aliases
 :PROPERTIES:
 :header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
 :END:
@@ -861,7 +924,7 @@ alias v="nvim"
 #alias -s {pdf}=firefox
 #+end_src
 
-***** Environment Config
+****** Environment Config
 :PROPERTIES:
 :header-args:bash: :tangle ~/.zshenv
 :END:
@@ -874,29 +937,33 @@ export PATH="$HOME/.local/bin:$PATH"
 #+end_src
 
 ***** Pure (ZSH Theme)
-#+begin_src bash
-$INSTALL nodejs npm
-sudo npm install --global pure-prompt
+****** Installation
+#+begin_src text
+nodejs
+npm
 #+end_src
 
-*** Power Saving Mode using TLP
+****** Setup
 #+begin_src bash
-$INSTALL tlp
-sudo systemctl enable tlp
+sudo npm install --global pure-prompt
 #+end_src
 
 *** File System Support
 **** Zip Archives
-#+begin_src bash :tangle no
-$INSTALL zip unzip unrar
+***** Installation
+#+begin_src text
+zip
+unzip
+unrar
 #+end_src
 
 **** Samba
-#+begin_src bash :tangle no
-$INSTALL samba
+***** Installation
+#+begin_src text
+samba
 #+end_src
 
-***** Config
+***** Configuration
 :PROPERTIES:
 :header-args:conf: :tangle /sudo:://etc/samba/smb.conf
 :END:
@@ -939,45 +1006,43 @@ force directorry security mode = 777
 #+end_src
 
 **** exFAT Support
-#+begin_src bash
-$INSTALL exfatprogs
+#+begin_src text
+exfatprogs
 #+end_src
 
 **** NTFS Support
-#+begin_src bash
-$INSTALL ntfs-3g
+#+begin_src text
+ntfs-3g
 #+end_src
 
 **** Cryfs
-#+begin_src bash
-$install cryfs
+#+begin_src text
+cryfs
 #+end_src
 
 **** VHD and VHDX Support
-#+begin_src bash
-$INSTALL libguestfs
+#+begin_src text
+libguestfs
 #+end_src
 
 **** Media Transfer Protocol
-#+begin_src bash
-$INSTALL mtpfs
+#+begin_src text
+mtpfs
 #+end_src
 
 **** Udisks
-#+begin_src bash
-$INSTALL udisks2 udiskie
+#+begin_src text
+udisks2
+udiskie
 #+end_src
 
 *** Syncing Emails to a Local Directory
-**** Create a Folder to Hold Emails
-#+begin_src bash
-mkdir -p ~/personal-documents/Mail
+**** Notmuch
+***** Installation
+#+begin_src text
+notmuch
 #+end_src
 
-**** Notmuch
-#+begin_src bash
-$INSTALL notmuch gmailieer
-#+end_src
 ***** Configuration
 #+begin_src conf :tangle ~/.notmuch-config
 [database]
@@ -999,29 +1064,25 @@ ignore=.stfolder;/.*[.](json|lock|bak)$/;
 #+end_src
 
 **** Lieer
-***** Install
-#+begin_src bash
-$INSTALL gmailieer
+***** Installation
+#+begin_src text
+gmailieer
 #+end_src
 
-***** Make Directory
+***** Setup
 #+begin_src bash
 mkdir ~/Mail/account.gmail
-#+end_src
-
-***** Configuration
-#+begin_src bash
-gmi init mwg2202@gmail.com
+gmi init $gmail 
 gmi pull
 #+end_src
 
 **** NeoMutt
-***** Install
-#+begin_src bash
-$INSTALL neomutt
+***** Installation
+#+begin_src text
+neomutt
 #+end_src
 
-***** RC File
+***** Setup
 :PROPERTIES:
 :header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/neomutt/neomuttrc")
 :END:
@@ -1033,52 +1094,47 @@ virtual-mailboxes "new" "notmuch://?query=tag:new"
 
 *** Converting ICS format to Org
 See [[https://tero.hasu.is/blog/org-icalendar-import/]] for more information.
-**** Install
+To use: ~ics-to-org input.ics > output.org~
+**** Installation
+#+begin_src text
+ruby
+#+end_src
+
+**** Setup
 #+begin_src bash
-$INSTALL ruby
 gem install date icalendar optparse tzinfo
 
-git clone https://tero.hasu.is/repos/icalendar-to-org.git $REPOSITORIES/icalendar-to-org && true
+git clone https://tero.hasu.is/repos/icalendar-to-org.git $REPOSITORIES/icalendar-to-org || true
 #+end_src
 
-****  To Use
-#+begin_src bash :tangle no
-ics-to-org input.ics > output.org
-#+end_src
-
-*** Setup a Software Access Point
-**** Linux-Wifi-Hotspot
+*** Wifi Hotspot
 ~linux-wifi-hotspot~ is an AUR package that allows you to easily create a wifi-hotspot without needing to mess around with ~hostapd~, ~dnsmasq~, and ~iptables~. It includes both a gui and cli interface.
-#+begin_src bash
-$INSTALL linux-wifi-hotspot
-#+end_src
 
-***** Use CLI
-#+begin_src bash :tangle no
-create_ap wlan0 eth0 MyAccessPoint MyPassPhrase
-#+end_src
+To use CLI: ~create_ap wlan0 eth0 MyAccessPoint MyPassPhrase~
+To use GUI: ~wihotspot~
 
-***** Use GUI
-#+begin_src bash :tangle no
-wihotspot
+**** Installation
+#+begin_src text
+linux-wifi-hotspot
 #+end_src
 
 *** Stalonetray
-#+begin_src bash
-$INSTALL stalonetray
+**** Installation
+#+begin_src text
+stalonetray
 #+end_src
 
 *** Polybar
-**** Install
-#+begin_src bash
-$INSTALL polybar
+**** Installation
+#+begin_src text
+polybar
 #+end_src
 
-***** Configuration
+**** Configuration
 :PROPERTIES:
 :header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/polybar/config.ini")
 :END:
-****** Global Settings
+***** Global Settings
 #+begin_src conf
 [settings]
 screenchange-reload = true
@@ -1088,7 +1144,7 @@ margin-top = 0
 margin-bottom = 0
 #+end_src
 
-****** Colors
+***** Colors
 #+begin_src conf
 [colors]
 background = ${xrdb:color0:#222}
@@ -1108,8 +1164,8 @@ green = #b5bd68
 grey = #6b6b6b
 #+end_src
 
-****** Panels
-******* EXWM Panel
+***** Panels
+****** EXWM Panel
 #+begin_src conf
 [bar/exwm]
 width = 100%
@@ -1133,7 +1189,7 @@ cursor-click = pointer
 cursor-scroll = ns-resize
 #+end_src
 
-******* XMonad Panel
+****** XMonad Panel
 #+begin_src conf
 [bar/xmonad]
 height = 70
@@ -1158,8 +1214,8 @@ cursor-click = pointer
 cursor-scroll = ns-resize
 #+end_src
 
-****** Modules
-******* Systray
+***** Modules
+****** Systray
 #+begin_src conf
 [module/systray]
 type = custom/text
@@ -1168,7 +1224,7 @@ click-left = ~/.config/polybar/scripts/toggle-stalonetray.sh
 content-foreground = ${colors.primary}
 #+end_src
 
-******** Start Stalonetray
+******* Start Stalonetray
 :PROPERTIES:
 :header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/polybar/scripts/stalonetray.sh") :tangle-mode (identity #o755)
 :END:
@@ -1181,7 +1237,7 @@ sleep 1
 xdotool windowunmap "$(xdotool search --class stalonetray)"
 #+end_src
 
-******** Toggle Stalonetray
+******* Toggle Stalonetray
 :PROPERTIES:
 :header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/polybar/scripts/toggle-stalonetray.sh") :tangle-mode (identity #o755)
 :END:
@@ -1195,7 +1251,7 @@ else
 fi
 #+end_src
 
-******* Playerctl
+****** Playerctl
 #+begin_src conf
 [module/playerctl]
 type = custom/script
@@ -1206,7 +1262,7 @@ format-prefix = "喇 "
 format-foreground = ${colors.secondary}
 #+end_src
 
-******* Pre-XWorkspaces
+****** Pre-XWorkspaces
 #+begin_src conf
 [module/pre-xworkspaces]
 type = custom/text
@@ -1214,7 +1270,7 @@ content = ""
 content-foreground = ${colors.primary}
 #+end_src
 
-******* XWorkspaces
+****** XWorkspaces
 #+begin_src conf
 [module/xworkspaces]
 type = internal/xworkspaces
@@ -1229,7 +1285,7 @@ label-empty =
 label-empty-foreground = ${colors.primary}
 #+end_src
 
-******* Xkeyboard
+****** Xkeyboard
 #+begin_src conf
 [module/keyboard]
 type = internal/xkeyboard
@@ -1246,7 +1302,7 @@ label-indicator-margin = 1
 label-indicator-background = ${colors.background}
 #+end_src
 
-******* Filesystem
+****** Filesystem
 #+begin_src conf
 [module/filesystem]
 type = internal/fs
@@ -1257,8 +1313,8 @@ interval = 30
 fixed-values = false
 #+end_src
 
-******* Pomodoro Timer
-******** Module
+****** Pomodoro Timer
+******* Module
 #+begin_src conf
 [module/polypomo]
 type = custom/script
@@ -1274,13 +1330,13 @@ scroll-up = ~/.config/polybar/scripts/polypomo time +60
 scroll-down = ~/.config/polybar/scripts/polypomo time -60
 #+end_src
 
-******** Script
+******* Script
 #+begin_src bash
 curl https://raw.githubusercontent.com/unode/polypomo/master/polypomo > $XDG_CONFIG_HOME/polybar/scripts/polypomo
 chmod +x $XDG_CONFIG_HOME/polybar/scripts/polypomo
 #+end_src
 
-******* Spotify
+****** Spotify
 #+begin_src conf
 [module/spotify]
 type = custom/script
@@ -1294,7 +1350,7 @@ format-prefix-foreground = ${colors.ternary}
 label = %output:0:150%
 #+end_src
 
-******** Script https://github.com/NicholasFeldman/dotfiles/blob/master/polybar/.config/polybar/spotify.sh
+******* Script https://github.com/NicholasFeldman/dotfiles/blob/master/polybar/.config/polybar/spotify.sh
 :PROPERTIES:
 :header-args:sh: :tangle (concat (getenv "XDG_CONFIG_HOME") "/polybar/scripts/spotify.sh") :tangle-mode (identity #o755)
 :END:
@@ -1323,7 +1379,7 @@ main() {
 main "$@"
 #+end_src
 
-******* Compton
+****** Compton
 #+begin_src conf
 [module/compton]
 type = custom/script
@@ -1333,7 +1389,7 @@ interval = 5
 format-foreground = ${colors.foreground}
 #+end_src
 
-******* Weather
+****** Weather
 #+begin_src conf
 [module/weather]
 type = custom/script
@@ -1346,7 +1402,7 @@ exec = python -u ~/.config/polybar/scripts/weather.py
 tail = true
 #+end_src
 
-******* CPU Utilization
+****** CPU Utilization
 #+begin_src conf
 [module/cpu]
 type = internal/cpu
@@ -1356,7 +1412,7 @@ format-foreground = ${colors.ternary}
 label = %percentage:2%%
 #+end_src
 
-******* Date and Time
+****** Date and Time
 #+begin_src conf
 [module/date]
 type = internal/date
@@ -1370,7 +1426,7 @@ format-foreground = ${colors.primary}
 label = %date% %time%
 #+end_src
 
-******* Battery
+****** Battery
 #+begin_src conf
 [module/battery]
 type = internal/battery
@@ -1401,7 +1457,7 @@ animation-charging-4 = "%{F#b5bd68}"
 animation-charging-framerate = 750
 #+end_src
 
-******* Temperature
+****** Temperature
 #+begin_src conf
 [module/temperature]
 type = internal/temperature
@@ -1417,7 +1473,7 @@ label = %temperature-c%
 label-warn = %temperature-c%!
 #+end_src
 
-******* Pulse Audio
+****** Pulse Audio
 #+begin_src conf
 [module/pulseaudio]
 type = custom/script
@@ -1433,7 +1489,7 @@ scroll-up = pulseaudio-control up
 scroll-down = pulseaudio-control down
 #+end_src
 
-******* Wireless Network
+****** Wireless Network
 #+begin_src conf
 [module/wireless]
 type = internal/network
@@ -1449,7 +1505,7 @@ format-disconnected =
 format-disconnected-foreground = ${colors.grey}
 #+end_src
 
-******* Memory                              
+****** Memory                              
 #+begin_src conf
 [module/memory]
 type = internal/memory
@@ -1459,8 +1515,8 @@ label = MEM %percentage_used:2%%
 format-foreground = ${colors.ternary}
 #+end_src
 
-******* Backlight
-******** Give Polybar Access to Change Backlight
+****** Backlight
+******* Give Polybar Access to Change Backlight
 #+begin_src bash
 sudo mkdir -p /etc/udev/rules.d
 groupadd -r video && true
@@ -1469,7 +1525,7 @@ sudo chgrp video /sys/class/backlight/intel_backlight/brightness
 sudo chmod g+w /sys/class/backlight/intel_backlight/brightness
 #+end_src
 
-******** Module
+******* Module
 #+begin_src conf
 [module/backlight]
 type = internal/backlight
@@ -1488,8 +1544,8 @@ ramp-5 = "%{F#f0c674}"
 ramp-6 = "%{F#f0c674}"
 #+end_src
 
-******* Redshift
-******** Module
+****** Redshift
+******* Module
 #+begin_src conf
 [module/redshift]
 type = custom/script
@@ -1501,8 +1557,8 @@ interval = 1
 format-foreground = ${colors.alert}
 #+end_src
 
-******** Scripts
-********* env.sh
+******* Scripts
+******** env.sh
 :PROPERTIES:
 :header-args:sh: :tangle (concat (getenv "XDG_CONFIG_HOME") "/polybar/scripts/env.sh") :tangle-mode (identity #o755)
 :END:
@@ -1511,7 +1567,7 @@ export REDSHIFT=on
 export REDSHIFT_TEMP=5600
 #+end_src
 
-********* redshift.sh
+******** redshift.sh
 :PROPERTIES:
 :header-args:sh: :tangle (concat (getenv "XDG_CONFIG_HOME") "/polybar/scripts/redshift.sh") :tangle-mode (identity #o755)
 :END:
@@ -1577,7 +1633,7 @@ case $1 in
 esac
 #+end_src
 
-******* Workspace Indicator
+****** Workspace Indicator
 #+begin_src conf
 [module/exwm-workspace]
 type = custom/ipc
@@ -1587,15 +1643,18 @@ format-padding = 1
 #+end_src
 
 *** QT/KDE Theme
-**** Install Theme
-#+begin_src bash
-$INSTALL materia-kde kvantum-theme-materia kvantum
+**** Installation
+#+begin_src text
+materia-kde
+kvantum-theme-materia
+kvantum
 #+end_src
 
 *** GTK Theme
-**** Install Theme
-#+begin_src bash
-$INSTALL materia-gtk-theme phinger-cursors
+**** Installation
+#+begin_src text
+materia-gtk-theme
+phinger-cursors
 #+end_src
 
 **** Configure GTK 3.0
@@ -1652,22 +1711,18 @@ Xmessage*font: -*-lucidatypewriter-*-r-*-*-34-240-100-100-m-200-iso8859-9
 #+end_src
 
 **** LightDM
-***** Install LightDM
+***** Installation
+#+begin_src text
+lightdm
+lightdm-webkit2-greeter
+#+end_src
+
+***** Setup
 #+begin_src bash
-$INSTALL lightdm
 sudo systemctl enable lightdm
 #+end_src
 
-***** Install LightDM Theme
-#+begin_src bash
-$INSTALL lightdm-webkit2-greeter
-sudo mkdir -p /usr/share/lightdm-webkit/themes/litaravan
-
-wget https://github.com/Litarvan/lightdm-webkit-theme-litarvan/releases/download/v3.2.0/lightdm-webkit-theme-litarvan-3.2.0.tar.gz -O $REPOSITORIES/lightdm-webkit-theme-litarvan-3.2.0.tar.gz
-
-sudo tar -xf $REPOSITORIES/lightdm-webkit-theme-litarvan-3.2.0.tar.gz -C /usr/share/lightdm-webkit/themes/litarvan
-#+end_src
-
+**** Configuration
 ***** Configure LightDM
 :PROPERTIES:
 :header-args:conf: :tangle /sudo:://etc/lightdm/lightdm.conf
@@ -1706,10 +1761,10 @@ user_image        = /usr/share/pixmaps/archlinux-user.svg
 
 *** Compositors
 **** Picom
-***** Install
-#+begin_src bash
-# The jonaburg fork of picom has rounded corners, dual kawase blur, and window animations
-$INSTALL picom-jonaburg-git
+***** Installation
+The jonaburg fork of picom has rounded corners, dual kawase blur, and window animations
+#+begin_src text
+picom-jonaburg-git
 #+end_src
 
 ***** Configuration
@@ -1827,13 +1882,20 @@ wintypes:
 
 *** Keyboard Layouts
 **** Fcitx
-***** Install
+***** Installation
+#+begin_src text
+fcitx-im
+fcitx-configtool
+fcitx-qt4
+#+end_src
+
+***** Setup
 #+begin_src bash
-$INSTALL fcitx-im fcitx-configtool fcitx-qt4
 sudo locale-gen
 #+end_src
 
-***** Add to .zshenv
+***** Configuration
+****** Environment Variables
 #+begin_src bash :tangle ~/.xprofile
 export GTK_IM_MODULE="fcitx"
 export QT_IM_MODULE="fcitx"
@@ -1841,7 +1903,6 @@ export SDL_IM_MODULE="fcitx"
 export XMODIFIERS="@im=fcitx"
 #+end_src
 
-***** Configuration
 ****** Profile
 :PROPERTIES:
 :header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/fcitx/profile")
@@ -1871,9 +1932,9 @@ SkinType=dark
 #+end_src
 
 **** XModmap
-***** Install
-#+begin_src bash
-$INSTALL xorg-xmodmap
+***** Installation
+#+begin_src text
+xorg-xmodmap
 #+end_src
 
 ***** Configuration
@@ -1923,9 +1984,9 @@ ru_RU.UTF-8 UTF-8
 #+end_src
 
 **** Japanese
-***** Download IME
-#+begin_src bash
-$INSTALL fcitx-mozc
+***** Install IME
+#+begin_src text
+fcitx-mozc
 #+end_src
 
 ***** Add to /etc/locale.gen
@@ -1937,15 +1998,16 @@ ja_JP.UTF-8 UTF-8
 #+end_src
 
 *** Wayland
-**** Install
-#+begin_src bash
-$INTSALL wlroots python-pywlroots
+**** Installation
+#+begin_src text
+wlroots
+python-pywlroots
 #+end_src
 
 **** Kanshi
-***** Install
-#+begin_src bash
-$INSTALL kanshi
+***** Installation
+#+begin_src text
+kanshi
 #+end_src
 
 ***** Configuration
@@ -1959,13 +2021,16 @@ profile {
 #+end_src
 
 *** Sxhkd
-**** Install
-#+begin_src bash
-$INSTALL sxhkd
+**** Installation
+#+begin_src text
+sxhkd
 #+end_src
 
 **** Configuration
-#+begin_src conf :tangle ~/.config/sxhkd/sxhkdrc
+:PROPERTIES:
+:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/sxhkd/sxhkdrc")
+:END:
+#+begin_src conf
 control+semicolon
     xset r off; xdotool key --clearmodifiers 'Escape'; xset r on
 control+h
@@ -2020,11 +2085,17 @@ super+T
 #+end_src
 
 *** Xorg
-**** Install
-#+begin_src bash
-$INSTALL xorg dbus xorg-xrdb wmctrl xorg-xmessage xclip
+**** Installation
+#+begin_src text
+xorg
+dbus
+xorg-xrdb
+wmctrl
+xorg-xmessage
+xclip
 #+end_src
 
+**** Configuration
 ***** Xsession File
 #+begin_src bash :tangle ~/.xprofile
 # Display
@@ -2100,12 +2171,12 @@ TryExec=emacs
 Exec=emacs -fs
 #+end_src
 
-
 **** XMonad
-***** Install
+***** Installation
 AUR packages are used as official packages are out of date.
-#+begin_src bash
-$INSTALL xmonad-git xmonad-contrib-git
+#+begin_src text
+xmonad-git
+xmonad-contrib-git
 #+end_src
 
 ***** Packages
@@ -2521,12 +2592,19 @@ help = unlines [
 
 *** Menu Systems
 **** Rofi
-***** Install
-#+begin_src bash
-$INSTALL rofi pinentry-rofi rofi-bluetooth-git rofi-dmenu
+***** Installation
+#+begin_src text
+rofi
+pinentry-rofi
+rofi-bluetooth-git
+rofi-dmenu
 #+end_src
 
-***** Keybindings
+***** Confirguration
+:PROPERTIES:
+:header-args:css: :tangle (concat (getenv "XDG_CONFIG_HOME") "/rofi/config.rasi")
+:END:
+****** Keybindings
 #+begin_src conf :tangle ~/.Xresources
 rofi.kb-row-up:           Up,Control+k,Shift+Tab,Shift+ISO_Left_Tab
 rofi.kb-row-down:         Down,Control+j
@@ -2538,8 +2616,8 @@ rofi.kb-mode-previous:    Shift+Left,Control+Shift+Tab,Control+h
 rofi.kb-remove-char-back: BackSpace
 #+end_src
 
-***** Basic Confirguration
-#+begin_src css :tangle ~/.config/rofi/config.rasi
+****** Basic Confirguration
+#+begin_src css
 configuration {
   show-icons:   true;
   modi:         "window,drun,filebrowser,combi,run";
@@ -2548,8 +2626,8 @@ configuration {
 }
 #+end_src
 
-***** Theme
-#+begin_src css :tangle ~/.config/rofi/config.rasi
+****** Theme
+#+begin_src css
 ,*{
     bg:                          rgb(0, 0, 0);
     bg2:                         rgb(0, 0, 0);
@@ -2711,14 +2789,14 @@ textbox-prompt-colon {
 *** Notifications
 **** Libnotify
 Libnotify is an implementation of the Desktop Notifications Specification.
-#+begin_src bash
-$INSTALL libnotify
+#+begin_src text
+libnotify
 #+end_src
 
 **** Dunst
 In order to use libnotify you have to install a notification server. I use Dunst.
-#+begin_src bash
-$INSTALL dunst
+#+begin_src text
+dunst
 #+end_src
 
 ***** Dunst Config
@@ -2802,23 +2880,35 @@ See [[https://dunst-project.org/documentation/]]
 
 *** Virtualization
 **** General
+***** Installation
+****** Qemu
+#+begin_src text
+libvirt
+qemu
+#+end_src
+
+****** Network Connectivity with Virtual Machine
+#+begin_src text
+iptables-nft    # NAT/DHCP Netowrking (iptables!=iptables-nft)
+dnsmasq         # NAT/DHCP Netowrking
+bridge-utils    # Bridged Networking
+openbsd-netcat  # Remote Management over SSH
+#+end_src
+
+****** Client Software
+#+begin_src text
+virt-manager    # Graphically manage KVM, Xen or LXC
+#+end_src
+
+****** Other Software
+#+begin_src text
+libguestfs    # Access and modify virtual machine disk images
+edk2-ovmf     # UEFI Emulation
+swtpm         # TPM Emulation
+#+end_src
+
+***** Setup
 #+begin_src bash
-$INSTALL libvirt qemu
-
-# Network Connectivity with Virtual Machine #
-$INSTALL iptables-nft    # NAT/DHCP Netowrking (iptables!=iptables-nft)
-$INSTALL dnsmasq         # NAT/DHCP Netowrking
-$INSTALL bridge-utils    # Bridged Networking
-$INSTALL openbsd-netcat  # Remote Management over SSH
-
-# Client Software #
-$INSTALL virt-manager    # Graphically manage KVM, Xen or LXC
-
-# Other Software #
-$INSTALL libguestfs    # Access and modify virtual machine disk images
-$INSTALL edk2-ovmf     # UEFI Emulation
-$INSTALL swtpm         # TPM Emulation
-         
 # Members of the libvirt group have passwordless access to the RW daemon socket by default.
 sudo usermod -a -G libvirt $USER
 sudo usermod -a -G kvm $USER
@@ -2841,13 +2931,15 @@ For Windows 11:
 - If you want to use a Windows 7 Product Key, you must start with a Windows 10 VM and then upgrade to Windows 11 after activation.
 
 **** Vagrant
-#+begin_src bash
-$INTSALL vagrant
+#+begin_src text
+vagrant
 #+end_src
 
 **** Wine
-#+begin_src bash
-$INSTALL wine-staging wine-gecko wine-mono
+#+begin_src text
+wine-staging
+wine-gecko
+wine-mono
 #+end_src
 
 *** Kernel
@@ -2892,41 +2984,49 @@ $INSTALL wine-staging wine-gecko wine-mono
     - FTP Uses two ports: Client sends command to port 21 on server and server replies from port 20 the a dynamically allocated port on the client.
     - This is a problem for stateless firewalls as it might not understand to open up port 20.
       
-     #+begin_src bash
-     $INSTALL nmap
-     $INSTALL tcpdump
+     #+begin_src text
+     nmap
+     tcpdump
      #+end_src
 
 *** Applications
 **** Audio Applications
-#+begin_src bash
-$INSTALL kmidimon # For Viewing MIDI Traffic
-$INSTALL lmms # For Viewing MIDI Traffic
+***** Installation
+#+begin_src text
+kmidimon # For Viewing MIDI Traffic
+lmms # For Viewing MIDI Traffic
 #+end_src
 
 **** Aerospace Engineering Applications
 *XFoil:* Program for design and analysis of subsonic airfoils
 *OpenVSP:* Allows the user to create a 3D model of an aircraft defined by common engineering parameters
-#+begin_src bash
-$INSTALL xfoil openvsp-git
+
+***** Installation
+#+begin_src text
+xfoil
+openvsp-git
 #+end_src
 
 **** Todoist
-#+begin_src bash
-$INSTALL todoist-electron
+***** Installation
+#+begin_src text
+todoist-electron
 #+end_src
 
 **** Krita
-#+begin_src bash
-$INSTALL krita
+***** Installation
+#+begin_src text
+krita
 #+end_src
 
 **** Conky
-#+begin_src bash
-$INSTALL conky
+***** Installation
+#+begin_src text
+conky
 #+end_src
 
-***** Pywal Script
+***** Configuration
+****** Pywal Script
 :PROPERTIES:
 :header-args:python: :tangle (concat (getenv "XDG_CONFIG_HOME") "/conky/pywal_conky.py")
 :END:
@@ -2968,11 +3068,11 @@ with open('/home/mwglen/.config/conky/sysinfo.lua', 'w') as conf:
     conf.write(f)
 #+end_src
 
-***** System Info Widget
+****** System Info Widget
 :PROPERTIES:
 :header-args:lua: :tangle (concat (getenv "XDG_CONFIG_HOME") "/conky/sysinfo-raw.lua")
 :END:
-****** Widget Config
+******* Widget Config
 #+begin_src lua
 conky.config = {
    -- Window Properties
@@ -3035,7 +3135,7 @@ conky.config = {
 
 #+end_src
 
-****** Functions and Variables
+******* Functions and Variables
 #+begin_src lua
 adp = 'BAT0'
 
@@ -3049,7 +3149,7 @@ function h1(name)
 end
 #+end_src
 
-****** Clock Module
+******* Clock Module
 #+begin_src lua
 clock_module = [[
 ${font RobotoMono Nerd Font:size=12}${color1}\
@@ -3062,7 +3162,7 @@ ${texeci 500 curl 'wttr.in/Raleigh?format=Sunrise+%S+Sunset+%s'}
 ]]
 #+end_src
 
-****** System Info Module
+******* System Info Module
 #+begin_src lua
 system_info_module =
    h1('SYSTEM INFO') .. [[
@@ -3076,7 +3176,7 @@ Temp: ${alignr}${acpitemp}C
 ]]
 #+end_src
 
-****** Drives Module
+******* Drives Module
 #+begin_src lua
 drives_module =
    h1('DRIVES') .. [[
@@ -3086,7 +3186,7 @@ ${color1}READ ${diskio_read /dev/nvme0n1p3} $alignr ${color1} WRITE ${diskio_wri
 ]]
 #+end_src
 
-****** Battery Module
+******* Battery Module
 #+begin_src lua
 battery_module =
    h1('BATTERY') .. adp .. [[
@@ -3098,7 +3198,7 @@ ${battery_percent}% ${alignr}Time Remaining: ${execi 60 acpi | grep -Eo '(:?[0-9
    -- h2(adp, [[${execi 60 acpi | grep -Eo '\w+,' | grep -Eo '\w+'}]])
 #+end_src
 
-****** CPU Module
+******* CPU Module
 #+begin_src lua
 cpu_module =
    h1('CPU') .. [[
@@ -3108,7 +3208,7 @@ ${freq_g cpu0}Ghz${alignr}${cpu}%
 ]]
 #+end_src
 
-****** Memory Module
+******* Memory Module
 #+begin_src lua
 memory_module =
    h1('MEMORY') .. [[
@@ -3118,7 +3218,7 @@ ${color green}${if_match ${memperc}<=50}${color4}${membar 10,} ${else}${if_match
 ]]
 #+end_src
 
-****** Swap Module
+******* Swap Module
 #+begin_src lua
 swap_module =
    h1('SWAP') .. [[
@@ -3127,7 +3227,7 @@ ${color green}${if_match ${swapperc}<=50}${color4}${swapbar 10,} ${else}${if_mat
 ]]
 #+end_src
 
-****** Processes Module
+******* Processes Module
 #+begin_src lua
 function proc(num)
    proc_name = '$font$color1${top name ' .. num .. '}'
@@ -3150,7 +3250,7 @@ processes_module =
    proc(9)
 #+end_src
 
-****** Widget Definition
+******* Widget Definition
 #+begin_src lua
 conky.text =
    clock_module       ..
@@ -3164,19 +3264,21 @@ conky.text =
 #+end_src
 
 **** Pandoc
-#+begin_src bash
-$INSTALL pandoc
+***** Installation
+#+begin_src text
+pandoc
 #+end_src
 
 **** zk
-#+begin_src bash
-$INSTALL zk
+***** Installation
+#+begin_src text
+zk
 #+end_src
 
 **** rmtrash
-***** Install
-#+begin_src bash
-$INSTALL rmtrash
+***** Installation
+#+begin_src text
+rmtrash
 #+end_src
 
 ***** Alias
@@ -3191,27 +3293,32 @@ alias sudo="sudo "
 
 **** Mimeo
 Use =mimeo --mime2desk <schema>= to find what application is set as default for a certain schema. Use =mimeo --app2desk <app>= to find an applications corresponding desktop file.
-#+begin_src bash
-$INSTALL mimeo
+***** Installation
+#+begin_src text
+mimeo
 #+end_src
 
 **** Anki
-#+begin_src bash
-$INSTALL anki
+***** Installation
+#+begin_src text
+anki
 #+end_src
 
 **** File Managers
 ***** Dolphin
-#+begin_src bash
-$INSTALL dolphin
+****** Installation
+#+begin_src text
+dolphin
 #+end_src
 
 ***** Ranger
-#+begin_src bash
-$INSTALL ranger python-ueberzug-git
+****** Installation
+#+begin_src text
+ranger
+python-ueberzug-git
 #+end_src
 
-****** Config
+****** Configuration
 #+begin_src conf :tangle (concat (getenv "XDG_CONFIG_HOME") "/ranger/rc.conf")
 set viewmode miller
 set column_ratios 1,3,4
@@ -3228,71 +3335,59 @@ set colorscheme default
 #+end_src
 
 **** Games
-#+begin_src bash
-$INSTALL minecraft-launcher steam
+***** Installation
+#+begin_src text
+minecraft-launcher
+steam
 #+end_src
 
 **** Gotop
-#+begin_src bash
-$INSTALL gotop
+***** Installation
+#+begin_src text
+gotop
 #+end_src
 
 **** Cava
-#+begin_src bash
-$INSTALL cava
+***** Installation
+#+begin_src text
+cava
 #+end_src
 
 **** Alsi
-#+begin_src bash
-$INSTALL alsi
+***** Installation
+#+begin_src text
+alsi
 #+end_src
 
 **** Ahoviewer
-#+begin_src bash
-$INSTALL ahoviewer-git
+***** Installation
+#+begin_src text
+ahoviewer-git
 #+end_src
-
 
 **** Emacs
-***** Install
-#+begin_src bash
-$INSTALL emacs-git
-#+end_src
-
-***** Alias
-:PROPERTIES:
-:header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
-:END:
-#+begin_src bash
-alias emacs="devour emacs"
-alias emacsclient="devour emacsclient"
-#+end_src
-
-***** Tangle Config
-****** Setup Nim and Nimble
-#+begin_src bash
-$INSTALL nim nimble
-#+end_src
-
-****** Setup ntangle
-#+begin_src bash
-nimble install -y ntangle
+***** Installation
+#+begin_src text
+emacs-git
 #+end_src
 
 **** Browsers
 ***** Yandex
-#+begin_src bash
-$INSTALL yandex-browser-beta
+****** Installation
+#+begin_src text
+yandex-browser-beta
 #+end_src
 
 ***** Chrome
-#+begin_src bash
-$INSTALL google-chrome
+****** Installation
+#+begin_src text
+google-chrome
 #+end_src
 
 ***** Firefox
-#+begin_src bash
-$INSTALL firefox
+****** Installation
+#+begin_src text
+firefox
 #+end_src
 
 ****** Desktop File (Open in New Window)
@@ -3332,7 +3427,6 @@ export MOZ_USE_XINPUT2=1
 :PROPERTIES:
 :header-args:css: :tangle (concat (getenv "XDG_CONFIG_HOME") "/firefox/chrome/userChrome.css")
 :END:
-
 ******* Click Selected Tab to Focus URL Bar
 #+begin_src css
 /* Source file https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/click_selected_tab_to_focus_urlbar.css made available under Mozilla Public License v. 2.0
@@ -3485,17 +3579,18 @@ See the above repository for updates as well as full license text. */
   box-shadow: none !important;
   background-color: transparent !important;
 }
-#+end_src 
+#+end_src
 
 **** Blender
-#+begin_src bash
-$INSTALL blender blendnet
+#+begin_src text
+blender
+blendnet
 #+end_src
 
 **** Flameshot
 ***** Install
-#+begin_src bash
-$INSTALL flameshot
+#+begin_src text
+flameshot
 #+end_src
 
 ***** Config
@@ -3553,23 +3648,30 @@ TYPE_UNDO=Ctrl+Z
 #+end_src
 
 **** Bitwarden
-#+begin_src bash
-$INSTALL bitwarden bitwarden-cli bitwarden-rofi
+***** Installation
+#+begin_src text
+bitwarden
+bitwarden-cli
+bitwarden-rofi
 #+end_src
 
 **** Sidequest
-#+begin_src bash
-$INSTALL sidequest-bin
+***** Installation
+#+begin_src text
+sidequest-bin
 #+end_src
 
 **** GlxInfo
-#+begin_src bash
-$INSTALL glxinfo
+***** Installation
+#+begin_src text
+glxinfo
 #+end_src
 
 **** Spotify
-#+begin_src bash
-$INSTALL spotify psst-git-bin
+***** Installation
+#+begin_src text
+spotify
+psst-git-bin
 #+end_src
 
 ***** Fix HDPI
@@ -3596,39 +3698,40 @@ StartupWMClass=spotify
 #+end_src
 
 **** Discord
-#+begin_src bash
-$INSTALL discord
+***** Installation
+#+begin_src text
+discord
 #+end_src
 
 **** Libreoffice
-#+begin_src bash
-$INSTALL libreoffice-fresh libreoffice-fresh-ru
+***** Installation
+#+begin_src text
+libreoffice-fresh
+libreoffice-fresh-ru
 #+end_src
 
 **** Git-Annex
-#+begin_src bash
-$INSTALL git-annex
+***** Installation
+#+begin_src text
+git-annex
 #+end_src
 
 **** Redshift
-#+begin_src bash
-$INSTALL redshift
+***** Installation
+#+begin_src text
+redshift
 #+end_src
 
 **** OBS Studio
-#+begin_src bash
-$INSTALL obs-studio
+***** Installation
+#+begin_src text
+obs-studio
 #+end_src
 
 **** Devour
-#+begin_src bash
-$INSTALL devour
-#+end_src
-
-**** NSXIV
-***** Install
-#+begin_src bash
-$INSTALL nsxiv
+***** Installation
+#+begin_src text
+devour
 #+end_src
 
 ***** Alias
@@ -3636,7 +3739,16 @@ $INSTALL nsxiv
 :header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
 :END:
 #+begin_src bash
+alias emacs="devour emacs"
+alias emacsclient="devour emacsclient"
 alias nsxiv="devour nsxiv -ab -s f"
+export VISUAL="devour emacsclient -c"
+#+end_src
+
+**** NSXIV
+***** Installation
+#+begin_src text
+nsxiv
 #+end_src
 
 ***** Desktop File
@@ -3674,21 +3786,22 @@ esac
 
 **** Backgrounds
 ***** Feh
-****** Install
-#+begin_src bash
-$INSTALL feh
+****** Installation
+#+begin_src text
+feh
 #+end_src
 
-****** Gifs as Backgrounds
+****** Setup
 #+begin_src bash
 curl -L https://raw.githubusercontent.com/thomas10-10/foo-Wallpaper-Feh-Gif/master/install.sh | bash
 #back4.sh 0.010 gif/pixel.gif &
 #+end_src
 
 ***** Pywal
-****** Install
-#+begin_src bash
-$INSTALL python-pywal python-colorthief
+****** Installation
+#+begin_src text
+python-pywal
+python-colorthief
 #+end_src
 
 ****** Install wpgtk
@@ -3709,8 +3822,13 @@ source ~/.cache/wal/colors-tty.sh
 #+end_src
 
 ****** Firefox Addon
+******* Installation
+#+begin_src text
+python-pywalfox
+#+end_src
+
+******* Setup
 #+begin_src bash
-$INSTALL python-pywalfox
 sudo pywalfox install
 #+end_src
 
@@ -3724,26 +3842,20 @@ python $XDG_CONFIG_HOME/conky/pywal_conky.py
 
 **** Neovim
 ***** Install
-#+begin_src bash
-$INSTALL neovim neovide-git
-mkdir -p $XDG_CONFIG_HOME/nvim
-curl -fLo $XDG_DATA_HOME/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-#+end_src
-
-***** Setup Neovim
-#+begin_src bash
-nvim +'PlugInstall' +qall
-nvim +'TSUpdate org' +qall
-nvim +'CocInstall -sync coc-json coc-tsserver coc-html coc-rls coc-pyright coc-css coc-cmake coc-sh coc-cl coc-clojure coc-godot' +qall
-nvim +CocUpdateSync +qall
+#+begin_src text
+neovim
+neovide-git
+svlangserver
+haskell-language-server
+sdcv
+stardict-oed
+stardict-full-rus-eng
+stardict-full-eng-rus
 #+end_src
 
 ****** Setup Coc
 #+begin_src bash
-$INSTALL svlangserver
-$INSTALL haskell-language-server
 sudo npm install moby --global
-$INSTALL sdcv stardict-oed stardict-full-rus-eng stardict-full-eng-rus
 #+end_src
 
 ******* Config File
@@ -4061,7 +4173,3 @@ end
 EOF
 #+end_src
 
-*** Change Shell
-#+begin_src bash
-sudo chsh -s /usr/bin/zsh $USER
-#+end_src

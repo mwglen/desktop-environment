@@ -53,7 +53,7 @@
 
 [submodule "dotfiles/config/nvim/plugged/vim-markdown"]
    path = dotfiles/config/nvim/plugged/vim-markdown
-   url = https://github.com/preservim/vim-markdown.git
+   url = https://github.com/tpope/vim-markdown.git
 
 [submodule "dotfiles/config/nvim/plugged/vim-pencil"]
    path = dotfiles/config/nvim/plugged/vim-pencil
