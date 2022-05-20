@@ -12,8 +12,8 @@ ln -sf /usr/share/zoneinfo/$time_zone /etc/localtime
 hwclock --systohc
 
 # Localization
-locale-gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
+locale-gen
 echo $host_name > /etc/hostname
 
 # Initramfs

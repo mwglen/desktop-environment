@@ -161,9 +161,6 @@ dotfiles:
   d_flameshot:
     src: config/flameshot
     dst: ~/.config/flameshot
-  f_spotify.desktop:
-    src: usr/share/applications/spotify.desktop
-    dst: /usr/share/applications/spotify.desktop
   f_nsxiv.desktop:
     src: usr/share/applications/nsxiv.desktop
     dst: /usr/share/applications/nsxiv.desktop
@@ -226,10 +223,6 @@ dotfiles:
     src: config/kritarc
     dst: ~/.config/kritarc
     chmod: '600'
-  f_grub.cfg:
-    src: boot/grub/grub.cfg
-    dst: /boot/grub/grub.cfg
-    chmod: '755'
   d_litarvan:
     src: usr/share/lightdm-webkit/themes/litarvan
     dst: /usr/share/lightdm-webkit/themes/litarvan
@@ -253,9 +246,7 @@ profiles:
     - f_locale.gen
     - f_exwm.desktop
     - f_dwm.desktop
-    - f_spotify.desktop
     - f_nsxiv.desktop
-    - f_grub.cfg
     - d_litarvan
 
   MattArch:

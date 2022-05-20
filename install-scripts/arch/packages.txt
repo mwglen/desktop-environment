@@ -14,19 +14,20 @@ nerd-fonts-complete
 
 python
 python-matplotlib
-poetry
-python-pip
+python-poetry
 
 rustup
 
 gprolog
 swi-prolog
+python-pyswip
 
 php
 
 alacritty
 
 nvidia
+lib32-nvidia-utils
 
 optimus-manager-qt
 
@@ -65,6 +66,11 @@ brightnessctl
 
 brillo
 
+cups
+sane
+python-pillow
+simple-scan
+
 hplip
 
 kdocker
@@ -76,9 +82,7 @@ zsh
 zsh-completions
 zsh-syntax-highlighting
 zsh-autosuggestions
-
-nodejs
-npm
+zsh-pure-prompt
 
 zip
 unzip
@@ -160,7 +164,7 @@ libnotify
 dunst
 
 libvirt
-qemu
+qemu-full
 
 iptables-nft    # NAT/DHCP Netowrking (iptables!=iptables-nft)
 dnsmasq         # NAT/DHCP Netowrking
@@ -182,11 +186,10 @@ wine-mono
 nmap
 tcpdump
 
-kmidimon # For Viewing MIDI Traffic
-lmms # For Viewing MIDI Traffic
+lmms
 
 xfoil
-openvsp-git
+#openvsp-git
 
 todoist-electron
 
@@ -202,7 +205,7 @@ rmtrash
 
 mimeo
 
-anki
+#anki
 
 dolphin
 
@@ -263,6 +266,7 @@ feh
 
 python-pywal
 python-colorthief
+wpgtk-git
 
 python-pywalfox
 
@@ -272,5 +276,4 @@ svlangserver
 haskell-language-server
 sdcv
 stardict-oed
-stardict-full-rus-eng
-stardict-full-eng-rus
+npm

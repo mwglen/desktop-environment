@@ -25,24 +25,26 @@ mkdir -p $REPOSITORIES
 mkdir -p $MAIL
 
 sudo pacman --noconfirm -S --needed git base-devel
-git clone https://aur.archlinux.org/yay.git ~/$REPOSITORIES/yay
-cd ~/$REPOSITORIES/yay && makepkg -si
-rm -rf ~/$REPOSITORIES/yay
+git clone https://aur.archlinux.org/yay.git $REPOSITORIES/yay
+cd $REPOSITORIES/yay && makepkg -si
+rm -rf $REPOSITORIES/yay
+cd $REPOSITORIES
 
 sudo pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com
 sudo pacman-key --lsign-key FBA220DFC880C036
 sudo pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
 
+# Install Packages that need to be installed before Config
+yay --noconfirm --needed -S nsxiv
+
 # Get Dependencies
-sudo pacman --noconfirm --needed -S git python3 python-pip
+yay --noconfirm --needed -S git dotdrop
 
 # Install Configuration
-git clone https://github.com/mwglen/desktop-environment.git ~/Repositories/desktop-environment
-cd ~/Repositories/desktop-environment \
-    && pip3 install -r dotdrop/requirements.txt --user \
-    && sudo pip3 install -r dotdrop/requirements.txt \
-    && ./dotdrop.sh install -p MattArch \
-    && sudo ./dotdrop.sh install -p MattArchSudo
+git clone https://github.com/mwglen/desktop-environment.git $REPOSITORIES/desktop-environment
+cd $REPOSITORIES/desktop-environment \
+    && dotdrop install -p MattArch \
+    && sudo dotdrop install -p MattArchSudo
 
 sudo pacman --noconfirm -S grub efibootmgr
 sudo grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB_NEW
@@ -50,17 +52,8 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 sudo timedatectl set-timezone $timezone
 
-sudo pacman -Syyu --needed --noconfirm git base-devel \
-    && git clone https://aur.archlinux.org/yay.git $REPOSITORIES/yay \
-    && cd $REPOSITORIES/yay | makepkg -si
-rm -rf $REPOSITORIES/yay
-
-packages="cat install-scripts/arch/packages.txt | awk -F '#' '{print $1}' | tr -d '\n'"
-yay -Syyu --noconfirm --needed $packages
-
-sudo pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com
-sudo pacman-key --lsign-key FBA220DFC880C036
-sudo pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+packages="$(cat $REPOSITORIES/desktop-environment/install-scripts/arch/packages.txt | awk -F '#' '{print $1}' | tr -s '\n' ' ')"
+yay -Syyu --needed $packages
 
 mkdir -p "$XDG_CONFIG_HOME"/git
 touch "$XDG_CONFIG_HOME"/git/config
@@ -72,24 +65,9 @@ git config --global init.defaultBranch master
 # sudo xset +fp /usr/share/fonts/nerd-fonts-complete/TTF
 sudo fc-cache -fv
 
-# Create font directory
-mkdir -p ~/.local/share/fonts
-
-# Copy font to directory
-cp /usr/share/fonts/'Roboto Mono Nerd Font Complete Mono.ttf' ~/.local/share/fonts/roboto-mono-nerd-font-complete-mono.ttf
-
-# Initialize font directory
-cd ~/.local/share/fonts && mkfontscale && mkfontdir
-
-# Add font directory
-xset +fp '/home/$USER/.local/share/fonts'
-xset fp rehash
-
 rustup default nightly
 rustup component add rls || true
 rustup component add rust-analysis rust-src
-
-pip install git+https://github.com/yuce/pyswip@master#egg=pyswip
 
 sudo systemctl enable bluetooth
 
@@ -97,32 +75,19 @@ sudo systemctl enable NetworkManager
 
 sudo systemctl enable tlp
 
-#!/bin/bash
-acpi -b | awk -F'[,:%]' '{print $2, $3}' | {
-    read -r status capacity
-  
-    if [ "$status" = Discharging -a "$capacity" -lt 10 ]; then
-        logger "Critical battery threshold"
-        systemctl hibernate
-    fi
-}
-
 sudo systemctl daemon-reload
 sudo systemctl enable auto-hibernate.timer
 
-sudo groupadd video
-sudo usermod +aG video $USER
-sudo chgrp video /sys/class/backlight/intel_backlight/brightness
-
-cups sane python-pillow simple-scan
+sudo groupadd video || true
+sudo usermod -a -G video $USER
+#sudo chgrp video /sys/class/backlight/intel_backlight/brightness
+#sudo chmod g+w /sys/class/backlight/intel_backlight/brightness
 
 sudo systemctl enable cups
 
-sudo npm install --global pure-prompt
-
-mkdir ~/Mail/account.gmail
-gmi init $gmail 
-gmi pull
+mkdir -p $MAIL/account.gmail
+#gmi init $gmail 
+#gmi pull
 
 gem install date icalendar optparse tzinfo
 
@@ -130,12 +95,6 @@ git clone https://tero.hasu.is/repos/icalendar-to-org.git $REPOSITORIES/icalenda
 
 curl https://raw.githubusercontent.com/unode/polypomo/master/polypomo > $XDG_CONFIG_HOME/polybar/scripts/polypomo
 chmod +x $XDG_CONFIG_HOME/polybar/scripts/polypomo
-
-sudo mkdir -p /etc/udev/rules.d
-groupadd -r video && true
-sudo usermod -a -G video $USER
-sudo chgrp video /sys/class/backlight/intel_backlight/brightness
-sudo chmod g+w /sys/class/backlight/intel_backlight/brightness
 
 sudo systemctl enable lightdm
 
@@ -151,8 +110,6 @@ sudo systemctl enable libvirtd # Also enables virtlogd and virtlockd
 
 curl -L https://raw.githubusercontent.com/thomas10-10/foo-Wallpaper-Feh-Gif/master/install.sh | bash
 #back4.sh 0.010 gif/pixel.gif &
-
-sudo pip3 install wpgtk
 
 sudo pywalfox install
 

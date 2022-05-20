@@ -7,7 +7,6 @@ drive="/dev/nvme1n1"
 boot_part="/dev/nvme1n1p1"
 swap_part="/dev/nvme1n1p2"
 root_part="/dev/nvme1n1p3"
-mem_size=32
 mount_point="/mnt"
 
 # Unmap Old Partitions
@@ -25,6 +24,7 @@ sudo parted $drive -s set 1 esp on
 sudo mkfs.fat -F 32 $boot_part
 
 ### Swap Partition
+mem_size=$(( $(grep MemTotal /proc/meminfo | awk '{print $2}') / 1000 / 1000))
 sudo parted $drive -s unit mib mkpart primary linux-swap 514 $((514 + ($mem_size * 1024)))
 sudo mkswap $swap_part
 

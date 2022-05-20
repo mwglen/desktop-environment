@@ -69,6 +69,7 @@ XDG_VIDEOS_DIR="$HOME/Videos"
 
 **** Create User Directories
 #+begin_src bash
+source $XDG_CONFIG_HOME/user-dirs.dirs
 mkdir -p $XDG_DESKTOP_DIR
 mkdir -p $XDG_DOCUMENTS_DIR
 mkdir -p $XDG_DOWNLOAD_DIR
@@ -177,7 +178,6 @@ drive="/dev/nvme1n1"
 boot_part="/dev/nvme1n1p1"
 swap_part="/dev/nvme1n1p2"
 root_part="/dev/nvme1n1p3"
-mem_size=32
 mount_point="/mnt"
 
 # Unmap Old Partitions
@@ -195,6 +195,7 @@ sudo parted $drive -s set 1 esp on
 sudo mkfs.fat -F 32 $boot_part
 
 ### Swap Partition
+mem_size=$(( $(grep MemTotal /proc/meminfo | awk '{print $2}') / 1000 / 1000))
 sudo parted $drive -s unit mib mkpart primary linux-swap 514 $((514 + ($mem_size * 1024)))
 sudo mkswap $swap_part
 
@@ -234,8 +235,8 @@ ln -sf /usr/share/zoneinfo/$time_zone /etc/localtime
 hwclock --systohc
 
 # Localization
-locale-gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
+locale-gen
 echo $host_name > /etc/hostname
 
 # Initramfs
@@ -314,30 +315,40 @@ mkdir -p $MAIL
 *** Install Yay
 #+begin_src bash
 sudo pacman --noconfirm -S --needed git base-devel
-git clone https://aur.archlinux.org/yay.git ~/$REPOSITORIES/yay
-cd ~/$REPOSITORIES/yay && makepkg -si
-rm -rf ~/$REPOSITORIES/yay
+git clone https://aur.archlinux.org/yay.git $REPOSITORIES/yay
+cd $REPOSITORIES/yay && makepkg -si
+rm -rf $REPOSITORIES/yay
+cd $REPOSITORIES
 #+end_src
 
 *** Setup Chatoric-AUR
+**** Get Keys
 #+begin_src bash
 sudo pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com
 sudo pacman-key --lsign-key FBA220DFC880C036
 sudo pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
 #+end_src
 
+**** Update Pacman.conf
+Install keys before updating pacman.conf
+#+begin_src conf
+[chaotic-aur]
+Include = /etc/pacman.d/chaotic-mirrorlist
+#+end_src
+
 *** Install Config
 #+begin_src bash
+# Install Packages that need to be installed before Config
+yay --noconfirm --needed -S nsxiv
+
 # Get Dependencies
-sudo pacman --noconfirm --needed -S git python3 python-pip
+yay --noconfirm --needed -S git dotdrop
 
 # Install Configuration
-git clone https://github.com/mwglen/desktop-environment.git ~/Repositories/desktop-environment
-cd ~/Repositories/desktop-environment \
-    && pip3 install -r dotdrop/requirements.txt --user \
-    && sudo pip3 install -r dotdrop/requirements.txt \
-    && ./dotdrop.sh install -p MattArch \
-    && sudo ./dotdrop.sh install -p MattArchSudo
+git clone https://github.com/mwglen/desktop-environment.git $REPOSITORIES/desktop-environment
+cd $REPOSITORIES/desktop-environment \
+    && dotdrop install -p MattArch \
+    && sudo dotdrop install -p MattArchSudo
 #+end_src
 
 *** Setup Grub
@@ -371,19 +382,10 @@ GRUB_DISABLE_RECOVERY=true
 sudo timedatectl set-timezone $timezone
 #+end_src
 
-*** Setup Yay
-**** Installation
+*** Install Packages
 #+begin_src bash
-sudo pacman -Syyu --needed --noconfirm git base-devel \
-    && git clone https://aur.archlinux.org/yay.git $REPOSITORIES/yay \
-    && cd $REPOSITORIES/yay | makepkg -si
-rm -rf $REPOSITORIES/yay
-#+end_src
-
-**** Install and Update Packages
-#+begin_src bash
-packages="cat install-scripts/arch/packages.txt | awk -F '#' '{print $1}' | tr -d '\n'"
-yay -Syyu --noconfirm --needed $packages
+packages="$(cat $REPOSITORIES/desktop-environment/install-scripts/arch/packages.txt | awk -F '#' '{print $1}' | tr -s '\n' ' ')"
+yay -Syyu --needed $packages
 #+end_src
 
 *** Pacman Config
@@ -428,22 +430,6 @@ Include = /etc/pacman.d/mirrorlist
 
 [multilib]
 Include = /etc/pacman.d/mirrorlist
-#+end_src
-
-**** Add Chaotic AUR
-***** Install Keys
-#+begin_src bash
-sudo pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com
-sudo pacman-key --lsign-key FBA220DFC880C036
-sudo pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
-#+end_src
-
-***** Update Pacman.conf
-Install keys before updating pacman.conf
-
-#+begin_src conf
-[chaotic-aur]
-Include = /etc/pacman.d/chaotic-mirrorlist
 #+end_src
 
 **** Add Custom Repository
@@ -496,7 +482,7 @@ sudo fc-cache -fv
 #+end_src
 
 ***** Add Roboto Mono to xlsfonts
-#+begin_src bash
+#+begin_src bash :tangle no
 # Create font directory
 mkdir -p ~/.local/share/fonts
 
@@ -517,8 +503,7 @@ xset fp rehash
 #+begin_src text
 python
 python-matplotlib
-poetry
-python-pip
+python-poetry
 #+end_src
 
 **** Rust
@@ -540,11 +525,7 @@ rustup component add rust-analysis rust-src
 #+begin_src text
 gprolog
 swi-prolog
-#+end_src
-
-***** Setup Pyswip
-#+begin_src bash
-pip install git+https://github.com/yuce/pyswip@master#egg=pyswip
+python-pyswip
 #+end_src
 
 **** PHP
@@ -589,6 +570,7 @@ font:
 ****** Installation
 #+begin_src text
 nvidia
+lib32-nvidia-utils
 #+end_src
 
 ***** Optimus-Manager
@@ -761,7 +743,7 @@ If the above doesn't work we have to frequently run a script that checks the bat
 :PROPERTIES:
 :header-args:sh: :tangle /sudo:://bin/hibernate-if-low.sh :tangle-mode (identity #o755)
 :END:
-#+begin_src bash
+#+begin_src sh
 #!/bin/bash
 acpi -b | awk -F'[,:%]' '{print $2, $3}' | {
     read -r status capacity
@@ -774,7 +756,7 @@ acpi -b | awk -F'[,:%]' '{print $2, $3}' | {
 #+end_src
 
 ***** Auto Hibernate Service
-#+begin_src bash :tangle /sudo:://etc/systemd/system/auto-hibernate.service
+#+begin_src sh :tangle /sudo:://etc/systemd/system/auto-hibernate.service
 [Unit]
 Description=Hibernate system when the battery is low
 
@@ -811,9 +793,10 @@ brightnessctl
 
 ****** Setup
 #+begin_src bash
-sudo groupadd video
-sudo usermod +aG video $USER
-sudo chgrp video /sys/class/backlight/intel_backlight/brightness
+sudo groupadd video || true
+sudo usermod -a -G video $USER
+#sudo chgrp video /sys/class/backlight/intel_backlight/brightness
+#sudo chmod g+w /sys/class/backlight/intel_backlight/brightness
 #+end_src
 
 ****** Configuration
@@ -844,8 +827,11 @@ brillo -qc -S 70
 **** Generic Printers
 ***** Installation
 To scan I recommend using simple-scan
-#+begin_src bash
-cups sane python-pillow simple-scan
+#+begin_src text
+cups
+sane
+python-pillow
+simple-scan
 #+end_src
 
 ***** Setup
@@ -879,6 +865,7 @@ zsh
 zsh-completions
 zsh-syntax-highlighting
 zsh-autosuggestions
+zsh-pure-prompt
 #+end_src
 
 ***** Configuration
@@ -909,7 +896,7 @@ export XDG_VIDEOS_DIR="$HOME/Videos"
 :END:
 #+begin_src bash
 export DOTDROP_DIR="$HOME/Repositories/desktop-environment/dotdrop"
-alias dotdrop="$DOTDROP_DIR/dotdrop.sh --cfg=$DOTDROP_DIR/config.yaml"
+alias dotdrop="dotdrop --cfg=$DOTDROP_DIR/config.yaml"
 
 alias ls="ls --color=auto --group-directories"
 alias ll="ls -alh"
@@ -938,18 +925,6 @@ source $HOME/.profile
 ZDOTDIR=~/.config/zsh
 
 export PATH="$HOME/.local/bin:$PATH"
-#+end_src
-
-***** Pure (ZSH Theme)
-****** Installation
-#+begin_src text
-nodejs
-npm
-#+end_src
-
-****** Setup
-#+begin_src bash
-sudo npm install --global pure-prompt
 #+end_src
 
 *** File System Support
@@ -1075,9 +1050,9 @@ gmailieer
 
 ***** Setup
 #+begin_src bash
-mkdir ~/Mail/account.gmail
-gmi init $gmail 
-gmi pull
+mkdir -p $MAIL/account.gmail
+#gmi init $gmail 
+#gmi pull
 #+end_src
 
 **** NeoMutt
@@ -1520,15 +1495,6 @@ format-foreground = ${colors.ternary}
 #+end_src
 
 ****** Backlight
-******* Give Polybar Access to Change Backlight
-#+begin_src bash
-sudo mkdir -p /etc/udev/rules.d
-groupadd -r video && true
-sudo usermod -a -G video $USER
-sudo chgrp video /sys/class/backlight/intel_backlight/brightness
-sudo chmod g+w /sys/class/backlight/intel_backlight/brightness
-#+end_src
-
 ******* Module
 #+begin_src conf
 [module/backlight]
@@ -2888,7 +2854,7 @@ See [[https://dunst-project.org/documentation/]]
 ****** Qemu
 #+begin_src text
 libvirt
-qemu
+qemu-full
 #+end_src
 
 ****** Network Connectivity with Virtual Machine
@@ -2996,8 +2962,7 @@ wine-mono
 **** Audio Applications
 ***** Installation
 #+begin_src text
-kmidimon # For Viewing MIDI Traffic
-lmms # For Viewing MIDI Traffic
+lmms
 #+end_src
 
 **** Aerospace Engineering Applications
@@ -3007,7 +2972,7 @@ lmms # For Viewing MIDI Traffic
 ***** Installation
 #+begin_src text
 xfoil
-openvsp-git
+#openvsp-git
 #+end_src
 
 **** Todoist
@@ -3304,7 +3269,7 @@ mimeo
 **** Anki
 ***** Installation
 #+begin_src text
-anki
+#anki
 #+end_src
 
 **** File Managers
@@ -3685,21 +3650,6 @@ psst-git-bin
 alias spotify="spotify --force-device-scale-factor=2"
 #+end_src
 
-***** Desktop File (With Fix for HiDPI)
-#+begin_src conf :tangle /sudo:://usr/share/applications/spotify.desktop
-[Desktop Entry]
-Type=Application
-Name=Spotify
-GenericName=Music Player
-Icon=spotify-client
-TryExec=spotify
-Exec=spotify --force-device-scale-factor=2 %U
-Terminal=false
-MimeType=x-scheme-handler/spotify;
-Categories=Audio;Music;Player;AudioVideo;
-StartupWMClass=spotify
-#+end_src
-
 **** Discord
 ***** Installation
 #+begin_src text
@@ -3805,11 +3755,7 @@ curl -L https://raw.githubusercontent.com/thomas10-10/foo-Wallpaper-Feh-Gif/mast
 #+begin_src text
 python-pywal
 python-colorthief
-#+end_src
-
-****** Install wpgtk
-#+begin_src bash
-sudo pip3 install wpgtk
+wpgtk-git
 #+end_src
 
 ****** Add Colorscheme to All Terminals
@@ -3852,8 +3798,7 @@ svlangserver
 haskell-language-server
 sdcv
 stardict-oed
-stardict-full-rus-eng
-stardict-full-eng-rus
+npm
 #+end_src
 
 ****** Setup Coc
