@@ -8,6 +8,7 @@ set -v
 
 nvidia="true"
 gmail="mwg2202@gmail.com"
+timezone="America/New_York"
 
 XDG_CONFIG_HOME="$HOME/.config"
 XDG_CACHE_HOME="$HOME/.cache"
@@ -32,25 +33,26 @@ sudo pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com
 sudo pacman-key --lsign-key FBA220DFC880C036
 sudo pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
 
+# Get Dependencies
 sudo pacman --noconfirm --needed -S git python3 python-pip
-pip3 install -r dotdrop/requirements.txt --user
-sudo pip3 install -r dotdrop/requirements.txt
 
+# Install Configuration
 git clone https://github.com/mwglen/desktop-environment.git ~/Repositories/desktop-environment
-cd ~/Repositories/desktop-environment
-
-./dotdrop.sh install -p MattArch
-sudo ./dotdrop.sh install -p MattArchSudo
+cd ~/Repositories/desktop-environment \
+    && pip3 install -r dotdrop/requirements.txt --user \
+    && sudo pip3 install -r dotdrop/requirements.txt \
+    && ./dotdrop.sh install -p MattArch \
+    && sudo ./dotdrop.sh install -p MattArchSudo
 
 sudo pacman --noconfirm -S grub efibootmgr
 sudo grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB_NEW
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
-sudo timedatectl set-timezone America/New_York
+sudo timedatectl set-timezone $timezone
 
 sudo pacman -Syyu --needed --noconfirm git base-devel \
-    && git clone https://aur.archlinux.org/yay.git \
-    && cd yay && yes | makepkg -si
+    && git clone https://aur.archlinux.org/yay.git $REPOSITORIES/yay \
+    && cd $REPOSITORIES/yay | makepkg -si
 rm -rf $REPOSITORIES/yay
 
 packages="cat install-scripts/arch/packages.txt | awk -F '#' '{print $1}' | tr -d '\n'"

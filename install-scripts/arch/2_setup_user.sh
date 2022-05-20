@@ -23,12 +23,13 @@ mkinitcpio -P
 passwd
 
 # New User
-pacman --noconfirm -Sy zsh
+pacman --noconfirm -Sy zsh sudo
 useradd -m -s /bin/zsh $user
 usermod -G wheel $user
-echo '%wheel ALL=(ALL:ALL) ALL' | sudo EDITOR='tee -a' visudo
+echo '%wheel ALL=(ALL:ALL) ALL' | EDITOR='tee -a' visudo
 touch /home/$user/.zshrc
 passwd $user
 
 # Switch to User
-su -c './3_install_applications.sh' $user
+rm '/2_setup_user.sh'
+sudo -i -u $user -H zsh -c '/3_install_applications.sh'

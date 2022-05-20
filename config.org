@@ -210,6 +210,8 @@ sudo mount --mkdir $boot_part $mount_point/boot
 sudo pacstrap $mount_point base linux linux-firmware
 
 # Change Root
+sudo cp ./2_setup_user.sh $mount_point
+sudo cp ./3_install_applications.sh $mount_point
 sudo arch-chroot $mount_point ./2_setup_user.sh
 #+end_src
 
@@ -243,15 +245,16 @@ mkinitcpio -P
 passwd
 
 # New User
-pacman --noconfirm -Sy zsh
+pacman --noconfirm -Sy zsh sudo
 useradd -m -s /bin/zsh $user
 usermod -G wheel $user
-echo '%wheel ALL=(ALL:ALL) ALL' | sudo EDITOR='tee -a' visudo
+echo '%wheel ALL=(ALL:ALL) ALL' | EDITOR='tee -a' visudo
 touch /home/$user/.zshrc
 passwd $user
 
 # Switch to User
-su -c './3_install_applications.sh' $user
+rm '/2_setup_user.sh'
+sudo -i -u $user -H zsh -c '/3_install_applications.sh'
 #+end_src
 
 ** Install Applications
@@ -285,6 +288,7 @@ set -v
 #+begin_src bash
 nvidia="true"
 gmail="mwg2202@gmail.com"
+timezone="America/New_York"
 #+end_src
 
 **** XDG Directories
@@ -324,15 +328,16 @@ sudo pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.ta
 
 *** Install Config
 #+begin_src bash
+# Get Dependencies
 sudo pacman --noconfirm --needed -S git python3 python-pip
-pip3 install -r dotdrop/requirements.txt --user
-sudo pip3 install -r dotdrop/requirements.txt
 
+# Install Configuration
 git clone https://github.com/mwglen/desktop-environment.git ~/Repositories/desktop-environment
-cd ~/Repositories/desktop-environment
-
-./dotdrop.sh install -p MattArch
-sudo ./dotdrop.sh install -p MattArchSudo
+cd ~/Repositories/desktop-environment \
+    && pip3 install -r dotdrop/requirements.txt --user \
+    && sudo pip3 install -r dotdrop/requirements.txt \
+    && ./dotdrop.sh install -p MattArch \
+    && sudo ./dotdrop.sh install -p MattArchSudo
 #+end_src
 
 *** Setup Grub
@@ -363,15 +368,15 @@ GRUB_DISABLE_RECOVERY=true
 
 *** System Time
 #+begin_src bash
-sudo timedatectl set-timezone America/New_York
+sudo timedatectl set-timezone $timezone
 #+end_src
 
 *** Setup Yay
 **** Installation
 #+begin_src bash
 sudo pacman -Syyu --needed --noconfirm git base-devel \
-    && git clone https://aur.archlinux.org/yay.git \
-    && cd yay && yes | makepkg -si
+    && git clone https://aur.archlinux.org/yay.git $REPOSITORIES/yay \
+    && cd $REPOSITORIES/yay | makepkg -si
 rm -rf $REPOSITORIES/yay
 #+end_src
 
