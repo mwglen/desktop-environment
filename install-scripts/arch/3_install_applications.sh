@@ -43,7 +43,7 @@ cd ~/Repositories/desktop-environment
 sudo ./dotdrop.sh install -p MattArchSudo
 
 sudo pacman --noconfirm -S grub efibootmgr
-sudo grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+sudo grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB_NEW
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 sudo timedatectl set-timezone America/New_York
@@ -139,16 +139,11 @@ sudo systemctl enable lightdm
 
 sudo locale-gen
 
-profile {
-    output eDP-1 enable mode 3840x2160 scale 2 position 0,0
-}
-
 # Members of the libvirt group have passwordless access to the RW daemon socket by default.
 sudo usermod -a -G libvirt $USER
 sudo usermod -a -G kvm $USER
 
-sudo systemctl enable --now libvirtd # Also enables virtlogd and virtlockd
-sudo systemctl start virtlogd
+sudo systemctl enable libvirtd # Also enables virtlogd and virtlockd
 
 # Make sure to set user = /etc/libvirt/qemu.conf
 

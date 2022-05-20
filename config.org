@@ -210,8 +210,7 @@ sudo mount --mkdir $boot_part $mount_point/boot
 sudo pacstrap $mount_point base linux linux-firmware
 
 # Change Root
-sudo cp ./install2.sh /mnt/install2.sh
-sudo arch-chroot $mount_point
+sudo arch-chroot $mount_point ./2_setup_user.sh
 #+end_src
 
 ** Setup User
@@ -252,7 +251,7 @@ touch /home/$user/.zshrc
 passwd $user
 
 # Switch to User
-su $user
+su -c './3_install_applications.sh' $user
 #+end_src
 
 ** Install Applications
@@ -340,7 +339,7 @@ sudo ./dotdrop.sh install -p MattArchSudo
 **** Install
 #+begin_src bash
 sudo pacman --noconfirm -S grub efibootmgr
-sudo grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+sudo grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB_NEW
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 #+end_src
 
@@ -2014,7 +2013,7 @@ kanshi
 :PROPERTIES:
 :header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/kanshi/config")
 :END:
-#+begin_src bash
+#+begin_src conf
 profile {
     output eDP-1 enable mode 3840x2160 scale 2 position 0,0
 }
@@ -2913,8 +2912,7 @@ swtpm         # TPM Emulation
 sudo usermod -a -G libvirt $USER
 sudo usermod -a -G kvm $USER
 
-sudo systemctl enable --now libvirtd # Also enables virtlogd and virtlockd
-sudo systemctl start virtlogd
+sudo systemctl enable libvirtd # Also enables virtlogd and virtlockd
 
 # Make sure to set user = /etc/libvirt/qemu.conf
 #+end_src

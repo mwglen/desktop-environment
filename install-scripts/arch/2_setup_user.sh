@@ -31,4 +31,4 @@ touch /home/$user/.zshrc
 passwd $user
 
 # Switch to User
-su $user
+su -c './3_install_applications.sh' $user

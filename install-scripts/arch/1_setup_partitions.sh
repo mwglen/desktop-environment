@@ -40,5 +40,4 @@ sudo mount --mkdir $boot_part $mount_point/boot
 sudo pacstrap $mount_point base linux linux-firmware
 
 # Change Root
-sudo cp ./install2.sh /mnt/install2.sh
-sudo arch-chroot $mount_point
+sudo arch-chroot $mount_point ./2_setup_user.sh
