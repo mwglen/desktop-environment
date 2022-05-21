@@ -35,9 +35,13 @@ sudo mkfs.ext4 $root_part
 # Mount Partitions
 sudo mount --mkdir $root_part $mount_point
 sudo mount --mkdir $boot_part $mount_point/boot
+sudo swapon $swap_part
 
 # Install Base
 sudo pacstrap $mount_point base linux linux-firmware
+
+# Generate fstab
+sudo genfstab -U $mount_point >> $mount_point/etc/fstab
 
 # Change Root
 sudo cp ./2_setup_user.sh $mount_point
