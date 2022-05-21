@@ -193,6 +193,8 @@ xfoil
 
 todoist-electron
 
+gimp
+
 krita
 
 conky
@@ -204,8 +206,6 @@ zk
 rmtrash
 
 mimeo
-
-#anki
 
 dolphin
 

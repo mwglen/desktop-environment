@@ -8,4 +8,10 @@ config:
   link_on_import: nolink
   longkey: false
 dotfiles:
+  d_vimix:
+    src: boot/grub/themes/Vimix
+    dst: /boot/grub/themes/Vimix
 profiles:
+  MattArchSudo:
+    dotfiles:
+    - d_vimix

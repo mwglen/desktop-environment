@@ -1,10 +1,6 @@
 #!/bin/bash
-
-set -e
-
-set -v
-
-# NOTE: This file is generated from config.org
+set -e # Stop on Error
+set -v # Verbose
 
 nvidia="true"
 gmail="mwg2202@gmail.com"
@@ -107,6 +103,9 @@ sudo usermod -a -G kvm $USER
 sudo systemctl enable libvirtd # Also enables virtlogd and virtlockd
 
 # Make sure to set user = /etc/libvirt/qemu.conf
+
+yay -S --noconfirm --needed anki || true
+yay -S --noconfirm --needed anki || true
 
 curl -L https://raw.githubusercontent.com/thomas10-10/foo-Wallpaper-Feh-Gif/master/install.sh | bash
 #back4.sh 0.010 gif/pixel.gif &

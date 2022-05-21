@@ -264,24 +264,10 @@ sudo -i -u $user -H zsh -c '/3_install_applications.sh'
 :header-args:text: :tangle install-scripts/arch/packages.txt
 :END:
 *** Script Headers
-**** Use Bash
 #+begin_src bash
 #!/bin/bash
-#+end_src
-
-**** Stop Script on Error
-#+begin_src bash
-set -e
-#+end_src
-
-**** Give Verbose Output
-#+begin_src bash
-set -v
-#+end_src
-
-**** Warning
-#+begin_src bash
-# NOTE: This file is generated from config.org
+set -e # Stop on Error
+set -v # Verbose
 #+end_src
 
 *** Options
@@ -368,7 +354,7 @@ GRUB_DISTRIBUTOR="Arch"
 GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"
 GRUB_CMDLINE_LINUX="resume=/dev/nvme0n1p2"
 GRUB_DISABLE_OS_PROBER=false
-GRUB_THEME="/boot/grub/themes/vimix/theme.txt"
+GRUB_THEME="/boot/grub/themes/Vimix/theme.txt"
 GRUB_PRELOAD_MODULES="part_gpt part_msdos"
 GRUB_TIMEOUT_STYLE=menu
 GRUB_TERMINAL_INPUT=console
@@ -2593,6 +2579,7 @@ configuration {
   modi:         "window,drun,filebrowser,combi,run";
   icon-theme:   "Papirus";
   dpi:          200;
+  font:         "RobotoMono Nerd Font 13";
 }
 #+end_src
 
@@ -2981,6 +2968,20 @@ xfoil
 todoist-electron
 #+end_src
 
+**** Gimp
+***** Installation
+#+begin_src text
+gimp
+#+end_src
+
+**** Anki
+***** Installation
+Anki sometimes fails to build, so we install it separately and try twice
+#+begin_src bash
+yay -S --noconfirm --needed anki || true
+yay -S --noconfirm --needed anki || true
+#+end_src
+
 **** Krita
 ***** Installation
 #+begin_src text
@@ -3264,12 +3265,6 @@ Use =mimeo --mime2desk <schema>= to find what application is set as default for 
 ***** Installation
 #+begin_src text
 mimeo
-#+end_src
-
-**** Anki
-***** Installation
-#+begin_src text
-#anki
 #+end_src
 
 **** File Managers
