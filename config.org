@@ -822,11 +822,13 @@ cups
 sane
 python-pillow
 simple-scan
+avahi
 #+end_src
 
 ***** Setup
 #+begin_src bash
 sudo systemctl enable cups
+sudo systemctl enable avahi-daemon
 #+end_src
 
 **** HP Printers
@@ -2053,6 +2055,7 @@ xorg-xrdb
 wmctrl
 xorg-xmessage
 xclip
+xdotool
 #+end_src
 
 **** Configuration

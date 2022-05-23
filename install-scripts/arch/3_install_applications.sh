@@ -80,6 +80,7 @@ sudo usermod -a -G video $USER
 #sudo chmod g+w /sys/class/backlight/intel_backlight/brightness
 
 sudo systemctl enable cups
+sudo systemctl enable avahi-daemon
 
 mkdir -p $MAIL/account.gmail
 #gmi init $gmail 

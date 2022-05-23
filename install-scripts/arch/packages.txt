@@ -70,6 +70,7 @@ cups
 sane
 python-pillow
 simple-scan
+avahi
 
 hplip
 
@@ -150,6 +151,7 @@ xorg-xrdb
 wmctrl
 xorg-xmessage
 xclip
+xdotool
 
 xmonad-git
 xmonad-contrib-git
