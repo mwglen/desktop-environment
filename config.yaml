@@ -179,13 +179,15 @@ dotfiles:
   d_nvim:
     src: config/nvim
     dst: ~/.config/nvim
+    cmpignore:
+    - "spell"
+    upignore:
+    - "spell"
+    instignore:
+    - "spell"
   d_wal:
     src: cache/wal
     dst: ~/.cache/wal
-  d_emacs.d:
-    src: emacs.d
-    dst: ~/.emacs.d
-    chmod: '700'
   f_plug.vim:
     src: local/share/nvim/site/autoload/plug.vim
     dst: ~/.local/share/nvim/site/autoload/plug.vim
@@ -195,6 +197,15 @@ dotfiles:
   d_backgrounds:
     src: Backgrounds
     dst: ~/Backgrounds
+    cmpignore:
+    - Others
+    - .stfolder
+    upignore:
+    - Others
+    - .stfolder
+    instignore:
+    - Others
+    - .stfolder
   f_git_config:
     src: config/git/config
     dst: ~/.config/git/config
@@ -226,6 +237,25 @@ dotfiles:
   d_litarvan:
     src: usr/share/lightdm-webkit/themes/litarvan
     dst: /usr/share/lightdm-webkit/themes/litarvan
+  d_vimix:
+    src: boot/grub/themes/Vimix
+    dst: /boot/grub/themes/Vimix
+  d_emacs.d:
+    src: emacs.d
+    dst: ~/.emacs.d
+    cmpignore:
+    - tramp
+    - var/*
+    - '!var/auto-package-update-last-update-day'
+    upignore:
+    - tramp
+    - var/*
+    - '!var/auto-package-update-last-update-day'
+    instignore:
+    - tramp
+    - var/*
+    - '!var/auto-package-update-last-update-day'
+    chmod: '700'
 profiles:
   MattArchSudo:
     dotfiles:
@@ -248,6 +278,7 @@ profiles:
     - f_dwm.desktop
     - f_nsxiv.desktop
     - d_litarvan
+    - d_vimix
 
   MattArch:
     dotfiles:
@@ -289,7 +320,6 @@ profiles:
     - f_coc-settings.json
     - d_nvim
     - d_wal
-    - d_emacs.d
     - f_plug.vim
     - f_gtkrc-2.0
     - d_backgrounds
@@ -302,3 +332,4 @@ profiles:
     - d_sway
     - d_waybar
     - f_kritarc
+    - d_emacs.d

@@ -887,7 +887,7 @@ export XDG_VIDEOS_DIR="$HOME/Videos"
 :header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
 :END:
 #+begin_src bash
-export DOTDROP_DIR="$HOME/Repositories/desktop-environment/dotdrop"
+export DOTDROP_DIR="$HOME/Repositories/desktop-environment"
 alias dotdrop="dotdrop --cfg=$DOTDROP_DIR/config.yaml"
 
 alias ls="ls --color=auto --group-directories"
@@ -1081,7 +1081,7 @@ git clone https://tero.hasu.is/repos/icalendar-to-org.git $REPOSITORIES/icalenda
 *** Wifi Hotspot
 ~linux-wifi-hotspot~ is an AUR package that allows you to easily create a wifi-hotspot without needing to mess around with ~hostapd~, ~dnsmasq~, and ~iptables~. It includes both a gui and cli interface.
 
-To use CLI: ~create_ap wlan0 eth0 MyAccessPoint MyPassPhrase~
+To use CLI: ~create_ap wlp3s0 eth0 MyAccessPoint MyPassPhrase~
 To use GUI: ~wihotspot~
 
 **** Installation
@@ -1154,7 +1154,7 @@ foreground = ${colors.foreground}
 font-0 = "Ubuntu Nerd Font:size=23:weight=bold"
 
 modules-left = date spotify
-modules-right = pulseaudio redshift wireless backlight battery
+modules-right = pulseaudio redshift wireless wired backlight battery
 
 cursor-click = pointer
 cursor-scroll = ns-resize
@@ -1201,9 +1201,10 @@ content-foreground = ${colors.primary}
 :END:
 #+begin_src bash
 #!/bin/bash
-Xaxis=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | cut -d 'x' -f1)
-Yaxis=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | cut -d 'x' -f2)
-stalonetray --grow-gravity SE --geometry 1x1+$((Xaxis-60))+$((Yaxis-130)) --icon-size 32 --icon-gravity SE --window-strut none --slot-size 50 -bg "#161616" &
+Resolution=$(xrandr --current | grep '*' | uniq | awk '{print $1}')
+Xaxis=$(echo $Resolution | cut -d 'x' -f1)
+Yaxis=$(echo $Resolution | cut -d 'x' -f2)
+stalonetray --grow-gravity SE --geometry 1x1+$((Xaxis-65))+$((Yaxis-130)) --icon-size 32 --icon-gravity SE --window-strut none --slot-size 50 -bg "#161616" &
 sleep 1
 xdotool windowunmap "$(xdotool search --class stalonetray)"
 #+end_src
@@ -1464,16 +1465,20 @@ scroll-down = pulseaudio-control down
 #+begin_src conf
 [module/wireless]
 type = internal/network
-interface = wlan0
-
+interface-type = wireless
 label-connected = %essid%
-label-disconnected = not connected
-
 format-connected = 直 <label-connected>
 format-connected-foreground = ${colors.green}
+#+end_src
 
-format-disconnected = 
-format-disconnected-foreground = ${colors.grey}
+****** Wired Network
+#+begin_src conf
+[module/wired]
+type = internal/network
+interface-type = wired
+label-connected = %essid%
+format-connected =  <label-connected>
+format-connected-foreground = ${colors.green}
 #+end_src
 
 ****** Memory                              

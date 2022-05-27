@@ -3,6 +3,7 @@ configuration {
   modi:         "window,drun,filebrowser,combi,run";
   icon-theme:   "Papirus";
   dpi:          200;
+  font:         "RobotoMono Nerd Font 13";
 }
 
 *{

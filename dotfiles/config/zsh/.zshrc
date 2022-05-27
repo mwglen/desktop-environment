@@ -44,7 +44,6 @@ prompt pure
 alias vi=nvim
 alias vim=nvim
 export EDITOR=nvim
-export VISUAL="devour emacsclient -c"
 
 playerctld daemon &> /dev/null
 
@@ -60,7 +59,8 @@ vterm_printf(){
     fi
 }
 
-alias dotdrop="$HOME/.dotfiles/dotdrop.sh --cfg=$HOME/.dotfiles/config.yaml"
+export DOTDROP_DIR="$HOME/Repositories/desktop-environment"
+alias dotdrop="dotdrop --cfg=$DOTDROP_DIR/config.yaml"
 
 alias ls="ls --color=auto --group-directories"
 alias ll="ls -alh"
@@ -86,8 +86,8 @@ alias sudo="sudo "
 
 alias emacs="devour emacs"
 alias emacsclient="devour emacsclient"
-
 alias nsxiv="devour nsxiv -ab -s f"
+export VISUAL="devour emacsclient -c"
 
 # Use pywal colorscheme
 (cat ~/.cache/wal/sequences &)
