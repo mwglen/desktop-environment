@@ -5,13 +5,13 @@ control+h
     
 ### Audio Control ###
 XF86AudioRaiseVolume
-    pactl set-sink-volume @DEFAULT_SINK@ +10%
+    increase-volume
 XF86AudioLowerVolume
-    pactl set-sink-volume @DEFAULT_SINK@ -10%
+    decrease-volume
 XF86AudioMute
-    pactl set-sink-mute @DEFAULT_SINK@ toggle
+    pamixer -t
 XF86AudioMicMute
-    pactl set-source-mute @DEFAULT_SOURCE@ toggle
+    pamixer --default-source -t
 
 ### Media Control ###
 XF86AudioPrev

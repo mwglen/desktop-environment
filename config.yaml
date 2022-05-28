@@ -277,6 +277,18 @@ dotfiles:
     src: local/bin/notify-brightness
     dst: ~/.local/bin/notify-brightness
     chmod: '755'
+  f_notify-volume:
+    src: local/bin/notify-volume
+    dst: ~/.local/bin/notify-volume
+    chmod: '755'
+  f_increase-volume:
+    src: local/bin/increase-volume
+    dst: ~/.local/bin/increase-volume
+    chmod: '755'
+  f_decrease-volume:
+    src: local/bin/decrease-volume
+    dst: ~/.local/bin/decrease-volume
+    chmod: '755'
 profiles:
   MattArchSudo:
     dotfiles:
@@ -358,3 +370,6 @@ profiles:
     - f_increase-brightness
     - f_decrease-brightness
     - f_notify-brightness
+    - f_notify-volume
+    - f_increase-volume
+    - f_decrease-volume

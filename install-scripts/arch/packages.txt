@@ -40,7 +40,7 @@ pipewire-alsa
 pipewire-pulse
 pipewire-jack
 
-pulseaudio-control
+pulseaudio-control pamixer
 
 bluez
 bluez-utils

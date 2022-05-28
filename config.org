@@ -603,10 +603,41 @@ pipewire-pulse
 pipewire-jack
 #+end_src
 
-***** Pulse Audio Control
+***** Audio Control
 ****** Installation
 #+begin_src text
-pulseaudio-control
+pulseaudio-control pamixer
+#+end_src
+
+****** Increase Volume
+:PROPERTIES:
+:header-args:bash: :tangle ~/.local/bin/increase-volume :tangle-mode (identity #o755)
+:END:
+#+begin_src bash
+#!/bin/bash
+pamixer -i 10
+notify-volume
+#+end_src
+
+****** Decrease Audio
+:PROPERTIES:
+:header-args:bash: :tangle ~/.local/bin/decrease-volume :tangle-mode (identity #o755)
+:END:
+#+begin_src bash
+#!/bin/bash
+pamixer -d 10
+notify-volume
+#+end_src
+
+****** Notify Volume
+:PROPERTIES:
+:header-args:bash: :tangle ~/.local/bin/notify-volume :tangle-mode (identity #o755)
+:END:
+#+begin_src bash
+#!/bin/bash
+volume=$(pamixer --get-volume)
+notify-send "Volume" -h int:value:$volume -i audio-volume-high-symbolic -t 2000
+#+end_src
 #+end_src
 
 **** Bluetooth
@@ -843,7 +874,7 @@ notify-brightness
 acc=$(brillo -q | cut -f1 -d".")
 min=$(brillo -qc | cut -f1 -d".")
 brightness=$((($acc - $min) * 100/30))
-notify-send "Brightness" -h int:value:$brightness -i night-light-symbolic
+notify-send "Brightness" -h int:value:$brightness -i night-light-symbolic -t 2000
 #+end_src
 
 *** Printing/Scanning
@@ -2038,13 +2069,13 @@ control+h
     
 ### Audio Control ###
 XF86AudioRaiseVolume
-    pactl set-sink-volume @DEFAULT_SINK@ +10%
+    increase-volume
 XF86AudioLowerVolume
-    pactl set-sink-volume @DEFAULT_SINK@ -10%
+    decrease-volume
 XF86AudioMute
-    pactl set-sink-mute @DEFAULT_SINK@ toggle
+    pamixer -t
 XF86AudioMicMute
-    pactl set-source-mute @DEFAULT_SOURCE@ toggle
+    pamixer --default-source -t
 
 ### Media Control ###
 XF86AudioPrev
@@ -3761,7 +3792,6 @@ reload = true
     ### Text ###
     font = RobotoMono Nerd Font 10
     markup = full
-    format = "<b>%s </b>\n%b"
     word_wrap = yes
     ellipsize = middle
     ignore_newline = no

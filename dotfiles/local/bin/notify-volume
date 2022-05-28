@@ -1,0 +1,3 @@
+#!/bin/bash
+volume=$(pamixer --get-volume)
+notify-send "Volume" -h int:value:$volume -i audio-volume-high-symbolic -t 2000

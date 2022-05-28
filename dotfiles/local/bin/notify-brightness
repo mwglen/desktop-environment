@@ -3,4 +3,4 @@
 acc=$(brillo -q | cut -f1 -d".")
 min=$(brillo -qc | cut -f1 -d".")
 brightness=$((($acc - $min) * 100/30))
-notify-send "Brightness" -h int:value:$brightness -i night-light-symbolic
+notify-send "Brightness" -h int:value:$brightness -i night-light-symbolic -t 2000
