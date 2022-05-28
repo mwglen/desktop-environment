@@ -1,6 +1,6 @@
 export BACKGROUNDS=$HOME/Backgrounds
 export REPOSITORIES=$HOME/Repositories
-export PATH="$PATH:$HOME/development-environment/scripts:/snap/bin"
+export PATH="$PATH:$HOME/.local/bin:/snap/bin"
 
 export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE_HOME=$HOME/.cache

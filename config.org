@@ -813,6 +813,39 @@ This prevents brillo from setting the backlight completely off (which can cause 
 brillo -qc -S 70
 #+end_src
 
+****** Increase Brightness
+:PROPERTIES:
+:header-args:bash: :tangle ~/.local/bin/increase-brightness :tangle-mode (identity #o755)
+:END:
+#+begin_src bash
+#!/bin/bash
+brillo -q -u 150000 -A 5
+notify-brightness
+#+end_src
+
+****** Decrease Brightness
+:PROPERTIES:
+:header-args:bash: :tangle ~/.local/bin/decrease-brightness :tangle-mode (identity #o755)
+:END:
+#+begin_src bash
+#!/bin/bash
+brillo -q -u 150000 -U 5
+notify-brightness
+#+end_src
+
+****** Send Brightness Notification
+:PROPERTIES:
+:header-args:bash: :tangle ~/.local/bin/notify-brightness :tangle-mode (identity #o755)
+:END:
+#+begin_src bash
+#!/bin/bash
+# Send Brightness Notification
+acc=$(brillo -q | cut -f1 -d".")
+min=$(brillo -qc | cut -f1 -d".")
+brightness=$((($acc - $min) * 100/30))
+notify-send "Brightness" -h int:value:$brightness -i night-light-symbolic
+#+end_src
+
 *** Printing/Scanning
 **** Generic Printers
 ***** Installation
@@ -865,7 +898,7 @@ zsh-pure-prompt
 #+begin_src bash :tangle ~/.profile
 export BACKGROUNDS=$HOME/Backgrounds
 export REPOSITORIES=$HOME/Repositories
-export PATH="$PATH:$HOME/development-environment/scripts:/snap/bin"
+export PATH="$PATH:$HOME/.local/bin:/snap/bin"
 
 export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE_HOME=$HOME/.cache
@@ -1119,8 +1152,8 @@ margin-bottom = 0
 #+begin_src conf
 [colors]
 background = ${xrdb:color0:#222}
-foreground = ${xrdb:color7:#222}
-foreground-alt = ${xrdb:color7:#222}
+foreground = ${xrdb:color1:#222}
+foreground-alt = ${xrdb:color1:#222}
 primary = ${xrdb:color1:#222}
 secondary = ${xrdb:color2:#222}
 ternary = ${xrdb:color3:#222}
@@ -2025,10 +2058,9 @@ XF86AudioStop
 
 ### Brightness Control ###
 XF86MonBrightnessUp
-    brillo -q -u 150000 -A 5
+    increase-brightness
 XF86MonBrightnessDown
-    brillo -q -u 150000 -U 5
-
+    decrease-brightness
 
 ### Rofi Menus ###
 super+p
@@ -2240,41 +2272,36 @@ import XMonad.Actions.DynamicWorkspaces
 #+end_src
 
 ****** Ignore Floats on Focus Up and Down
-#+begin_src haskell :tangle no
-skipFloating :: (Eq a, Ord a) => StackSet i l a s sd -> (StackSet i l a s sd -> StackSet i l a s sd) -> StackSet i l a s sd
-skipFloating stacks f
-    | isNothing curr = stacks -- short circuit if there is no currently focused window
-    | otherwise = skipFloatingR stacks curr f
-  where curr = W.peek stacks
-
-skipFloatingR :: (Eq a, Ord a) => StackSet i l a s sd -> (Maybe a) -> (StackSet i l a s sd -> StackSet i l a s sd) -> StackSet i l a s sd
-skipFloatingR stacks startWindow f
-  
-    -- next window is nothing return current stack set
-    | isNothing nextWindow = stacks
-    
-    -- if next window is the starting window then
-    -- return the new stack set
-    | nextWindow == startWindow = newStacks
-
-    -- if next window is not a floating window return the new stack set
-    | S.notMember (fromJust nextWindow) (W.floating stacks) = newStacks
-
-    -- the next window is a floating window so keep recursing (looking)
-    | otherwise = skipFloatingR newStacks startWindow f
-    
-  where newStacks = f stacks
-        nextWindow = W.peek newStacks
-        
-        
-        
--- In keybinding configuration:
-
--- Move focus to the next window
---, ((modm,               xK_j     ), windows (\s -> skipFloating s W.focusDown))
-
--- Move focus to the previous window
---, ((modm,               xK_k     ), windows (\s -> skipFloating s W.focusUp))
+#+begin_src haskell
+-- skipFloating :: (Eq a, Ord a) => StackSet i l a s sd -> (StackSet i l a s sd -> StackSet i l a s sd) -> StackSet i l a s sd
+-- skipFloating stacks f
+--     | isNothing curr = stacks -- short circuit if there is no currently focused window
+--     | otherwise = skipFloatingR stacks curr f
+--   where curr = W.peek stacks
+-- 
+-- skipFloatingR :: (Eq a, Ord a) => StackSet i l a s sd -> (Maybe a) -> (StackSet i l a s sd -> StackSet i l a s sd) -> StackSet i l a s sd
+-- skipFloatingR stacks startWindow f
+--     -- next window is nothing return current stack set
+--     | isNothing nextWindow = stacks
+--     -- if next window is the starting window then
+--     -- return the new stack set
+--     | nextWindow == startWindow = newStacks
+--     -- if next window is not a floating window return
+--     -- the new stack set
+--     | S.notMember (fromJust nextWindow) (W.floating stacks) = newStacks
+--     -- the next window is a floating window so
+--     -- keep recursing (looking)
+--     | otherwise = skipFloatingR newStacks startWindow f
+--   where newStacks = f stacks
+--         nextWindow = W.peek newStacks
+--         
+-- -- In keybinding configuration:
+-- 
+-- -- Move focus to the next window
+-- --, ((modm,               xK_j     ), windows (\s -> skipFloating s W.focusDown))
+-- 
+-- -- Move focus to the previous window
+-- --, ((modm,               xK_k     ), windows (\s -> skipFloating s W.focusUp))
 #+end_src
 
 ****** Dmenu Commands
@@ -2756,95 +2783,10 @@ textbox-prompt-colon {
 #+end_src
 
 *** Notifications
-**** Libnotify
-Libnotify is an implementation of the Desktop Notifications Specification.
+**** Installation
 #+begin_src text
 libnotify
-#+end_src
-
-**** Dunst
-In order to use libnotify you have to install a notification server. I use Dunst.
-#+begin_src text
 dunst
-#+end_src
-
-***** Dunst Config
-:PROPERTIES:
-:header-args:conf: :tangle (concat (getenv "XDG_CONFIG_HOME") "/dunst/dunstrc")
-:END:
-See [[https://dunst-project.org/documentation/]] 
-#+begin_src conf
-[global]
-    ### Location ###
-    follow = keyboard
-
-    ### Geometry ###
-    offset = 20x80
-    width = 500
-    height = 300
-    transparency = 10  # Requires X11 and a compositor [0; 100]
-    corner_radius = 5
-
-    ### General Settings ###
-    notification_limit = 0    # 0 means no limit
-    separator_height = 2      # Distance between notifications
-    show_age_threshold = 60
-
-    ### Progress bar ###
-    progress_bar_height = 10 # At least twice as big as frame width
-    progress_bar_frame_width = 1
-    progress_bar_min_width = 150
-    progress_bar_max_width = 300
-
-    # Padding between text and separator.
-    padding = 8
-    horizontal_padding = 8
-    text_icon_padding = 0
-
-    ### Frame around notification window ###
-    frame_width = 0
-    frame_color = "#aaaaaa" # Color 
-    separator_color = frame # auto, foreground, frame, <any color>
-
-    ### Text ###
-    font = Monospace 10
-    markup = full
-    format = "<b>%s</b>\n%b"
-
-    ### Icons ###
-    icon_position = left # left/right/off
-    min_icon_size = 0
-    max_icon_size = 32
-    icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
-
-    ### History ###
-    sticky_history = yes
-    history_length = 20
-
-    ### Misc/Advanced ###
-    dmenu = /usr/bin/dmenu
-
-[urgency_low]
-    background = "#222222"
-    foreground = "#888888"
-    timeout = 10
-    # Icon for notifications with low urgency, uncomment to enable
-    #default_icon = /path/to/icon
-
-[urgency_normal]
-    background = "#222222"
-    foreground = "#ffffff"
-    timeout = 10
-    # Icon for notifications with normal urgency, uncomment to enable
-    #default_icon = /path/to/icon
-
-[urgency_critical]
-    background = "#900000"
-    foreground = "#ffffff"
-    frame_color = "#ff0000"
-    timeout = 0
-    # Icon for notifications with critical urgency, uncomment to enable
-    #default_icon = /path/to/icon
 #+end_src
 
 *** Virtualization
@@ -3673,7 +3615,7 @@ libreoffice-fresh-ru
 **** Git-Annex
 ***** Installation
 #+begin_src text
-git-annex
+git-annex-standalone
 #+end_src
 
 **** Redshift
@@ -3763,6 +3705,95 @@ curl -L https://raw.githubusercontent.com/thomas10-10/foo-Wallpaper-Feh-Gif/mast
 python-pywal
 python-colorthief
 wpgtk-git
+#+end_src
+
+****** WPGTK Configuration
+#+begin_src conf :tangle ~/.config/wpg/wpg.conf
+[settings]
+set_wallpaper = true
+gtk = true
+active = 0
+light_theme = false
+editor = emacsclient -c 
+execute_cmd = false
+command = alacritty -c echo hi
+backend = wal
+alpha = 100
+smart_sort = true
+auto_adjust = false
+reload = true
+
+[keywords]
+#+end_src
+
+****** Dunst Integration
+#+begin_src conf :tangle ~/.config/wpg/templates/dunstrc.base
+[global]
+    ### Location ###
+    follow = keyboard
+
+    ### Geometry ###
+    offset = 80x80
+    width = 500
+    height = 100
+    corner_radius = 0
+    frame_width = 0
+
+    ### General Settings ###
+    transparency = 10
+    notification_limit = 0    # 0 means no limit
+    separator_height = 3
+    show_age_threshold = 60
+    ellipsize = end
+    idle_threshold = 120
+
+    ### Progress Bar ###
+    progress_bar_height = 10 # At least twice as big as frame width
+    progress_bar_frame_width = 0
+    progress_bar_min_width = 500
+    progress_bar_max_width = 500
+
+    ### Padding ###
+    padding = 12
+    horizontal_padding = 12
+    text_icon_padding = 0
+
+    ### Text ###
+    font = RobotoMono Nerd Font 10
+    markup = full
+    format = "<b>%s </b>\n%b"
+    word_wrap = yes
+    ellipsize = middle
+    ignore_newline = no
+    show_indicators = yes
+
+    ### Duplicates ###
+    stack_duplicates = true
+    hide_duplicate_count = true
+
+    ### Icons ###
+    enable_recursive_icon_lookup = true
+    icon_theme = Adwaita
+    icon_position = left
+    icon_size = 16
+
+[urgency_low]
+    background  = "{color0}"
+    foreground = "#888888"
+    highlight  = "{color1}"
+    timeout = 10
+
+[urgency_normal]
+    background  = "{color0}"
+    foreground = "#aaaaaa"
+    highlight  = "{color1}"
+    timeout = 10
+
+[urgency_critical]
+    background = "#900000"
+    foreground = "#dddddd"
+    highlight  = "{color1}"
+    timeout = 0
 #+end_src
 
 ****** Add Colorscheme to All Terminals

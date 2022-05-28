@@ -162,7 +162,6 @@ rofi-bluetooth-git
 rofi-dmenu
 
 libnotify
-
 dunst
 
 libvirt
@@ -254,7 +253,7 @@ discord
 libreoffice-fresh
 libreoffice-fresh-ru
 
-git-annex
+git-annex-standalone
 
 redshift
 

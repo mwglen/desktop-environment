@@ -25,10 +25,9 @@ XF86AudioStop
 
 ### Brightness Control ###
 XF86MonBrightnessUp
-    brillo -q -u 150000 -A 5
+    increase-brightness
 XF86MonBrightnessDown
-    brillo -q -u 150000 -U 5
-
+    decrease-brightness
 
 ### Rofi Menus ###
 super+p

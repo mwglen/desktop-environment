@@ -149,6 +149,12 @@ dotfiles:
   d_dunst:
     src: config/dunst
     dst: ~/.config/dunst
+    cmpignore:
+    - dunstrc.bak
+    upignore:
+    - dunstrc.bak
+    instignore:
+    - dunstrc.bak
   d_conky:
     src: config/conky
     dst: ~/.config/conky
@@ -180,11 +186,11 @@ dotfiles:
     src: config/nvim
     dst: ~/.config/nvim
     cmpignore:
-    - "spell"
+    - spell
     upignore:
-    - "spell"
+    - spell
     instignore:
-    - "spell"
+    - spell
   d_wal:
     src: cache/wal
     dst: ~/.cache/wal
@@ -256,6 +262,21 @@ dotfiles:
     - var/*
     - '!var/auto-package-update-last-update-day'
     chmod: '700'
+  f_dunstrc.base:
+    src: config/wpg/templates/dunstrc.base
+    dst: ~/.config/wpg/templates/dunstrc.base
+  f_increase-brightness:
+    src: local/bin/increase-brightness
+    dst: ~/.local/bin/increase-brightness
+    chmod: '755'
+  f_decrease-brightness:
+    src: local/bin/decrease-brightness
+    dst: ~/.local/bin/decrease-brightness
+    chmod: '755'
+  f_notify-brightness:
+    src: local/bin/notify-brightness
+    dst: ~/.local/bin/notify-brightness
+    chmod: '755'
 profiles:
   MattArchSudo:
     dotfiles:
@@ -333,3 +354,7 @@ profiles:
     - d_waybar
     - f_kritarc
     - d_emacs.d
+    - f_dunstrc.base
+    - f_increase-brightness
+    - f_decrease-brightness
+    - f_notify-brightness

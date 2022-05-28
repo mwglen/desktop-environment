@@ -61,6 +61,36 @@ import XMonad.Actions.DynamicWorkspaces
 -- import XMonad.Actions.FloatKeys
 -- import XMonad.Actions.WorkspaceNames
 
+-- skipFloating :: (Eq a, Ord a) => StackSet i l a s sd -> (StackSet i l a s sd -> StackSet i l a s sd) -> StackSet i l a s sd
+-- skipFloating stacks f
+--     | isNothing curr = stacks -- short circuit if there is no currently focused window
+--     | otherwise = skipFloatingR stacks curr f
+--   where curr = W.peek stacks
+-- 
+-- skipFloatingR :: (Eq a, Ord a) => StackSet i l a s sd -> (Maybe a) -> (StackSet i l a s sd -> StackSet i l a s sd) -> StackSet i l a s sd
+-- skipFloatingR stacks startWindow f
+--     -- next window is nothing return current stack set
+--     | isNothing nextWindow = stacks
+--     -- if next window is the starting window then
+--     -- return the new stack set
+--     | nextWindow == startWindow = newStacks
+--     -- if next window is not a floating window return
+--     -- the new stack set
+--     | S.notMember (fromJust nextWindow) (W.floating stacks) = newStacks
+--     -- the next window is a floating window so
+--     -- keep recursing (looking)
+--     | otherwise = skipFloatingR newStacks startWindow f
+--   where newStacks = f stacks
+--         nextWindow = W.peek newStacks
+--         
+-- -- In keybinding configuration:
+-- 
+-- -- Move focus to the next window
+-- --, ((modm,               xK_j     ), windows (\s -> skipFloating s W.focusDown))
+-- 
+-- -- Move focus to the previous window
+-- --, ((modm,               xK_k     ), windows (\s -> skipFloating s W.focusUp))
+
 singleLineDmenu :: String -> IO String
 singleLineDmenu prompt = menuArgs "dmenu" ["-p", prompt, "-l", "0"] []
 

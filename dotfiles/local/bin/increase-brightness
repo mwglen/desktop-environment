@@ -1,0 +1,3 @@
+#!/bin/bash
+brillo -q -u 150000 -A 5
+notify-brightness

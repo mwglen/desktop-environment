@@ -1,0 +1,6 @@
+#!/bin/bash
+# Send Brightness Notification
+acc=$(brillo -q | cut -f1 -d".")
+min=$(brillo -qc | cut -f1 -d".")
+brightness=$((($acc - $min) * 100/30))
+notify-send "Brightness" -h int:value:$brightness -i night-light-symbolic
