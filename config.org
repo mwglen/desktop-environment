@@ -636,7 +636,7 @@ notify-volume
 #+begin_src bash
 #!/bin/bash
 volume=$(pamixer --get-volume)
-notify-send "Volume" -h int:value:$volume -i audio-volume-high-symbolic -t 2000
+notify-send "Volume" -h int:value:$volume -h string:x-dunst-stack-tag:volume -i audio-volume-high-symbolic -t 2000
 #+end_src
 #+end_src
 
@@ -850,7 +850,7 @@ brillo -qc -S 70
 :END:
 #+begin_src bash
 #!/bin/bash
-brillo -q -u 150000 -A 5
+brillo -q -u 150000 -A 3
 notify-brightness
 #+end_src
 
@@ -860,7 +860,7 @@ notify-brightness
 :END:
 #+begin_src bash
 #!/bin/bash
-brillo -q -u 150000 -U 5
+brillo -q -u 150000 -U 3
 notify-brightness
 #+end_src
 
@@ -874,7 +874,7 @@ notify-brightness
 acc=$(brillo -q | cut -f1 -d".")
 min=$(brillo -qc | cut -f1 -d".")
 brightness=$((($acc - $min) * 100/30))
-notify-send "Brightness" -h int:value:$brightness -i night-light-symbolic -t 2000
+notify-send "Brightness" -h int:value:$brightness -h string:x-dunst-stack-tag:brightness -i night-light-symbolic -t 2000
 #+end_src
 
 *** Printing/Scanning
@@ -3320,16 +3320,15 @@ emacs-git
 #+end_src
 
 **** Browsers
-***** Yandex
-****** Installation
+***** Tor Browser
 #+begin_src text
-yandex-browser-beta
+torbrowser-launcher
 #+end_src
 
-***** Chrome
+***** Chromium
 ****** Installation
 #+begin_src text
-google-chrome
+chromium
 #+end_src
 
 ***** Firefox
@@ -3799,7 +3798,7 @@ reload = true
 
     ### Duplicates ###
     stack_duplicates = true
-    hide_duplicate_count = true
+    hide_duplicate_count = false
 
     ### Icons ###
     enable_recursive_icon_lookup = true

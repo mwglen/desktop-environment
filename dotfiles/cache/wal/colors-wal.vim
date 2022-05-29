@@ -1,5 +1,5 @@
 " Special
-let wallpaper  = "/home/mwglen/.config/wpg/wallpapers/nge.jpeg"
+let wallpaper  = "/home/mwglen/Backgrounds/nge.jpeg"
 let background = "#0d0f12"
 let foreground = "#ddb4b8"
 let cursor     = "#ddb4b8"

@@ -38,7 +38,7 @@
 
     ### Duplicates ###
     stack_duplicates = true
-    hide_duplicate_count = true
+    hide_duplicate_count = false
 
     ### Icons ###
     enable_recursive_icon_lookup = true
