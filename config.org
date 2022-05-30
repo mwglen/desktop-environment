@@ -748,48 +748,104 @@ tlp
 sudo systemctl enable tlp
 #+end_src
 
-**** Hibernate
-***** Hibernate on low battery level
-This might not work if your device doesn't send an alert with each change in battery percentage. Check ~udevadm monitor --property~ to watch for this event.
-
-This doesn't work for my computer, but it doesn't hurt to always tangle it.
-
-#+begin_src bash :tangle /sudo:://etc/udev/rules.d/99-lowbat.rules
-SUBSYSTEM=="power_supply", ATTR{status}=="Discharging", ATTR{capacity}=="[0-48]", RUN+="/usr/bin/systemctl hibernate"
-#+end_src
-
-If the above doesn't work we have to frequently run a script that checks the battery level using acpi and chooses whether or not to hibernate. The next sections do just that.
-
-***** Hibernate If Low Script
+**** Monitor Battery Levels
+***** Script
 :PROPERTIES:
-:header-args:sh: :tangle /sudo:://bin/hibernate-if-low.sh :tangle-mode (identity #o755)
+:header-args:bash: :tangle /sudo:://bin/monitor-battery.sh :tangle-mode (identity #o755)
 :END:
-#+begin_src sh
+#+begin_src bash
 #!/bin/bash
+
+# Notify-send function
+function notify-send() {
+    #Detect the name of the display in use
+    local display=":$(ls /tmp/.X11-unix/* | sed 's#/tmp/.X11-unix/X##' | head -n 1)"
+
+    #Detect the user using such display
+    local user=$(who | grep '('$display')' | awk '{print $1}' | head -n 1)
+
+    #Detect the id of the user
+    local uid=$(id -u $user)
+
+    sudo -u $user DISPLAY=$display DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$uid/bus notify-send "$@"
+}
+
+# Read State
+source /run/monitor-battery || true
+
+# Parse Battery Info from ACPI
 acpi -b | awk -F'[,:%]' '{print $2, $3}' | {
+    
+    # Get Battery Info
     read -r status capacity
-  
-    if [ "$status" = Discharging -a "$capacity" -lt 10 ]; then
-        logger "Critical battery threshold"
-        systemctl hibernate
+    
+    # Handle Battery When Discharging
+    if [ "$status" = Discharging ]; then
+        
+        # Hibernate if Battery is Less Than 15%
+        if [ "$capacity" -lt 15 ]; then
+            # Log Hibernation
+            logger "Hibernating due to critical battery level"
+
+            # Clear Flags
+            echo "" > /run/monitor-battery
+            
+            # Hibernate
+            systemctl hibernate
+            
+        # Send Critical Warning is Less Than 20%
+        elif [ "$capacity" -lt 20 ] && [ -z $CritWarningSent ]; then
+            # Log Warning
+            logger "Battery level critical"
+            
+            # Send Warning
+            notify-send -u critical -i battery-level-0-symbolic -h string:x-dunst-stack-tag:crit-battery "Battery Critical"
+            
+            # Set Flag
+            echo "CritWarningSent=true" > /run/monitor-battery
+            
+        # Send Warning if Battery is Less Than 30%
+        elif [ "$capacity" -lt 30 ] && [ -z $LowWarningSent ]; then
+            # Log Warning
+            logger "Battery level low"
+            
+            # Send Warning
+            notify-send -i battery-level-10-symbolic -t 10000 -h string:x-dunst-stack-tag:low-battery "Battery Low"
+            
+            # Set Flag
+            echo "LowWarningSent=true" > /run/monitor-battery
+        fi
+
+    else
+        
+        # Clear Flags
+        echo "" > /run/monitor-battery
+        
     fi
+    
 }
 #+end_src
 
-***** Auto Hibernate Service
-#+begin_src sh :tangle /sudo:://etc/systemd/system/auto-hibernate.service
+***** Service
+:PROPERTIES:
+:header-args:bash: :tangle /sudo:://etc/systemd/system/monitor-battery.service
+:END:
+#+begin_src bash
 [Unit]
-Description=Hibernate system when the battery is low
+Description=Monitors the battery level and responds accordingly
 
 [Service]
 Type=oneshot
-ExecStart=/bin/bash /bin/hibernate-if-low.sh
+ExecStart=/bin/bash /bin/monitor-battery.sh
 #+end_src
 
-***** Auto Hibernate Timer
-#+begin_src bash :tangle /sudo:://etc/systemd/system/auto-hibernate.timer
+***** Timer
+:PROPERTIES:
+:header-args:bash: :tangle /sudo:://etc/systemd/system/monitor-battery.timer
+:END:
+#+begin_src bash
 [Unit]
-Description=Auto hibernate system when the battery is low
+Description=Monitors the battery level and responds accordingly
 
 [Timer]
 OnUnitActiveSec=1min
@@ -799,10 +855,10 @@ OnBootSec=10s
 WantedBy=timers.target
 #+end_src
 
-***** Enable Auto Hibernation
+***** Enable Timer
 #+begin_src bash
 sudo systemctl daemon-reload
-sudo systemctl enable auto-hibernate.timer
+sudo systemctl enable monitor-battery.timer
 #+end_src
 
 **** Brightness

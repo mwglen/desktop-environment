@@ -1,0 +1,6 @@
+[Unit]
+Description=Monitors the battery level and responds accordingly
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /bin/monitor-battery.sh

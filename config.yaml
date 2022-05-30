@@ -52,18 +52,6 @@ dotfiles:
     src: etc/udev/rules.d/99-lowbat.rules
     dst: /etc/udev/rules.d/99-lowbat.rules
     chmod: '755'
-  f_hibernate-if-low.sh:
-    src: bin/hibernate-if-low.sh
-    dst: /bin/hibernate-if-low.sh
-    chmod: '755'
-  f_auto-hibernate.service:
-    src: etc/systemd/system/auto-hibernate.service
-    dst: /etc/systemd/system/auto-hibernate.service
-    chmod: '755'
-  f_auto-hibernate.timer:
-    src: etc/systemd/system/auto-hibernate.timer
-    dst: /etc/systemd/system/auto-hibernate.timer
-    chmod: '755'
   f_backlight.rules:
     src: etc/udev/rules.d/backlight.rules
     dst: /etc/udev/rules.d/backlight.rules
@@ -289,6 +277,16 @@ dotfiles:
     src: local/bin/decrease-volume
     dst: ~/.local/bin/decrease-volume
     chmod: '755'
+  f_monitor-battery.sh:
+    src: bin/monitor-battery.sh
+    dst: /bin/monitor-battery.sh
+    chmod: '755'
+  f_monitor-battery.service:
+    src: etc/systemd/system/monitor-battery.service
+    dst: /etc/systemd/system/monitor-battery.service
+  f_monitor-battery.timer:
+    src: etc/systemd/system/monitor-battery.timer
+    dst: /etc/systemd/system/monitor-battery.timer
 profiles:
   MattArchSudo:
     dotfiles:
@@ -299,9 +297,6 @@ profiles:
     - f_optimus-manager.conf
     - f_main.conf
     - f_99-lowbat.rules
-    - f_hibernate-if-low.sh
-    - f_auto-hibernate.service
-    - f_auto-hibernate.timer
     - f_backlight.rules
     - f_smb.conf
     - f_lightdm.conf
@@ -312,7 +307,9 @@ profiles:
     - f_nsxiv.desktop
     - d_litarvan
     - d_vimix
-
+    - f_monitor-battery.sh
+    - f_monitor-battery.service
+    - f_monitor-battery.timer
   MattArch:
     dotfiles:
     - d_polybar

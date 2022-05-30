@@ -72,7 +72,7 @@ sudo systemctl enable NetworkManager
 sudo systemctl enable tlp
 
 sudo systemctl daemon-reload
-sudo systemctl enable auto-hibernate.timer
+sudo systemctl enable monitor-battery.timer
 
 sudo groupadd video || true
 sudo usermod -a -G video $USER

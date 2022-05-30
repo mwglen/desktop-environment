@@ -1,6 +1,0 @@
-[Unit]
-Description=Hibernate system when the battery is low
-
-[Service]
-Type=oneshot
-ExecStart=/bin/bash /bin/hibernate-if-low.sh

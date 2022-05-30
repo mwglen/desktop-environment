@@ -1,5 +1,5 @@
 [Unit]
-Description=Auto hibernate system when the battery is low
+Description=Monitors the battery level and responds accordingly
 
 [Timer]
 OnUnitActiveSec=1min
