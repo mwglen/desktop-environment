@@ -48,10 +48,6 @@ dotfiles:
   f_mpv.conf:
     src: config/mpv/mpv.conf
     dst: ~/.config/mpv/mpv.conf
-  f_99-lowbat.rules:
-    src: etc/udev/rules.d/99-lowbat.rules
-    dst: /etc/udev/rules.d/99-lowbat.rules
-    chmod: '755'
   f_backlight.rules:
     src: etc/udev/rules.d/backlight.rules
     dst: /etc/udev/rules.d/backlight.rules
@@ -149,9 +145,6 @@ dotfiles:
   d_ranger:
     src: config/ranger
     dst: ~/.config/ranger
-  f_userchrome.css:
-    src: config/firefox/chrome/userChrome.css
-    dst: ~/.config/firefox/chrome/userChrome.css
   d_flameshot:
     src: config/flameshot
     dst: ~/.config/flameshot
@@ -250,9 +243,6 @@ dotfiles:
     - var/*
     - '!var/auto-package-update-last-update-day'
     chmod: '700'
-  f_dunstrc.base:
-    src: config/wpg/templates/dunstrc.base
-    dst: ~/.config/wpg/templates/dunstrc.base
   f_increase-brightness:
     src: local/bin/increase-brightness
     dst: ~/.local/bin/increase-brightness
@@ -287,6 +277,15 @@ dotfiles:
   f_monitor-battery.timer:
     src: etc/systemd/system/monitor-battery.timer
     dst: /etc/systemd/system/monitor-battery.timer
+  f_userchrome.css:
+    src: mozilla/firefox/y94bew4x.MattArch/chrome/userChrome.css
+    dst: ~/.mozilla/firefox/y94bew4x.MattArch/chrome/userChrome.css
+  d_flatcolor:
+    src: local/share/themes/FlatColor
+    dst: ~/.local/share/themes/FlatColor
+  d_wpg:
+    src: config/wpg
+    dst: ~/.config/wpg
 profiles:
   MattArchSudo:
     dotfiles:
@@ -296,7 +295,6 @@ profiles:
     - f_pacman.conf
     - f_optimus-manager.conf
     - f_main.conf
-    - f_99-lowbat.rules
     - f_backlight.rules
     - f_smb.conf
     - f_lightdm.conf
@@ -343,7 +341,6 @@ profiles:
     - d_dunst
     - d_conky
     - d_ranger
-    - f_userchrome.css
     - d_flameshot
     - f_key-handler
     - f_post_script.sh
@@ -363,10 +360,12 @@ profiles:
     - d_waybar
     - f_kritarc
     - d_emacs.d
-    - f_dunstrc.base
     - f_increase-brightness
     - f_decrease-brightness
     - f_notify-brightness
     - f_notify-volume
     - f_increase-volume
     - f_decrease-volume
+    - f_userchrome.css
+    - d_flatcolor
+    - d_wpg

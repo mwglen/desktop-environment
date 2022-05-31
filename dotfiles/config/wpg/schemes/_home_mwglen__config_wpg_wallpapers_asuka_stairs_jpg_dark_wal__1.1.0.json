@@ -1,0 +1,28 @@
+{
+    "wallpaper": "/home/mwglen/.config/wpg/wallpapers/asuka_stairs.jpg",
+    "alpha": "100",
+
+    "special": {
+        "background": "#150f0d",
+        "foreground": "#d9c8ce",
+        "cursor": "#d9c8ce"
+    },
+    "colors": {
+        "color0": "#150f0d",
+        "color1": "#AE704F",
+        "color2": "#C67045",
+        "color3": "#BB926A",
+        "color4": "#D89664",
+        "color5": "#B97490",
+        "color6": "#D7A292",
+        "color7": "#d9c8ce",
+        "color8": "#978c90",
+        "color9": "#AE704F",
+        "color10": "#C67045",
+        "color11": "#BB926A",
+        "color12": "#D89664",
+        "color13": "#B97490",
+        "color14": "#D7A292",
+        "color15": "#d9c8ce"
+    }
+}

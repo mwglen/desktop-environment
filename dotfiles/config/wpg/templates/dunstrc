@@ -1,0 +1,65 @@
+[global]
+    ### Location ###
+    follow = keyboard
+
+    ### Geometry ###
+    offset = 80x80
+    width = 500
+    height = 100
+    corner_radius = 0
+    frame_width = 0
+
+    ### General Settings ###
+    transparency = 10
+    notification_limit = 0    # 0 means no limit
+    separator_height = 3
+    show_age_threshold = 60
+    ellipsize = end
+    idle_threshold = 120
+
+    ### Progress Bar ###
+    progress_bar_height = 10 # At least twice as big as frame width
+    progress_bar_frame_width = 0
+    progress_bar_min_width = 500
+    progress_bar_max_width = 500
+
+    ### Padding ###
+    padding = 12
+    horizontal_padding = 12
+    text_icon_padding = 0
+
+    ### Text ###
+    font = RobotoMono Nerd Font 10
+    markup = full
+    word_wrap = yes
+    ellipsize = middle
+    ignore_newline = no
+    show_indicators = yes
+
+    ### Duplicates ###
+    stack_duplicates = true
+    hide_duplicate_count = false
+
+    ### Icons ###
+    enable_recursive_icon_lookup = true
+    icon_theme = Adwaita
+    icon_position = left
+    icon_size = 16
+
+[urgency_low]
+    background  = "#0d0f12"
+    foreground = "#888888"
+    highlight  = "#6C3E43"
+    timeout = 10
+
+[urgency_normal]
+    background  = "#0d0f12"
+    foreground = "#aaaaaa"
+    highlight  = "#6C3E43"
+    timeout = 10
+
+[urgency_critical]
+    background = "#900000"
+    foreground = "#dddddd"
+    highlight  = "#6C3E43"
+    timeout = 0

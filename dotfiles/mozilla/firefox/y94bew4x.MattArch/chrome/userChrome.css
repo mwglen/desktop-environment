@@ -1,0 +1,24 @@
+/* Remove Buttons */
+#back-button{ display: none !important; }
+#forward-button{ display: none !important; }
+#stop-button{ display: none !important; }
+#reload-button{ display: none !important; }
+
+/* bookmark icon */
+#star-button{ display: none !important; }
+
+/* zoom indicator */
+/* #urlbar-zoom-button { display: none !important; } */
+#reader-mode-button{ display: none !important; }
+
+/* tracking protection shield icon */
+/* #tracking-protection-icon-container { display: none !important; } */
+
+/* #identity-box { display: none !important } /* hides encryption AND permission items */
+/* #identity-permission-box { display: none !important; } /1* only hides permission items *1/ */
+
+/* e.g. playing indicator (secondary - not icon) */
+/* .tab-secondary-label { display: none !important; } */
+
+/* #pageActionButton { display: none !important; } */
+/* #page-action-buttons { display: none !important; } */

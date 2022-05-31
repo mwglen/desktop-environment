@@ -43,9 +43,9 @@ conky.config = {
    
     -- Colors
     color0     = '000000', -- Black: Same as Background
-    color1     = '6C3E43', -- Primary Color:
+    color1     = '6C3E43', -- Primary Color
     color2     = '5A4147', -- Secondary Color: Horizontal Rules
-    color3     = '754245', -- Ternary Color:
+    color3     = '754245', -- Ternary Color
     color4     = '8F4548', -- Bar/Graph Colors
     color5     = 'B5BD68', -- Positive Color
     color6     = 'C19267', -- Warning Color
