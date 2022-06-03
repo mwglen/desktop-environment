@@ -1035,8 +1035,6 @@ alias v="nvim"
 export TERMINAL='alacritty'
 source $HOME/.profile
 ZDOTDIR=~/.config/zsh
-
-export PATH="$HOME/.local/bin:$PATH"
 #+end_src
 
 *** File System Support
@@ -1191,10 +1189,17 @@ To use: ~ics-to-org input.ics > output.org~
 ruby
 #+end_src
 
+**** Configuration
+#+begin_src bash :tangle ~/.profile
+export GEM_HOME="$(ruby-2.7 -e 'puts Gem.user_dir')"
+export PATH="$PATH:$GEM_HOME/bin"
+#+end_src
+
 **** Setup
 #+begin_src bash
-gem install date icalendar optparse tzinfo
+gem-2.7 install bundler
 
+gem install date icalendar optparse tzinfo
 git clone https://tero.hasu.is/repos/icalendar-to-org.git $REPOSITORIES/icalendar-to-org || true
 #+end_src
 
@@ -2188,8 +2193,7 @@ xdotool
 # Display
 xrandr --dpi 200 --output eDP-1 --primary --mode 3840x2160 --pos 0x0 --rotate normal --output DP-1 --off --output HDMI-1 --off
 picom -b
-wal -i $BACKGROUNDS/nge.jpeg -n -o "~/.config/conky/pywal-conky.py"
-feh --bg-scale $BACKGROUNDS/nge.jpeg
+~/.config/wpg/wp_init.sh
 python ~/.config/conky/pywal-conky.py
 
 # Keybindings
@@ -2986,6 +2990,16 @@ wine-mono
      tcpdump
      #+end_src
 
+**** Bind (DNS Protocol Implementation)
+Gives the ~dig~ command for DNS Lookup
+#+begin_src text
+bind
+#+end_src
+
+*** Encryption
+Use fscrypt for encrypting directories, and LUKS for encrypting drives
+Use cryfs if you want portability
+
 *** Applications
 **** Audio Applications
 ***** Installation
@@ -3309,7 +3323,7 @@ mimeo
 ***** Dolphin
 ****** Installation
 #+begin_src text
-dolphin
+nautilus
 #+end_src
 
 ***** Ranger
@@ -3386,6 +3400,7 @@ chromium
 
 ***** Firefox
 ****** Installation
+Make sure to set =privacy.resistFingerprinting= and =privacy.resistFingerprinting.letterboxing= to true in ~about:config~
 #+begin_src text
 firefox
 #+end_src
@@ -3549,7 +3564,7 @@ psst-git-bin
 
 ***** Fix HDPI
 :PROPERTIES:
-:header-args:bash: :tangle ~/.zshenv
+:header-args:bash: :tangle ~/.xprofile
 :END:
 #+begin_src bash
 alias spotify="spotify --force-device-scale-factor=2"
@@ -3757,10 +3772,10 @@ reload = true
 :END:
 #+begin_src bash
 # Use pywal colorscheme
-(cat ~/.cache/wal/sequences &)
+(cat $HOME/.config/wpg/sequences &)
 
 # Use pywal colorscheme for TTYs
-source ~/.cache/wal/colors-tty.sh
+#source ~/.cache/wal/colors-tty.sh
 #+end_src
 
 ****** Firefox Addon

@@ -86,8 +86,9 @@ mkdir -p $MAIL/account.gmail
 #gmi init $gmail 
 #gmi pull
 
-gem install date icalendar optparse tzinfo
+gem-2.7 install bundler
 
+gem install date icalendar optparse tzinfo
 git clone https://tero.hasu.is/repos/icalendar-to-org.git $REPOSITORIES/icalendar-to-org || true
 
 curl https://raw.githubusercontent.com/unode/polypomo/master/polypomo > $XDG_CONFIG_HOME/polybar/scripts/polypomo

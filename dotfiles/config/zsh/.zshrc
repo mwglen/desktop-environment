@@ -90,7 +90,7 @@ alias nsxiv="devour nsxiv -ab -s f"
 export VISUAL="devour emacsclient -c"
 
 # Use pywal colorscheme
-(cat ~/.cache/wal/sequences &)
+(cat $HOME/.config/wpg/sequences &)
 
 # Use pywal colorscheme for TTYs
-source ~/.cache/wal/colors-tty.sh
+#source ~/.cache/wal/colors-tty.sh

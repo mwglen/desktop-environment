@@ -286,6 +286,10 @@ dotfiles:
   d_wpg:
     src: config/wpg
     dst: ~/.config/wpg
+  f_wp_init.sh:
+    src: config/wpg/wp_init.sh
+    dst: ~/.config/wpg/wp_init.sh
+    chmod: '755'
 profiles:
   MattArchSudo:
     dotfiles:
@@ -369,3 +373,4 @@ profiles:
     - f_userchrome.css
     - d_flatcolor
     - d_wpg
+    - f_wp_init.sh

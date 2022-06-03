@@ -8,8 +8,7 @@ export XMODIFIERS="@im=fcitx"
 # Display
 xrandr --dpi 200 --output eDP-1 --primary --mode 3840x2160 --pos 0x0 --rotate normal --output DP-1 --off --output HDMI-1 --off
 picom -b
-wal -i $BACKGROUNDS/nge.jpeg -n -o "~/.config/conky/pywal-conky.py"
-feh --bg-scale $BACKGROUNDS/nge.jpeg
+~/.config/wpg/wp_init.sh
 python ~/.config/conky/pywal-conky.py
 
 # Keybindings
@@ -33,3 +32,5 @@ flameshot &
 udiskie -a -t &
 
 export MOZ_USE_XINPUT2=1
+
+alias spotify="spotify --force-device-scale-factor=2"

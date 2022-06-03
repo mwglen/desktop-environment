@@ -187,6 +187,8 @@ wine-mono
 nmap
 tcpdump
 
+bind
+
 lmms
 
 xfoil
@@ -208,7 +210,7 @@ rmtrash
 
 mimeo
 
-dolphin
+nautilus
 
 ranger
 python-ueberzug-git
