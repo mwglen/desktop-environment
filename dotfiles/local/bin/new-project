@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Get type of project to be created from user
+function get_project_type() {
+   echo "Possible Project Types"
+   echo "    lilypond"
+   echo -n "Project Type: "
+   read project_type
+   echo ""
+}
+
+fatal() { echo "$@" 1>&2; exit 1; }
+
+# Get type of project to be created from user
+function get_project_name() {
+   echo -n "Project Name: "
+   read project_name
+   echo ""
+}
+
+function main() {
+   # If a name wasn't given, ask for one
+   if [[ -z "$project_name" ]]; then get_project_name; fi
+
+   # If a project type wasn't given, ask for one
+   if [[ -z "$project_type" ]]; then get_project_type; fi
+
+   case $project_type in
+      lilypond)
+         # Make project directory
+         mkdir "$project_name" || \
+            fatal "A directory named \"$project_name\" already exists"
+
+         # Add a template lilypond file
+         cat <<- EOF > "$project_name/src/song.ly"
+         \score {
+           \relative c'' {
+             \time 3/4
+             g' g' d' g' c'
+           }
+           \layout { }
+           \midi { }
+         }
+         EOF
+         
+
+         # Add Makefile
+         cat <<- EOF > "$project_name/Makefile"
+         test faksdljf
+         aslkdfjaskldjf
+         EOF
+         ;;
+
+      *)
+         fatal "ERROR: invalid project type"
+         ;;
+   esac
+
+}; main

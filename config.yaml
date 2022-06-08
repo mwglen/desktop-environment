@@ -290,6 +290,10 @@ dotfiles:
     src: config/wpg/wp_init.sh
     dst: ~/.config/wpg/wp_init.sh
     chmod: '755'
+  f_new-project:
+    src: local/bin/new-project
+    dst: ~/.local/bin/new-project
+    chmod: '755'
 profiles:
   MattArchSudo:
     dotfiles:
@@ -374,3 +378,4 @@ profiles:
     - d_flatcolor
     - d_wpg
     - f_wp_init.sh
+    - f_new-project
