@@ -10,6 +10,8 @@ git
 openssh
 git-lfs
 
+ttf-ms-win11-auto
+
 nerd-fonts-complete
 
 python
@@ -23,6 +25,8 @@ swi-prolog
 python-pyswip
 
 php
+
+angular-cli
 
 alacritty
 
@@ -190,6 +194,9 @@ tcpdump
 bind
 
 lmms
+freepats-general-midi   # Instruments for Timidity
+timidity++              # Can Play Midi Files
+lilypond                # Music Engraving Program
 
 xfoil
 #openvsp-git

@@ -17,8 +17,8 @@
     color13:	#B64F56;
     color14:	#BF555B;
     color15:	#ddb4b8;
-    active:		#563135;
-    inactive:	#3b2224;
+    active:		#984448;
+    inactive:	#682e32;
 
 	background:						@color0;
     foreground:						@color15;

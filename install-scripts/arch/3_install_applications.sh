@@ -65,6 +65,9 @@ rustup default nightly
 rustup component add rls || true
 rustup component add rust-analysis rust-src
 
+# Install Web Assembly
+cargo install wasm-pack
+
 sudo systemctl enable bluetooth
 
 sudo systemctl enable NetworkManager
@@ -105,6 +108,8 @@ sudo usermod -a -G kvm $USER
 sudo systemctl enable libvirtd # Also enables virtlogd and virtlockd
 
 # Make sure to set user = /etc/libvirt/qemu.conf
+
+sudo gpasswd -a mwglen audio
 
 yay -S --noconfirm --needed anki || true
 yay -S --noconfirm --needed anki || true

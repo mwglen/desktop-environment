@@ -178,6 +178,7 @@ myManageHook = composeAll
     , className =? "pinentry-gtk-2" --> doFloat 
     , className =? "splash"         --> doFloat 
     , className =? "toolbar"        --> doFloat 
+    , className =? "Zenity"         --> doFloat 
     , resource  =? "download"       --> doIgnore
     , (className =? "firefox" <&&> resource =? "Dialog") --> doFloat 
     ] <+> namedScratchpadManageHook scratchpads
@@ -276,7 +277,7 @@ main = do
     terminal           = "tabbed alacritty --embed",
     focusFollowsMouse  = False,
     clickJustFocuses   = True,
-    borderWidth        = 1,
+    borderWidth        = 0,
     modMask            = mod4Mask,
     --workspaces         = ["Main"],
     normalBorderColor  = "#dddddd",

@@ -458,6 +458,11 @@ git config --global init.defaultBranch master
 #+end_src
 
 *** Fonts
+**** Microsoft Fonts
+#+begin_src text
+ttf-ms-win11-auto
+#+end_src
+
 **** Nerd Fonts
 ***** Installation
 #+begin_src text
@@ -508,6 +513,9 @@ Sometimes rustup cannot add =rls= due to nightly. This isn't ideal, but doesn't 
 rustup default nightly
 rustup component add rls || true
 rustup component add rust-analysis rust-src
+
+# Install Web Assembly
+cargo install wasm-pack
 #+end_src
 
 **** Prolog
@@ -522,6 +530,11 @@ python-pyswip
 ***** Installation
 #+begin_src text
 php
+#+end_src
+
+*** Web Development
+#+begin_src text
+angular-cli
 #+end_src
 
 *** Terminal Emulators
@@ -2499,6 +2512,7 @@ myManageHook = composeAll
     , className =? "pinentry-gtk-2" --> doFloat 
     , className =? "splash"         --> doFloat 
     , className =? "toolbar"        --> doFloat 
+    , className =? "Zenity"         --> doFloat 
     , resource  =? "download"       --> doIgnore
     , (className =? "firefox" <&&> resource =? "Dialog") --> doFloat 
     ] <+> namedScratchpadManageHook scratchpads
@@ -2606,7 +2620,7 @@ main = do
     terminal           = "tabbed alacritty --embed",
     focusFollowsMouse  = False,
     clickJustFocuses   = True,
-    borderWidth        = 1,
+    borderWidth        = 0,
     modMask            = mod4Mask,
     --workspaces         = ["Main"],
     normalBorderColor  = "#dddddd",
@@ -3005,6 +3019,25 @@ Use cryfs if you want portability
 ***** Installation
 #+begin_src text
 lmms
+freepats-general-midi   # Instruments for Timidity
+timidity++              # Can Play Midi Files
+lilypond                # Music Engraving Program
+#+end_src
+
+***** Configuration
+#+begin_src conf :tangle /sudo:://etc/timidity/timidity.cfg
+# details on this file and other examples see here:
+# http://www.onicos.com/staff/iz/timidity/dist/cfg/sndfont.cfg
+# http://www.onicos.com/staff/iz/timidity/dist/cfg/
+#----------------------------------------------------------------
+# change the next line to point to a soundfont you have
+# soundfonts can be found e.g. here: http://www.hammersound.net/
+soundfont /usr/share/soundfonts/freepats-general-midi.sf2
+#+end_src
+
+***** Setup
+#+begin_src bash
+sudo gpasswd -a mwglen audio
 #+end_src
 
 **** Aerospace Engineering Applications
