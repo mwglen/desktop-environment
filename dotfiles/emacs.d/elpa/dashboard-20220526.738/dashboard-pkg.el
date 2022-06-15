@@ -1,6 +1,6 @@
 (define-package "dashboard" "20220526.738" "A startup screen extracted from Spacemacs"
   '((emacs "26.1"))
-  :commit "1e691b346b9220b73337fd4962bbe6ef775ad9e7" :authors
+  :commit "34d1f97200055e6b521c131270d8322efc6c52be" :authors
   '(("Rakan Al-Hneiti" . "rakan.alhneiti@gmail.com"))
   :maintainer
   '("Jesús Martínez" . "jesusmartinez93@gmail.com")

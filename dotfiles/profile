@@ -16,5 +16,11 @@ export XDG_PUBLICSHARE_DIR="$HOME/Public"
 export XDG_TEMPLATES_DIR="$HOME/Templates"
 export XDG_VIDEOS_DIR="$HOME/Videos"
 
+# QT Config
+export QT_QPA_PLATFORMTHEME=gtk2
+
+# GTK Config
+export GTK_THEME=FlatColor
+
 export GEM_HOME="$(ruby-2.7 -e 'puts Gem.user_dir')"
 export PATH="$PATH:$GEM_HOME/bin"

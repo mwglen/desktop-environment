@@ -128,6 +128,7 @@ kvantum
 
 materia-gtk-theme
 phinger-cursors
+qt5-styleplugins
 
 lightdm
 lightdm-webkit2-greeter
@@ -258,6 +259,7 @@ spotify
 psst-git-bin
 
 discord
+betterdiscord-installer-bin
 
 libreoffice-fresh
 libreoffice-fresh-ru

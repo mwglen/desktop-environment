@@ -84,6 +84,8 @@ alias rm="rmtrash"
 alias rmdir="rmdirtrash"
 alias sudo="sudo "
 
+alias spotify="spotify --force-device-scale-factor=2"
+
 alias emacs="devour emacs"
 alias emacsclient="devour emacsclient"
 alias nsxiv="devour nsxiv -ab -s f"

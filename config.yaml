@@ -232,14 +232,26 @@ dotfiles:
     dst: ~/.emacs.d
     cmpignore:
     - tramp
+    - transient
+    - recentf
+    - org-roam.db
+    - projectile-bookmarks.eld
     - var/*
     - '!var/auto-package-update-last-update-day'
     upignore:
     - tramp
+    - transient
+    - recentf
+    - org-roam.db
+    - projectile-bookmarks.eld
     - var/*
     - '!var/auto-package-update-last-update-day'
     instignore:
     - tramp
+    - transient
+    - recentf
+    - org-roam.db
+    - projectile-bookmarks.eld
     - var/*
     - '!var/auto-package-update-last-update-day'
     chmod: '700'
@@ -294,6 +306,12 @@ dotfiles:
     src: local/bin/new-project
     dst: ~/.local/bin/new-project
     chmod: '755'
+  d_plugins:
+    src: config/BetterDiscord/plugins
+    dst: ~/.config/BetterDiscord/plugins
+  f_pywal.theme.css:
+    src: config/BetterDiscord/themes/pywal.theme.css
+    dst: ~/.config/BetterDiscord/themes/pywal.theme.css
 profiles:
   MattArchSudo:
     dotfiles:
@@ -379,3 +397,5 @@ profiles:
     - d_wpg
     - f_wp_init.sh
     - f_new-project
+    - d_plugins
+    - f_pywal.theme.css

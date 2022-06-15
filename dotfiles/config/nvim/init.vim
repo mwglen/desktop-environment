@@ -39,10 +39,11 @@ Plug 'mickael-menu/zk-nvim'
 
 " Misc
 Plug 'tpope/vim-repeat'
+Plug 'lilydjwg/fcitx.vim'
 
 call plug#end()
 
-
+let g:fcitx5_remote = '/usr/bin/fcitx-remote'
 
 " Required Vim Settings
 set nocompatible

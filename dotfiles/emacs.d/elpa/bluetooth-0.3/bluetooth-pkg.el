@@ -1,2 +1,0 @@
-;; Generated package description from bluetooth.el  -*- no-byte-compile: t -*-
-(define-package "bluetooth" "0.3" "A Major mode for Bluetooth devices" '((emacs "25.1") (dash "2.18.1")) :authors '(("Raffael Stocker" . "r.stocker@mnet-mail.de") ("Etienne Prud’homme" . "e.e.f.prudhomme@gmail.com")) :maintainer '("Raffael Stocker" . "r.stocker@mnet-mail.de") :keywords '("hardware") :url "https://gitlab.com/rstocker/emacs-bluetooth")

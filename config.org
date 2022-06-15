@@ -1013,6 +1013,12 @@ export XDG_PICTURES_DIR="$HOME/Pictures"
 export XDG_PUBLICSHARE_DIR="$HOME/Public"
 export XDG_TEMPLATES_DIR="$HOME/Templates"
 export XDG_VIDEOS_DIR="$HOME/Videos"
+
+# QT Config
+export QT_QPA_PLATFORMTHEME=gtk2
+
+# GTK Config
+export GTK_THEME=FlatColor
 #+end_src
 
 ****** Aliases
@@ -1274,30 +1280,6 @@ grey = #6b6b6b
 #+end_src
 
 ***** Panels
-****** EXWM Panel
-#+begin_src conf
-[bar/exwm]
-width = 100%
-height = 70
-padding = 2
-fixed-center = true
-enable-ipc = true
-
-line-size = 3
-bottom = false
-module-margin = 1
-             
-background = ${colors.background}
-foreground = ${colors.foreground}
-font-0 = "Ubuntu Nerd Font:size=23:weight=bold"
-
-modules-left = date spotify
-modules-right = pulseaudio redshift wireless wired backlight battery
-
-cursor-click = pointer
-cursor-scroll = ns-resize
-#+end_src
-
 ****** XMonad Panel
 #+begin_src conf
 [bar/xmonad]
@@ -1760,6 +1742,7 @@ kvantum
 #+begin_src text
 materia-gtk-theme
 phinger-cursors
+qt5-styleplugins
 #+end_src
 
 **** Configure GTK 3.0
@@ -1782,7 +1765,7 @@ gtk-cursor-theme-name=phinger-cursors
 gtk-icon-theme-name = "Adwaita"
 gtk-theme-name = "FlatColor"
 gtk-application-prefer-dark-theme = "true"
-gtk-cursor-theme-name="phinger-cursors"
+gtk-cursor-theme-name = "phinger-cursors"
 #+end_src
 
 **** Configure GTK 4.0
@@ -2214,13 +2197,6 @@ sxhkd &
 #setxkbmap -layout us,ru,jp,ara -option grp:alt_space_toggle
 xmodmap $XDG_CONFIG_HOME/xmodmap/config
 fcitx -d &
-
-# QT Config
-export QT_AUTO_SCREEN_SCALE_FACTOR=1
-export QT_STYLE_OVERRIDE=kvantum
-
-# GTK Config
-export GTK_THEME=Materia-dark
 
 # Systray Apllications
 optimus-manager-qt &
@@ -3597,7 +3573,7 @@ psst-git-bin
 
 ***** Fix HDPI
 :PROPERTIES:
-:header-args:bash: :tangle ~/.xprofile
+:header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
 :END:
 #+begin_src bash
 alias spotify="spotify --force-device-scale-factor=2"
@@ -3607,6 +3583,7 @@ alias spotify="spotify --force-device-scale-factor=2"
 ***** Installation
 #+begin_src text
 discord
+betterdiscord-installer-bin
 #+end_src
 
 **** Libreoffice
@@ -3927,13 +3904,14 @@ Plug 'mickael-menu/zk-nvim'
 
 " Misc
 Plug 'tpope/vim-repeat'
+Plug 'lilydjwg/fcitx.vim'
 
 call plug#end()
 #+end_src
 
 ****** Keybindings
 #+begin_src vimrc
-
+let g:fcitx5_remote = '/usr/bin/fcitx-remote'
 #+end_src
 
 ****** Vimwiki
