@@ -43,19 +43,19 @@ conky.config = {
    
     -- Colors
     color0     = '000000', -- Black: Same as Background
-    color1     = '6C3E43', -- Primary Color
-    color2     = '5A4147', -- Secondary Color: Horizontal Rules
-    color3     = '754245', -- Ternary Color
-    color4     = '8F4548', -- Bar/Graph Colors
+    color1     = 'AE704F', -- Primary Color
+    color2     = 'C67045', -- Secondary Color: Horizontal Rules
+    color3     = 'BB926A', -- Ternary Color
+    color4     = 'D89664', -- Bar/Graph Colors
     color5     = 'B5BD68', -- Positive Color
     color6     = 'C19267', -- Warning Color
     color7     = '6B6B6B'  -- Critical Color
 }
 
---- WALM color1 6C3E43
---- WALM color2 5A4147
---- WALM color3 754245
---- WALM color4 8F4548
+--- WALM color1 AE704F
+--- WALM color2 C67045
+--- WALM color3 BB926A
+--- WALM color4 D89664
 
 adp = 'BAT0'
 
@@ -93,7 +93,7 @@ drives_module =
    h1('DRIVES') .. [[
 / $alignr ${fs_used /} / ${fs_size /} 
 ${color4}${fs_bar 10 /}
-${color1}READ ${diskio_read /dev/nvme0n1p3} $alignr ${color1} WRITE ${diskio_write /dev/nvme0n1p3}
+${color1}READ ${diskio_read /dev/nvme1n1p3} $alignr ${color1} WRITE ${diskio_write /dev/nvme1n1p3}
 ]]
 
 battery_module =

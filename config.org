@@ -1,6 +1,18 @@
 #+title: Development Environment
 #+PROPERTY: header-args :results none :mkdirp yes
 * Configuration Files
+** /etc/issue
+#+begin_src bash :tangle /sudo:://etc/issue
+Arch Linux \r (\l)
+
+[?12l[?25h
+#+end_src
+
+** Hide Kernel Messages at Startup
+#+begin_src bash :tangle /sudo:://etc/sysctl.d/20-quiet-printk.conf
+kernel.printk = 3 3 3 3
+#+end_src
+
 ** Logind
 #+begin_src conf :tangle /sudo:://etc/systemd/logind.conf
 [Login]
@@ -355,8 +367,8 @@ GRUB_DEFAULT=saved
 GRUB_SAVEDEFAULT=true
 GRUB_TIMEOUT=5
 GRUB_DISTRIBUTOR="Arch"
-GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"
-GRUB_CMDLINE_LINUX="resume=/dev/nvme0n1p2"
+GRUB_CMDLINE_LINUX_DEFAULT="quiet loglevel=3 rd.systemd.show_status=auto rd.udev.log_level=3 vt.global_cursor_default=0"
+GRUB_CMDLINE_LINUX="resume=/dev/nvme1n1p2"
 GRUB_DISABLE_OS_PROBER=false
 GRUB_THEME="/boot/grub/themes/Vimix/theme.txt"
 GRUB_PRELOAD_MODULES="part_gpt part_msdos"
@@ -3212,7 +3224,7 @@ drives_module =
    h1('DRIVES') .. [[
 / $alignr ${fs_used /} / ${fs_size /} 
 ${color4}${fs_bar 10 /}
-${color1}READ ${diskio_read /dev/nvme0n1p3} $alignr ${color1} WRITE ${diskio_write /dev/nvme0n1p3}
+${color1}READ ${diskio_read /dev/nvme1n1p3} $alignr ${color1} WRITE ${diskio_write /dev/nvme1n1p3}
 ]]
 #+end_src
 

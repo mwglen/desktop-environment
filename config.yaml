@@ -312,6 +312,30 @@ dotfiles:
   f_pywal.theme.css:
     src: config/BetterDiscord/themes/pywal.theme.css
     dst: ~/.config/BetterDiscord/themes/pywal.theme.css
+  f_mkinitcpio.conf:
+    src: etc/mkinitcpio.conf
+    dst: /etc/mkinitcpio.conf
+  f_20-quiet-printk.conf:
+    src: etc/sysctl.d/20-quiet-printk.conf
+    dst: /etc/sysctl.d/20-quiet-printk.conf
+  f_systemd-fsck@.service:
+    src: lib/systemd/system/systemd-fsck@.service
+    dst: /lib/systemd/system/systemd-fsck@.service
+  f_systemd-fsck-root.service:
+    src: lib/systemd/system/systemd-fsck-root.service
+    dst: /lib/systemd/system/systemd-fsck-root.service
+  f_etc_mkinitcpio.conf:
+    src: etc/mkinitcpio.conf
+    dst: /etc/mkinitcpio.conf
+  f_hushlogin:
+    src: hushlogin
+    dst: ~/.hushlogin
+  f_sysctl.d_20-quiet-printk.conf:
+    src: etc/sysctl.d/20-quiet-printk.conf
+    dst: /etc/sysctl.d/20-quiet-printk.conf
+  f_issue:
+    src: etc/issue
+    dst: /etc/issue
 profiles:
   MattArchSudo:
     dotfiles:
@@ -334,6 +358,11 @@ profiles:
     - f_monitor-battery.sh
     - f_monitor-battery.service
     - f_monitor-battery.timer
+    - f_systemd-fsck@.service
+    - f_systemd-fsck-root.service
+    - f_etc_mkinitcpio.conf
+    - f_sysctl.d_20-quiet-printk.conf
+    - f_issue
   MattArch:
     dotfiles:
     - d_polybar
@@ -399,3 +428,4 @@ profiles:
     - f_new-project
     - d_plugins
     - f_pywal.theme.css
+    - f_hushlogin

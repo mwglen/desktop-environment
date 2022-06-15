@@ -1,0 +1,28 @@
+{
+    "wallpaper": "/home/mwglen/.config/wpg/wallpapers/cuddlefish.jpg",
+    "alpha": "100",
+
+    "special": {
+        "background": "#090509",
+        "foreground": "#afbbba",
+        "cursor": "#afbbba"
+    },
+    "colors": {
+        "color0": "#090509",
+        "color1": "#A76004",
+        "color2": "#906A25",
+        "color3": "#92714A",
+        "color4": "#A38A32",
+        "color5": "#A5985B",
+        "color6": "#CDB864",
+        "color7": "#afbbba",
+        "color8": "#7a8282",
+        "color9": "#A76004",
+        "color10": "#906A25",
+        "color11": "#92714A",
+        "color12": "#A38A32",
+        "color13": "#A5985B",
+        "color14": "#CDB864",
+        "color15": "#afbbba"
+    }
+}

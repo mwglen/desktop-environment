@@ -2,8 +2,8 @@ GRUB_DEFAULT=saved
 GRUB_SAVEDEFAULT=true
 GRUB_TIMEOUT=5
 GRUB_DISTRIBUTOR="Arch"
-GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"
-GRUB_CMDLINE_LINUX="resume=/dev/nvme0n1p2"
+GRUB_CMDLINE_LINUX_DEFAULT="quiet loglevel=3 rd.systemd.show_status=auto rd.udev.log_level=3 vt.global_cursor_default=0"
+GRUB_CMDLINE_LINUX="resume=/dev/nvme1n1p2"
 GRUB_DISABLE_OS_PROBER=false
 GRUB_THEME="/boot/grub/themes/Vimix/theme.txt"
 GRUB_PRELOAD_MODULES="part_gpt part_msdos"

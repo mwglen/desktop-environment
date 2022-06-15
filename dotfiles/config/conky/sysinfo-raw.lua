@@ -93,7 +93,7 @@ drives_module =
    h1('DRIVES') .. [[
 / $alignr ${fs_used /} / ${fs_size /} 
 ${color4}${fs_bar 10 /}
-${color1}READ ${diskio_read /dev/nvme0n1p3} $alignr ${color1} WRITE ${diskio_write /dev/nvme0n1p3}
+${color1}READ ${diskio_read /dev/nvme1n1p3} $alignr ${color1} WRITE ${diskio_write /dev/nvme1n1p3}
 ]]
 
 battery_module =

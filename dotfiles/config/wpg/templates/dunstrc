@@ -47,19 +47,19 @@
     icon_size = 16
 
 [urgency_low]
-    background  = "#0d0f12"
+    background  = "#150f0d"
     foreground = "#888888"
-    highlight  = "#6C3E43"
+    highlight  = "#AE704F"
     timeout = 10
 
 [urgency_normal]
-    background  = "#0d0f12"
+    background  = "#150f0d"
     foreground = "#aaaaaa"
-    highlight  = "#6C3E43"
+    highlight  = "#AE704F"
     timeout = 10
 
 [urgency_critical]
     background = "#900000"
     foreground = "#dddddd"
-    highlight  = "#6C3E43"
+    highlight  = "#AE704F"
     timeout = 0
