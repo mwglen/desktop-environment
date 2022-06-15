@@ -2,6 +2,10 @@
 	path = dotdrop
    url = https://github.com/deadc0de6/dotdrop.git
 
+[submodule "dotfiles/config/nvim/plugged/fcitx.vim"]
+	path = dotfiles/config/nvim/plugged/fcitx.vim
+   url = https://github.com/lilydjwg/fcitx.vim.git
+
 [submodule "dotfiles/config/nvim/plugged/coc.nvim"]
 	path = dotfiles/config/nvim/plugged/coc.nvim
    url = https://github.com/neoclide/coc.nvim.git
