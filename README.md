@@ -1,5 +1,12 @@
 # Desktop Environment
 
+## Introduction
+This repository serves as the spiritual successor to the [development-environment](https://github.com/mwglen/development-environment) repository. It stores my configuration for Arch Linux along with scripts to install the configuration.
+
+Configured packages include Vim, Emacs, Alacritty, Rofi, Conky, XMonad, Polybar, Picom, and many more.
+
+The environment uses WPGTK to automatically theme the environment based off of your wallpaper. Dotdrop is used to manage dotfiles. Dotfiles are generated from an org file (config.org) using org-babel.
+
 ## Screenshots
 
 ![2022-06-17_13-12-fs8](https://user-images.githubusercontent.com/10079472/174346685-3a3ed8cd-95c3-4627-800c-318c02723bea.png)
