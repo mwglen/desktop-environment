@@ -101,6 +101,8 @@ sudo systemctl enable lightdm
 
 sudo locale-gen
 
+alias xmessage="xmessage -default okay -bg black -fg white"
+
 # Members of the libvirt group have passwordless access to the RW daemon socket by default.
 sudo usermod -a -G libvirt $USER
 sudo usermod -a -G kvm $USER
@@ -113,9 +115,6 @@ sudo gpasswd -a mwglen audio
 
 yay -S --noconfirm --needed anki || true
 yay -S --noconfirm --needed anki || true
-
-curl -L https://raw.githubusercontent.com/thomas10-10/foo-Wallpaper-Feh-Gif/master/install.sh | bash
-#back4.sh 0.010 gif/pixel.gif &
 
 sudo pywalfox install
 

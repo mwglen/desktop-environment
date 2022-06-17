@@ -52,6 +52,7 @@ conky.config = {
     color7     = '6B6B6B'  -- Critical Color
 }
 
+--- WALM color0 000000
 --- WALM color1 B294BB
 --- WALM color2 B4C3CA
 --- WALM color3 81A2BE

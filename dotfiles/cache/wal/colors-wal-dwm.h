@@ -7,8 +7,8 @@ static const char sel_bg[] = "#C67045";
 static const char sel_border[] = "#d9c8ce";
 
 static const char urg_fg[] = "#d9c8ce";
-static const char urg_bg[] = "#AE704F";
-static const char urg_border[] = "#AE704F";
+static const char urg_bg[] = "#D89664";
+static const char urg_border[] = "#D89664";
 
 static const char *colors[][3]      = {
     /*               fg           bg         border                         */

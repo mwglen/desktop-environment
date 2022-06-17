@@ -221,7 +221,7 @@ sudo mount --mkdir $boot_part $mount_point/boot
 sudo swapon $swap_part
 
 # Install Base
-sudo pacstrap $mount_point base linux linux-firmware
+sudo pacstrap $mount_point base linux-zen linux-zen-headers linux-firmware
 
 # Generate fstab
 sudo genfstab -U $mount_point >> $mount_point/etc/fstab
@@ -377,6 +377,7 @@ GRUB_TERMINAL_INPUT=console
 GRUB_GFXMODE=auto
 GRUB_GFXPAYLOAD_LINUX=keep
 GRUB_DISABLE_RECOVERY=true
+#GRUB_DISABLE_SUBMENU=y
 #+end_src
 
 *** System Time
@@ -544,9 +545,21 @@ python-pyswip
 php
 #+end_src
 
+**** GDB
+***** Installation
+#+begin_src text
+gdb
+#+end_src
 *** Web Development
 #+begin_src text
 angular-cli
+#+end_src
+
+*** Waydroid
+Run ~sudo waydroid init -s GAPPS -f~
+#+begin_src text
+waydroid
+waydroid-image-gapps
 #+end_src
 
 *** Terminal Emulators
@@ -584,7 +597,7 @@ font:
 ***** Proprietary Drivers
 ****** Installation
 #+begin_src text
-nvidia
+nvidia-dkms
 lib32-nvidia-utils
 #+end_src
 
@@ -738,6 +751,11 @@ pavucontrol
 #+end_src
 
 **** Media
+***** Image Manipulation
+#+begin_src text
+pngquant
+#+end_src
+
 ***** MPV
 ****** Installation
 #+begin_src text
@@ -2217,14 +2235,12 @@ hp-systray &
 flameshot &
 udiskie -a -t &
 #+end_src
-
-***** Alias xmessage
-:PROPERTIES:
-:header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
+er-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
 :END:
 #+begin_src bash
 alias xmessage="xmessage -default okay -bg black -fg white"
 #+end_src
+
 
 *** Window Managers
 **** DWM
@@ -3170,6 +3186,7 @@ conky.config = {
     color7     = '6B6B6B'  -- Critical Color
 }
 
+--- WALM color0 000000
 --- WALM color1 B294BB
 --- WALM color2 B4C3CA
 --- WALM color3 81A2BE
@@ -3680,27 +3697,15 @@ esac
 #+end_src
 
 **** Backgrounds
-***** Feh
-****** Installation
-#+begin_src text
-feh
-#+end_src
-
-****** Setup
-#+begin_src bash
-curl -L https://raw.githubusercontent.com/thomas10-10/foo-Wallpaper-Feh-Gif/master/install.sh | bash
-#back4.sh 0.010 gif/pixel.gif &
-#+end_src
-
-***** Pywal
-****** Installation
+***** Installation
 #+begin_src text
 python-pywal
 python-colorthief
 wpgtk-git
+feh
 #+end_src
 
-****** WPGTK Configuration
+***** WPGTK Configuration
 #+begin_src conf :tangle ~/.config/wpg/wpg.conf
 [settings]
 set_wallpaper = true
@@ -3719,7 +3724,7 @@ reload = true
 [keywords]
 #+end_src
 
-****** Dunst Integration
+***** Dunst Integration
 #+begin_src conf :tangle ~/.config/wpg/templates/dunstrc.base
 [global]
     ### Location ###
@@ -3788,7 +3793,7 @@ reload = true
     timeout = 0
 #+end_src
 
-****** Add Colorscheme to All Terminals
+***** Add Colorscheme to All Terminals
 :PROPERTIES:
 :header-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
 :END:
@@ -3800,13 +3805,13 @@ reload = true
 #source ~/.cache/wal/colors-tty.sh
 #+end_src
 
-****** Firefox Addon
-******* Installation
+***** Firefox Addon
+****** Installation
 #+begin_src text
 python-pywalfox
 #+end_src
 
-******* Setup
+****** Setup
 #+begin_src bash
 sudo pywalfox install
 #+end_src

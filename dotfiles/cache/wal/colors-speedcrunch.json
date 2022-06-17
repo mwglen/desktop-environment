@@ -1,15 +1,15 @@
 {
     "cursor": "#d9c8ce",
     "number": "#d9c8ce",
-    "parens": "#B97490",
-    "result": "#D89664",
+    "parens": "#eb614d",
+    "result": "#AE704F",
     "comment": "#978c90",
-    "matched": "#D89664",
-    "function": "#AE704F",
-    "operator": "#BB926A",
+    "matched": "#AE704F",
+    "function": "#D89664",
+    "operator": "#D7A292",
     "variable": "#C67045",
-    "scrollbar": "#BB926A",
-    "separator": "#BB926A",
+    "scrollbar": "#D7A292",
+    "separator": "#D7A292",
     "background": "#150f0d",
     "editorbackground": "#150f0d"
 }

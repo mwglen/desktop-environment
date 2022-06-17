@@ -38,7 +38,7 @@ sudo mount --mkdir $boot_part $mount_point/boot
 sudo swapon $swap_part
 
 # Install Base
-sudo pacstrap $mount_point base linux linux-firmware
+sudo pacstrap $mount_point base linux-zen linux-zen-headers linux-firmware
 
 # Generate fstab
 sudo genfstab -U $mount_point >> $mount_point/etc/fstab

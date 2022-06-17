@@ -78,8 +78,6 @@ alias v="nvim"
 #alias -s {png}=nsxiv
 #alias -s {pdf}=firefox
 
-alias xmessage="xmessage -default okay -bg black -fg white"
-
 alias rm="rmtrash"
 alias rmdir="rmdirtrash"
 alias sudo="sudo "

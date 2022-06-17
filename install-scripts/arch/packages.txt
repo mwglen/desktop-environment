@@ -26,11 +26,16 @@ python-pyswip
 
 php
 
+gdb
+
 angular-cli
+
+waydroid
+waydroid-image-gapps
 
 alacritty
 
-nvidia
+nvidia-dkms
 lib32-nvidia-utils
 
 optimus-manager-qt
@@ -56,6 +61,8 @@ networkmanager-dmenu-git
 
 alsa-utils
 pavucontrol
+
+pngquant
 
 playerctl
 mpv
@@ -274,11 +281,10 @@ devour
 
 nsxiv
 
-feh
-
 python-pywal
 python-colorthief
 wpgtk-git
+feh
 
 python-pywalfox
 
