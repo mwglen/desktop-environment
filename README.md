@@ -1,4 +1,5 @@
 # Desktop Environment
+The spiritual successor to https://github.com/mwglen/development-environment
 
 ## Introduction
 This repository serves as the spiritual successor to the [development-environment](https://github.com/mwglen/development-environment) repository. It stores my configuration for Arch Linux along with scripts to install the configuration.
