@@ -19,7 +19,7 @@ conky.config = {
    -- Size & Alignment
    maximum_width   = 315,
    minimum_width   = 315,
-   minimum_height  = 930,
+   minimum_height  = 935,
    alignment       = 'top_left',
    gap_x           = 35,
    gap_y           = 35,
@@ -34,12 +34,7 @@ conky.config = {
    override_utf8_locale = true,
    cpu_avg_samples      = 2,
    net_avg_samples      = 1,
-
-   total_run_times  = 0,
    double_buffer    = true,
-   no_buffers       = true,
-   use_spacer       = 'left',
-   text_buffer_size = 256,
    
     -- Colors
     color0     = '150F0D', -- Black: Same as Background
@@ -60,13 +55,17 @@ conky.config = {
 
 adp = 'BAT0'
 
+function conky_format(format, number)
+   return string.format(format, conky_parse(number))
+end
+
 function reset_font()
    return '${font ' .. conky.config.font .. '}${color1}'
 end
 
 function h1(name)
    return '${font RobotoMono Nerd Font:bold:size=10}${color2}\n' ..
-      name .. '${color2}${hr 2}' .. reset_font() .. '\n'
+      name .. ' ${color2}${hr 2}' .. reset_font() .. '\n'
 end
 
 clock_module = [[
@@ -87,24 +86,21 @@ Kernel:$alignr$sysname $kernel
 Architecture:$alignr $machine
 Uptime: $alignr${uptime}
 Temp: ${alignr}${acpitemp}C
-#Load: ${color}${alignr}${loadavg}
 ]]
 
 drives_module =
-   h1('DRIVES') .. [[
-/ $alignr ${fs_used /} / ${fs_size /} 
-${color4}${fs_bar 10 /}
-${color1}READ ${diskio_read /dev/nvme1n1p3} $alignr ${color1} WRITE ${diskio_write /dev/nvme1n1p3}
+   h1('STORAGE') .. [[
+${color4}${fs_bar 10 /}${color1}
+${fs_used /} / ${fs_size /} ${alignr} ${fs_used_perc}%
 ]]
 
 battery_module =
    h1('BATTERY') .. adp .. [[
-${alignr}${font Noto Sans UI:size=6}${font}${execi 60 acpi | grep -Eo '\w+,' | grep -Eo '\w+'}
-${voffset 2}${color4}${battery_bar 10}
+${alignr}${execi 60 acpi | grep -Eo '\w+,' | grep -Eo '\w+'}
+${color4}${battery_bar 10}
 ]] .. reset_font() .. [[
 ${battery_percent}% ${alignr}Time Remaining: ${execi 60 acpi | grep -Eo '(:?[0-9]+){3}'}
 ]]
-   -- h2(adp, [[${execi 60 acpi | grep -Eo '\w+,' | grep -Eo '\w+'}]])
 
 cpu_module =
    h1('CPU') .. [[
@@ -115,27 +111,27 @@ ${freq_g cpu0}Ghz${alignr}${cpu}%
 
 memory_module =
    h1('MEMORY') .. [[
-#${execi 999999 dmidecode --type 17 | grep -m 1 "Type:" | cut -d' ' -f2-} $alignc $mem / $memmax $alignr $memperc%
-DDR4 $alignc $mem / $memmax $alignr $memperc%
-${color4}${membar 10,}${color}
+${color4}${membar 10,}${color1}
+$mem / $memmax $alignr $memperc%
 ]]
 
 swap_module =
    h1('SWAP') .. [[
-$swap / $swapmax $alignr $swapperc%
-${color4}${swapbar 10,}${color}
+${color4}${swapbar 10,}${color1}
+${swap} / ${swapmax}${alignr}${swapperc}%
 ]]
 
 function proc(num)
-   proc_name = '$font$color1${top name ' .. num .. '}'
-   proc_cpu  = '$color2${goto 110}${top cpu ' .. num .. '}%'
-   proc_mem  = '$color1${goto 165}${top_mem name ' .. num .. '}'
-   proc_memp = '$color2${goto 270}${top_mem mem_res ' .. num .. '}\n'
-   return proc_name .. proc_cpu .. proc_mem .. proc_memp
+   mod_font = '${font RobotoMono Nerd Font:size=8}'
+   proc_name = '${color1}${top name ' .. num .. '}'
+   proc_cpu  = '${color2}${goto 105}${top cpu ' .. num .. '}%'
+   proc_mem  = '${color1}${goto 160}${top_mem name ' .. num .. '}'
+   proc_memp = '${color2}${alignr}${top_mem mem_res ' .. num .. '}\n'
+   return mod_font .. proc_name .. proc_cpu .. proc_mem .. proc_memp
 end
 processes_module =
    h1('PROCESSES') ..
-   '${font}CPU${goto 165}RAM\n' ..
+   'CPU${goto 160}RAM\n' ..
    proc(1) ..
    proc(2) ..
    proc(3) ..
@@ -150,8 +146,8 @@ conky.text =
    clock_module       ..
    system_info_module ..
    battery_module     ..
-   drives_module      ..
    cpu_module         ..
+   drives_module      ..
    memory_module      ..
    swap_module        ..
    processes_module
