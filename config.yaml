@@ -100,6 +100,7 @@ dotfiles:
   f_fcitx_profile:
     src: config/fcitx/profile
     dst: ~/.config/fcitx/profile
+    chmod: '600'
   f_fcitx-xkb.config:
     src: config/fcitx/conf/fcitx-xkb.config
     dst: ~/.config/fcitx/conf/fcitx-xkb.config
