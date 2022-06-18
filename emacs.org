@@ -511,6 +511,7 @@ Makes popup windows appear in new windows rather than frames
    'org-babel-load-languages
    '((emacs-lisp . t)
      (python . t)
+     (lua . t)
      (haskell . t)
      (shell . t)))
   (push '("conf-unix" . conf-unix) org-src-lang-modes))
@@ -748,6 +749,12 @@ Allows you to quckly find definitions.
 #+begin_src emacs-lisp
 (use-package haskell-mode
   :mode "\\.hs\\'")
+#+end_src
+
+*** Lua
+#+begin_src emacs-lisp
+(use-package lua-mode
+  :mode "\\.lua\\'")
 #+end_src
 
 *** JSON

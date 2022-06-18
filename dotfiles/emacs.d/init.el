@@ -370,6 +370,7 @@
    'org-babel-load-languages
    '((emacs-lisp . t)
      (python . t)
+     (lua . t)
      (haskell . t)
      (shell . t)))
   (push '("conf-unix" . conf-unix) org-src-lang-modes))
@@ -506,6 +507,9 @@
 
 (use-package haskell-mode
   :mode "\\.hs\\'")
+
+(use-package lua-mode
+  :mode "\\.lua\\'")
 
 (use-package json-mode)
 

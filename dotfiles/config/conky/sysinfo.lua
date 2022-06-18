@@ -13,7 +13,7 @@ conky.config = {
 
    -- XFT
    use_xft  = true,
-   font     = 'Hack Nerd Font:size=9',
+   font     = 'RobotoMono Nerd Font:size=9',
    xftalpha = 0.1,
 
    -- Size & Alignment
@@ -109,7 +109,7 @@ ${battery_percent}% ${alignr}Time Remaining: ${execi 60 acpi | grep -Eo '(:?[0-9
 cpu_module =
    h1('CPU') .. [[
 ${execi 999999 cat /proc/cpuinfo | grep -m 1 'model name' | cut -d' ' -f3-}
-${color4}${cpubar 10,}$color1
+${color4}${cpubar 10,}${color1}
 ${freq_g cpu0}Ghz${alignr}${cpu}%
 ]]
 
