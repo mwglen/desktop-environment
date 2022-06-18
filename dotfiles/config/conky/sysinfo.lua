@@ -13,7 +13,7 @@ conky.config = {
 
    -- XFT
    use_xft  = true,
-   font     = 'RobotoMono Nerd Font:size=9',
+   font     = 'Hack Nerd Font:size=9',
    xftalpha = 0.1,
 
    -- Size & Alignment
