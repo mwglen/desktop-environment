@@ -6,7 +6,7 @@ conky.config = {
    own_window_title       = 'Sysinfo Conky',
    own_window_hints       =
       'undecorated,below,above,sticky,skip_taskbar,skip_pager',
-   own_window_colour      = '150F0D',
+   own_window_colour      = '0A0409',
    own_window_argb_value  = 255,
    own_window_argb_visual = true,
    own_window_transparent = false,
@@ -28,7 +28,7 @@ conky.config = {
    -- Shades & Borders
    draw_graph_borders    = false,
    draw_shades           = true,
-   default_shade_color   = '150F0D',
+   default_shade_color   = '0A0409',
     
    -- Misc
    override_utf8_locale = true,
@@ -37,21 +37,21 @@ conky.config = {
    double_buffer    = true,
    
     -- Colors
-    color0     = '150F0D', -- Black: Same as Background
-    color1     = 'D89664', -- Primary Color
-    color2     = 'C67045', -- Secondary Color: Horizontal Rules
-    color3     = 'D7A292', -- Ternary Color
-    color4     = 'AE704F', -- Bar/Graph Colors
+    color0     = '0A0409', -- Black: Same as Background
+    color1     = '9B2E33', -- Primary Color
+    color2     = 'C9473A', -- Secondary Color: Horizontal Rules
+    color3     = '99374F', -- Ternary Color
+    color4     = 'B14856', -- Bar/Graph Colors
     color5     = 'B5BD68', -- Positive Color
     color6     = 'C19267', -- Warning Color
     color7     = '6B6B6B'  -- Critical Color
 }
 
---- WALM color0 150F0D
---- WALM color1 D89664
---- WALM color2 C67045
---- WALM color3 D7A292
---- WALM color4 AE704F
+--- WALM color0 0A0409
+--- WALM color1 9B2E33
+--- WALM color2 C9473A
+--- WALM color3 99374F
+--- WALM color4 B14856
 
 adp = 'BAT0'
 

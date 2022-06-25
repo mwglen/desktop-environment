@@ -1,0 +1,28 @@
+{
+    "wallpaper": "/home/mwglen/.config/wpg/wallpapers/2001_A_Space_Odyssey-out.jpg",
+    "alpha": "100",
+
+    "special": {
+        "background": "#000000",
+        "foreground": "#acc8d7",
+        "cursor": "#acc8d7"
+    },
+    "colors": {
+        "color0": "#000000",
+        "color1": "#285571",
+        "color2": "#4B646F",
+        "color3": "#71827A",
+        "color4": "#2D6689",
+        "color5": "#4A7690",
+        "color6": "#6094A4",
+        "color7": "#acc8d7",
+        "color8": "#788c96",
+        "color9": "#285571",
+        "color10": "#4B646F",
+        "color11": "#71827A",
+        "color12": "#2D6689",
+        "color13": "#4A7690",
+        "color14": "#6094A4",
+        "color15": "#acc8d7"
+    }
+}

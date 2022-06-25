@@ -62,6 +62,8 @@ networkmanager-dmenu-git
 alsa-utils
 pavucontrol
 
+kdeconnect
+
 pngquant
 
 playerctl
@@ -133,6 +135,7 @@ materia-kde
 kvantum-theme-materia
 kvantum
 
+gtk4
 materia-gtk-theme
 phinger-cursors
 qt5-styleplugins
@@ -201,10 +204,15 @@ tcpdump
 
 bind
 
+stress
+
 lmms
 freepats-general-midi   # Instruments for Timidity
 timidity++              # Can Play Midi Files
 lilypond                # Music Engraving Program
+
+octave
+octave-symbolic
 
 xfoil
 #openvsp-git
@@ -270,6 +278,7 @@ betterdiscord-installer-bin
 
 libreoffice-fresh
 libreoffice-fresh-ru
+okular
 
 git-annex-standalone
 
@@ -292,6 +301,7 @@ neovim
 neovide-git
 svlangserver
 haskell-language-server
+ccls
 sdcv
 stardict-oed
 npm

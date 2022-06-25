@@ -178,7 +178,8 @@ myManageHook = composeAll
     , className =? "pinentry-gtk-2" --> doFloat 
     , className =? "splash"         --> doFloat 
     , className =? "toolbar"        --> doFloat 
-    , className =? "Zenity"         --> doFloat 
+    , className =? "Zenity"         --> doFloat
+    , className =? "com-azefsw-audioconnect-desktop-app-MainKt" --> doFloat
     , resource  =? "download"       --> doIgnore
     , (className =? "firefox" <&&> resource =? "Dialog") --> doFloat 
     ] <+> namedScratchpadManageHook scratchpads

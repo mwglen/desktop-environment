@@ -31,3 +31,4 @@ The environment uses WPGTK to automatically theme the environment based off of y
   - Edit the config for samba in setup.org to share your directory and then retangle setup.org
   - Enable the samba daemon by running `sudo systemctl enable --now samba`.
   - To connect to shared folder on a windows machine create a shorcut to `\\IP-ADDRESS\SHARE-NAME`
+  - To check IO scheduler run `cat /sys/block/nvme1n1/queue/scheduler`

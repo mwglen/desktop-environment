@@ -545,11 +545,12 @@ python-pyswip
 php
 #+end_src
 
-**** GDB
+**** C/C++
 ***** Installation
 #+begin_src text
 gdb
 #+end_src
+
 *** Web Development
 #+begin_src text
 angular-cli
@@ -751,6 +752,11 @@ pavucontrol
 #+end_src
 
 **** Media
+***** Connect Phone to PC
+#+begin_src text
+kdeconnect
+#+end_src
+
 ***** Image Manipulation
 #+begin_src text
 pngquant
@@ -1770,6 +1776,7 @@ kvantum
 *** GTK Theme
 **** Installation
 #+begin_src text
+gtk4
 materia-gtk-theme
 phinger-cursors
 qt5-styleplugins
@@ -2234,6 +2241,7 @@ nm-applet &
 hp-systray &
 flameshot &
 udiskie -a -t &
+kdeconnect-indicator &
 #+end_src
 er-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
 :END:
@@ -2516,7 +2524,8 @@ myManageHook = composeAll
     , className =? "pinentry-gtk-2" --> doFloat 
     , className =? "splash"         --> doFloat 
     , className =? "toolbar"        --> doFloat 
-    , className =? "Zenity"         --> doFloat 
+    , className =? "Zenity"         --> doFloat
+    , className =? "com-azefsw-audioconnect-desktop-app-MainKt" --> doFloat
     , resource  =? "download"       --> doIgnore
     , (className =? "firefox" <&&> resource =? "Dialog") --> doFloat 
     ] <+> namedScratchpadManageHook scratchpads
@@ -3019,6 +3028,11 @@ Use fscrypt for encrypting directories, and LUKS for encrypting drives
 Use cryfs if you want portability
 
 *** Applications
+**** System Debug
+#+begin_src text
+stress
+#+end_src
+
 **** Audio Applications
 ***** Installation
 #+begin_src text
@@ -3044,11 +3058,19 @@ soundfont /usr/share/soundfonts/freepats-general-midi.sf2
 sudo gpasswd -a mwglen audio
 #+end_src
 
-**** Aerospace Engineering Applications
+**** Engineering Applications
+***** Mathematics Applications
+=pkg install -forge symbolic=
+#+begin_src text
+octave
+octave-symbolic
+#+end_src
+
+***** Aerospace Engineering Applications
 *XFoil:* Program for design and analysis of subsonic airfoils
 *OpenVSP:* Allows the user to create a 3D model of an aircraft defined by common engineering parameters
 
-***** Installation
+****** Installation
 #+begin_src text
 xfoil
 #openvsp-git
@@ -3611,11 +3633,12 @@ discord
 betterdiscord-installer-bin
 #+end_src
 
-**** Libreoffice
+**** File Editing
 ***** Installation
 #+begin_src text
 libreoffice-fresh
 libreoffice-fresh-ru
+okular
 #+end_src
 
 **** Git-Annex
@@ -3819,6 +3842,7 @@ neovim
 neovide-git
 svlangserver
 haskell-language-server
+ccls
 sdcv
 stardict-oed
 npm
