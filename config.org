@@ -385,6 +385,11 @@ GRUB_DISABLE_RECOVERY=true
 sudo timedatectl set-timezone $timezone
 #+end_src
 
+**** Network Time Protocol  Support
+#+begin_src text
+openntpd
+#+end_src
+
 *** Install Packages
 #+begin_src bash
 packages="$(cat $REPOSITORIES/desktop-environment/install-scripts/arch/packages.txt | awk -F '#' '{print $1}' | tr -s '\n' ' ')"
@@ -784,6 +789,7 @@ script-opts=ytdl_hook-ytdl_path=yt-dlp
 ***** Installation
 #+begin_src text
 acpi
+upower
 #+end_src
 
 ****  TLP
@@ -3615,7 +3621,6 @@ glxinfo
 ***** Installation
 #+begin_src text
 spotify
-psst-git-bin
 #+end_src
 
 ***** Fix HDPI

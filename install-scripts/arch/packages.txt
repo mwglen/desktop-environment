@@ -1,3 +1,5 @@
+openntpd
+
 man-db
 man-pages
 bazel
@@ -72,6 +74,7 @@ yt-dlp
 baka-mplayer
 
 acpi
+upower
 
 tlp
 
@@ -271,7 +274,6 @@ sidequest-bin
 glxinfo
 
 spotify
-psst-git-bin
 
 discord
 betterdiscord-installer-bin
