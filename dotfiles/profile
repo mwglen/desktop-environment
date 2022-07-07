@@ -18,9 +18,32 @@ export XDG_VIDEOS_DIR="$HOME/Videos"
 
 # QT Config
 export QT_QPA_PLATFORMTHEME=gtk2
+export GTK2_RC_FILES="$XDG_CONFIG_HOME"/gtk-2.0/gtkrc
 
 # GTK Config
 export GTK_THEME=FlatColor
 
+export CUDA_CACHE_PATH="$XDG_CACHE_HOME"/nv
+
+export HISTFILE="${XDG_STATE_HOME}"/bash/history
+
+export RUSTUP_HOME="$XDG_DATA_HOME"/rustup
+export CARGO_HOME="$XDG_DATA_HOME"/cargo
+
+export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME"/bundle
+export BUNDLE_USER_CACHE="$XDG_CACHE_HOME"/bundle
+export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME"/bundle
+
+export GNUPGHOME="$XDG_DATA_HOME"/gnupg
+
+export WINEPREFIX="$XDG_DATA_HOME"/wine
+
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME"/npm/npmrc
+
+export GEM_HOME="${XDG_DATA_HOME}"/gem
+export GEM_SPEC_CACHE="${XDG_CACHE_HOME}"/gem
+
 export GEM_HOME="$(ruby-2.7 -e 'puts Gem.user_dir')"
 export PATH="$PATH:$GEM_HOME/bin"
+
+export MOZ_USE_XINPUT2=1

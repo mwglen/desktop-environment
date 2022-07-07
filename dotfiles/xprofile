@@ -23,6 +23,3 @@ nm-applet &
 hp-systray &
 flameshot &
 udiskie -a -t &
-kdeconnect-indicator &
-
-export MOZ_USE_XINPUT2=1

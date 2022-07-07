@@ -1,0 +1,16 @@
+[database]
+path=/home/mwglen/Mail
+
+[user]
+name=Matthew Glen
+primary_email=mwg2202@gmail.com
+other_email=mwg2202@yahoo.com;mwglen@ncsu.edu;
+
+[new]
+tags=new;
+ignore=.stfolder;/.*[.](json|lock|bak)$/;
+
+[search]
+# exclude_tags=spam;junk;
+
+[maildir]

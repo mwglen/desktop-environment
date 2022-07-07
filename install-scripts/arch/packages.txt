@@ -64,8 +64,6 @@ networkmanager-dmenu-git
 alsa-utils
 pavucontrol
 
-kdeconnect
-
 pngquant
 
 playerctl
@@ -201,11 +199,16 @@ vagrant
 wine-staging
 wine-gecko
 wine-mono
+winetricks
 
 nmap
 tcpdump
 
 bind
+
+wireshark-qt
+
+aircrack-ng
 
 stress
 
@@ -216,6 +219,8 @@ lilypond                # Music Engraving Program
 
 octave
 octave-symbolic
+libqalculate
+rofi-calc
 
 xfoil
 #openvsp-git

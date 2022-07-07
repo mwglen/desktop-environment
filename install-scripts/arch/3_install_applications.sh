@@ -101,8 +101,6 @@ sudo systemctl enable lightdm
 
 sudo locale-gen
 
-alias xmessage="xmessage -default okay -bg black -fg white"
-
 # Members of the libvirt group have passwordless access to the RW daemon socket by default.
 sudo usermod -a -G libvirt $USER
 sudo usermod -a -G kvm $USER
@@ -110,6 +108,11 @@ sudo usermod -a -G kvm $USER
 sudo systemctl enable libvirtd # Also enables virtlogd and virtlockd
 
 # Make sure to set user = /etc/libvirt/qemu.conf
+
+# Scrivener
+winetricks win10 corefonts dotnet472 speechsdk
+
+sudo gpasswd -a mwglen wireshark
 
 sudo gpasswd -a mwglen audio
 
