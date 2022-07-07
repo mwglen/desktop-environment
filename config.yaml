@@ -2,6 +2,10 @@ config:
   backup: true
   create: true
   dotpath: dotfiles
+  cmpignore:
+  - '*/fcitx-classic-ui.config'
+  - '*/fcitx/profile'
+  - '*/polybar/scripts/env.sh'
 dotfiles:
   d_polybar:
     src: config/polybar
@@ -65,20 +69,23 @@ dotfiles:
   f_smb.conf:
     src: etc/samba/smb.conf
     dst: /etc/samba/smb.conf
-  f_notmuch-config:
-    src: notmuch-config
-    dst: ~/.notmuch-config
   f_neomuttrc:
     src: config/neomutt/neomuttrc
     dst: ~/.config/neomutt/neomuttrc
-  d_gtk-3.0:
-    src: config/gtk-3.0
-    dst: ~/.config/gtk-3.0
-    chmod: '700'
   d_gtk-2.0:
     src: config/gtk-2.0
     dst: ~/.config/gtk-2.0
     chmod: '700'
+  d_gtk-3.0:
+    src: config/gtk-3.0
+    dst: ~/.config/gtk-3.0
+    chmod: '700'
+    cmpignore:
+    - bookmarks
+    upignore:
+    - bookmarks
+    instignore:
+    - bookmarks
   d_gtk-4.0:
     src: config/gtk-4.0
     dst: ~/.config/gtk-4.0
@@ -179,9 +186,6 @@ dotfiles:
   f_plug.vim:
     src: local/share/nvim/site/autoload/plug.vim
     dst: ~/.local/share/nvim/site/autoload/plug.vim
-  f_gtkrc-2.0:
-    src: gtkrc-2.0
-    dst: ~/.gtkrc-2.0
   d_backgrounds:
     src: Backgrounds
     dst: ~/Backgrounds
@@ -293,9 +297,6 @@ dotfiles:
   f_userchrome.css:
     src: mozilla/firefox/y94bew4x.MattArch/chrome/userChrome.css
     dst: ~/.mozilla/firefox/y94bew4x.MattArch/chrome/userChrome.css
-  d_flatcolor:
-    src: local/share/themes/FlatColor
-    dst: ~/.local/share/themes/FlatColor
   d_wpg:
     src: config/wpg
     dst: ~/.config/wpg
@@ -337,6 +338,15 @@ dotfiles:
   f_issue:
     src: etc/issue
     dst: /etc/issue
+  f_default_config:
+    src: config/notmuch/default/config
+    dst: ~/.config/notmuch/default/config
+  f_npmrc:
+    src: config/npm/npmrc
+    dst: ~/.config/npm/npmrc
+  d_themes:
+    src: themes
+    dst: ~/.themes
 profiles:
   MattArchSudo:
     dotfiles:
@@ -378,7 +388,6 @@ profiles:
     - f_xprofile
     - f_profile
     - f_zshenv
-    - f_notmuch-config
     - f_neomuttrc
     - d_gtk-3.0
     - d_gtk-2.0
@@ -404,7 +413,6 @@ profiles:
     - d_nvim
     - d_wal
     - f_plug.vim
-    - f_gtkrc-2.0
     - d_backgrounds
     - f_git_config
     - d_extensions
@@ -423,10 +431,12 @@ profiles:
     - f_increase-volume
     - f_decrease-volume
     - f_userchrome.css
-    - d_flatcolor
     - d_wpg
     - f_wp_init.sh
     - f_new-project
     - d_plugins
     - f_pywal.theme.css
     - f_hushlogin
+    - f_default_config
+    - f_npmrc
+    - d_themes

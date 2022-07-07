@@ -1,6 +1,6 @@
 configuration {
   show-icons:   true;
-  modi:         "window,drun,filebrowser,combi,run";
+  modi:         "window,drun,filebrowser,combi,run,calc";
   icon-theme:   "Adwaita";
   dpi:          200;
   font:         "RobotoMono Nerd Font 13";

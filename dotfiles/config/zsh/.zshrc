@@ -74,8 +74,9 @@ alias services="systemctl list-unit-files --state=enabled"
 alias ip="ip -color=auto"
 alias du="du -sh"
 alias v="nvim"
+alias xmessage="xmessage -default okay -bg black -fg white"
 #alias -s {md,org,txt,sh,rs,xml,txt\'}=nvim
-#alias -s {png}=nsxiv
+#alias -s {png,jpeg,jpg,webp}=nsxiv
 #alias -s {pdf}=firefox
 
 alias rm="rmtrash"

@@ -757,11 +757,6 @@ pavucontrol
 #+end_src
 
 **** Media
-***** Connect Phone to PC
-#+begin_src text
-kdeconnect
-#+end_src
-
 ***** Image Manipulation
 #+begin_src text
 pngquant
@@ -1058,9 +1053,30 @@ export XDG_VIDEOS_DIR="$HOME/Videos"
 
 # QT Config
 export QT_QPA_PLATFORMTHEME=gtk2
+export GTK2_RC_FILES="$XDG_CONFIG_HOME"/gtk-2.0/gtkrc
 
 # GTK Config
 export GTK_THEME=FlatColor
+
+export CUDA_CACHE_PATH="$XDG_CACHE_HOME"/nv
+
+export HISTFILE="${XDG_STATE_HOME}"/bash/history
+
+export RUSTUP_HOME="$XDG_DATA_HOME"/rustup
+export CARGO_HOME="$XDG_DATA_HOME"/cargo
+
+export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME"/bundle
+export BUNDLE_USER_CACHE="$XDG_CACHE_HOME"/bundle
+export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME"/bundle
+
+export GNUPGHOME="$XDG_DATA_HOME"/gnupg
+
+export WINEPREFIX="$XDG_DATA_HOME"/wine
+
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME"/npm/npmrc
+
+export GEM_HOME="${XDG_DATA_HOME}"/gem
+export GEM_SPEC_CACHE="${XDG_CACHE_HOME}"/gem
 #+end_src
 
 ****** Aliases
@@ -1083,8 +1099,9 @@ alias services="systemctl list-unit-files --state=enabled"
 alias ip="ip -color=auto"
 alias du="du -sh"
 alias v="nvim"
+alias xmessage="xmessage -default okay -bg black -fg white"
 #alias -s {md,org,txt,sh,rs,xml,txt\'}=nvim
-#alias -s {png}=nsxiv
+#alias -s {png,jpeg,jpg,webp}=nsxiv
 #alias -s {pdf}=firefox
 #+end_src
 
@@ -1093,9 +1110,9 @@ alias v="nvim"
 :header-args:bash: :tangle ~/.zshenv
 :END:
 #+begin_src bash
-export TERMINAL='alacritty'
-source $HOME/.profile
-ZDOTDIR=~/.config/zsh
+export TERMINAL="alacritty"
+export ZDOTDIR="$HOME"/.config/zsh
+source "$HOME"/.profile
 #+end_src
 
 *** File System Support
@@ -1194,7 +1211,7 @@ notmuch
 #+end_src
 
 ***** Configuration
-#+begin_src conf :tangle ~/.notmuch-config
+#+begin_src conf :tangle ~/.config/notmuch/default/config
 [database]
 path=/home/mwglen/Mail
 
@@ -1802,7 +1819,7 @@ gtk-cursor-theme-name=phinger-cursors
 
 **** Configure GTK 2.0
 :PROPERTIES:
-:header-args:conf: :tangle ~/.gtkrc-2.0
+:header-args:conf: :tangle ~/.config/gtk-2.0/gtkrc
 :END:
 #+begin_src conf
 gtk-icon-theme-name = "Adwaita"
@@ -2247,12 +2264,6 @@ nm-applet &
 hp-systray &
 flameshot &
 udiskie -a -t &
-kdeconnect-indicator &
-#+end_src
-er-args:bash: :tangle (concat (getenv "XDG_CONFIG_HOME") "/zsh/.zshrc")
-:END:
-#+begin_src bash
-alias xmessage="xmessage -default okay -bg black -fg white"
 #+end_src
 
 
@@ -2739,7 +2750,7 @@ rofi.kb-remove-char-back: BackSpace
 #+begin_src css
 configuration {
   show-icons:   true;
-  modi:         "window,drun,filebrowser,combi,run";
+  modi:         "window,drun,filebrowser,combi,run,calc";
   icon-theme:   "Adwaita";
   dpi:          200;
   font:         "RobotoMono Nerd Font 13";
@@ -2974,6 +2985,13 @@ vagrant
 wine-staging
 wine-gecko
 wine-mono
+winetricks
+#+end_src
+
+***** Setup
+#+begin_src bash
+# Scrivener
+winetricks win10 corefonts dotnet472 speechsdk
 #+end_src
 
 *** Kernel
@@ -3034,6 +3052,31 @@ Use fscrypt for encrypting directories, and LUKS for encrypting drives
 Use cryfs if you want portability
 
 *** Applications
+**** Network Debugging
+***** Wireshark
+****** Installation
+#+begin_src text
+wireshark-qt
+#+end_src
+
+****** Setup
+#+begin_src bash
+sudo gpasswd -a mwglen wireshark
+#+end_src
+
+***** Aircrack
+Provides many scripts that make network monitoring easier:
+- airmon-ng: enables monitor mode
+  =airmon-ng check= can be used to see services that might interfere with monitor mode
+  =airmon-ng check kill= kills these processes
+  =airmon-ng start <interface>= puts the interface into monitor mode
+  =iwconfig= can be used to check if monitor mode was successfully enabled
+
+****** Installation
+#+begin_src text
+aircrack-ng
+#+end_src
+
 **** System Debug
 #+begin_src text
 stress
@@ -3070,6 +3113,8 @@ sudo gpasswd -a mwglen audio
 #+begin_src text
 octave
 octave-symbolic
+libqalculate
+rofi-calc
 #+end_src
 
 ***** Aerospace Engineering Applications
@@ -3496,7 +3541,7 @@ Exec=/usr/lib/firefox/firefox --private-window %u
 #+end_src
 
 ****** Enable  Touchscreen Scrolling
-#+begin_src bash :tangle ~/.xprofile
+#+begin_src bash :tangle ~/.profile
 export MOZ_USE_XINPUT2=1
 #+end_src
 
