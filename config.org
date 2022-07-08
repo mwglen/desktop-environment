@@ -673,14 +673,34 @@ pamixer -d 10
 notify-volume
 #+end_src
 
+****** Toggle Audio
+:PROPERTIES:
+:header-args:bash: :tangle ~/.local/bin/toggle-volume :tangle-mode (identity #o755)
+:END:
+#+begin_src bash
+#!/bin/bash
+pamixer -t
+notify-volume
+#+end_src
+
 ****** Notify Volume
 :PROPERTIES:
 :header-args:bash: :tangle ~/.local/bin/notify-volume :tangle-mode (identity #o755)
 :END:
 #+begin_src bash
 #!/bin/bash
+
+# Get and store volume level
 volume=$(pamixer --get-volume)
-notify-send "Volume" -h int:value:$volume -h string:x-dunst-stack-tag:volume -i audio-volume-high-symbolic -t 2000
+string="Volume: ${volume}%"
+
+# Display "muted" if muted
+if [[ "$(pamixer --get-mute)" = "true" ]]; then
+    string="Volume: muted"
+fi
+
+# Send Message
+notify-send "$string" -h int:value:$volume -h string:x-dunst-stack-tag:volume -i audio-volume-high-symbolic -t 2000
 #+end_src
 #+end_src
 
@@ -1630,11 +1650,11 @@ label-warn = %temperature-c%!
 type = custom/script
 tail = true
 format-foreground = ${colors.primary}
-exec = pulseaudio-control --icons-volume " , " --icon-muted " " --sink-nicknames-from "device.description" --sink-nickname "alsa_output.pci-0000_00_1f.3.analog-stereo: Built In Speakers" listen
+exec = pulseaudio-control --icons-volume " , " --icon-muted " " --node-nicknames-from "device.description" --node-nickname "alsa_output.pci-0000_00_1f.3.analog-stereo: Built In Speakers" listen
 
 click-right = pavucontrol
 click-left = pulseaudio-control togmute
-click-middle = pulseaudio-control --sink-blacklist "alsa_output.pci-0000_01_00.1.hdmi-stereo-extra2" next-sink
+click-middle = pulseaudio-control --node-blacklist "alsa_output.pci-0000_01_00.1.hdmi-stereo-extra2" next-sink
 
 scroll-up = pulseaudio-control up
 scroll-down = pulseaudio-control down
@@ -2190,7 +2210,7 @@ XF86AudioRaiseVolume
 XF86AudioLowerVolume
     decrease-volume
 XF86AudioMute
-    pamixer -t
+    toggle-volume
 XF86AudioMicMute
     pamixer --default-source -t
 
@@ -3469,6 +3489,12 @@ steam
 gotop
 #+end_src
 
+**** Matrix
+***** Installation
+#+begin_src text
+unimatrix
+#+end_src
+
 **** Cava
 ***** Installation
 #+begin_src text
@@ -3490,7 +3516,7 @@ ahoviewer-git
 **** Emacs
 ***** Installation
 #+begin_src text
-emacs-git
+emacs
 #+end_src
 
 **** Browsers

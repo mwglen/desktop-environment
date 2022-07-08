@@ -1,3 +1,13 @@
 #!/bin/bash
+
+# Get and store volume level
 volume=$(pamixer --get-volume)
-notify-send "Volume" -h int:value:$volume -h string:x-dunst-stack-tag:volume -i audio-volume-high-symbolic -t 2000
+string="Volume: ${volume}%"
+
+# Display "muted" if muted
+if [[ "$(pamixer --get-mute)" = "true" ]]; then
+    string="Volume: muted"
+fi
+
+# Send Message
+notify-send "$string" -h int:value:$volume -h string:x-dunst-stack-tag:volume -i audio-volume-high-symbolic -t 2000

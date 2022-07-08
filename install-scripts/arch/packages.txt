@@ -251,13 +251,15 @@ steam
 
 gotop
 
+unimatrix
+
 cava
 
 alsi
 
 ahoviewer-git
 
-emacs-git
+emacs
 
 torbrowser-launcher
 

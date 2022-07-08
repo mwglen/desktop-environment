@@ -9,7 +9,7 @@ XF86AudioRaiseVolume
 XF86AudioLowerVolume
     decrease-volume
 XF86AudioMute
-    pamixer -t
+    toggle-volume
 XF86AudioMicMute
     pamixer --default-source -t
 

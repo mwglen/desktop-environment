@@ -347,6 +347,10 @@ dotfiles:
   d_themes:
     src: themes
     dst: ~/.themes
+  f_toggle-volume:
+    src: local/bin/toggle-volume
+    dst: ~/.local/bin/toggle-volume
+    chmod: '755'
 profiles:
   MattArchSudo:
     dotfiles:
@@ -440,3 +444,4 @@ profiles:
     - f_default_config
     - f_npmrc
     - d_themes
+    - f_toggle-volume

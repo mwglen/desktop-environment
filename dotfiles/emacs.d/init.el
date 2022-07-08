@@ -568,3 +568,16 @@
   :config
   (setq gcmh-high-cons-threshold (* 100 1000 1000))
   (gcmh-mode 1))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(gcmh vterm eterm-256color poetry pyvenv rust-mode typescript-mode json-mode lua-mode haskell-mode vimrc-mode dired-hide-dotfiles dired-open all-the-icons-dired dired-single company-box company lsp-ivy lsp-ui lsp-mode flycheck which-key rainbow-delimiters evil-commentary magit counsel-projectile projectile org-alert auctex org-download olivetti org-bullets adaptive-wrap org-roam solaire-mode focus helpful counsel ivy-prescient ivy-rich ivy-clipmenu ivy-posframe ivy general evil-collection evil doom-modeline frames-only-mode fcitx dashboard ewal-evil-cursors ewal-doom-themes doom-themes all-the-icons mixed-pitch good-scroll async no-littering auto-package-update use-package)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
